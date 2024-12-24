@@ -14,7 +14,7 @@ const GPU_MAT4X4 = "mat4x4";
 const GPU_ARRAY = "array";
 const GPU_STRUCT = "struct";
 
-const GPU_SCALAR_TYPES: ReadonlySet<GPUType> = new Set([
+const GPU_SCALAR_TYPES: ReadonlySet<GPUScalarType> = new Set([
   GPU_BOOL,
   GPU_I32,
   GPU_U32,
@@ -22,17 +22,15 @@ const GPU_SCALAR_TYPES: ReadonlySet<GPUType> = new Set([
   GPU_F32,
 ]);
 
-const GPU_NUMERIC_TYPES: ReadonlySet<GPUType> = new Set([
-  GPU_I32,
-  GPU_U32,
+const GPU_FLOATING_POINT_TYPES: ReadonlySet<GPUFloatingPointType> = new Set([
   GPU_F16,
   GPU_F32,
 ]);
 
 type GPUBoolType = typeof GPU_BOOL;
 type GPUIntegerType = typeof GPU_I32 | typeof GPU_U32;
-type GPUFloatType = typeof GPU_F16 | typeof GPU_F32;
-type GPUScalarType = GPUBoolType | GPUIntegerType | GPUFloatType;
+type GPUFloatingPointType = typeof GPU_F16 | typeof GPU_F32;
+type GPUScalarType = GPUBoolType | GPUIntegerType | GPUFloatingPointType;
 type GPUVectorType = typeof GPU_VEC2 | typeof GPU_VEC3 | typeof GPU_VEC4;
 type GPUMatrixType = typeof GPU_MAT2X2 | typeof GPU_MAT3X3 | typeof GPU_MAT4X4;
 type GPUArrayType = typeof GPU_ARRAY;
@@ -362,15 +360,15 @@ class StructField<
 
 // Matrix types
 
-export class Mat2x2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<Tup2<Tup2<R>>, V> {
+export class Mat2x2<
+  T extends IType<R, V> & FloatingPointType,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<Tup2<Tup2<R>>, V> {
   #type: T;
 
   constructor(type: T) {
-    assert(
-      GPU_NUMERIC_TYPES.has(type.type),
-      "Matrix type must be a numeric type",
-    );
+    assertTypeOneOf(type, GPU_FLOATING_POINT_TYPES);
     this.#type = type;
   }
 
@@ -450,15 +448,15 @@ export class Mat2x2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 }
 
-export class Mat3x3<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<Tup3<Tup3<R>>, V> {
+export class Mat3x3<
+  T extends IType<R, V> & FloatingPointType,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<Tup3<Tup3<R>>, V> {
   #type: T;
 
   constructor(type: T) {
-    assert(
-      GPU_NUMERIC_TYPES.has(type.type),
-      "Matrix type must be a numeric type",
-    );
+    assertTypeOneOf(type, GPU_FLOATING_POINT_TYPES);
     this.#type = type;
   }
 
@@ -550,15 +548,15 @@ export class Mat3x3<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 }
 
-export class Mat4x4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<Tup4<Tup4<R>>, V> {
+export class Mat4x4<
+  T extends IType<R, V> & FloatingPointType,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<Tup4<Tup4<R>>, V> {
   #type: T;
 
   constructor(type: T) {
-    assert(
-      GPU_NUMERIC_TYPES.has(type.type),
-      "Matrix type must be a numeric type",
-    );
+    assertTypeOneOf(type, GPU_FLOATING_POINT_TYPES);
     this.#type = type;
   }
 
@@ -668,15 +666,15 @@ export class Mat4x4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
 
 // Vector types
 
-export class Vec2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<Tup2<R>, V> {
+export class Vec2<
+  T extends IType<R, V> & ScalarType,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<Tup2<R>, V> {
   #type: T;
 
   constructor(type: T) {
-    assert(
-      GPU_SCALAR_TYPES.has(type.type),
-      "Vector type must be a scalar type",
-    );
+    assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
   }
 
@@ -744,15 +742,15 @@ export class Vec2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 }
 
-export class Vec3<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<Tup3<R>, V> {
+export class Vec3<
+  T extends IType<R, V> & ScalarType,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<Tup3<R>, V> {
   #type: T;
 
   constructor(type: T) {
-    assert(
-      GPU_SCALAR_TYPES.has(type.type),
-      "Vector type must be a scalar type",
-    );
+    assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
   }
 
@@ -835,8 +833,11 @@ export class Vec3<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 }
 
-export class Vec4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<Tup4<R>, V> {
+export class Vec4<
+  T extends IType<R, V> & ScalarType,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<Tup4<R>, V> {
   /**
    * @type {T}
    */
@@ -846,10 +847,7 @@ export class Vec4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
    * @param {T} type
    */
   constructor(type: T) {
-    assert(
-      GPU_SCALAR_TYPES.has(type.type),
-      "Vector type must be a scalar type",
-    );
+    assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
   }
 
@@ -1170,6 +1168,27 @@ class BoolType implements IType<boolean, Uint32Array> {
 
 // Type helpers
 
+type FloatingPointType = Float16Type | Float32Type;
+
+type ScalarType = Float16Type | Float32Type | Uint32Type | Int32Type | BoolType;
+
+// Verify type sets with the type checker
+{
+  // Avoid distributivity of union types by wrapping type parameters with [_]
+  // See: https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
+  type Equal<T, U> = [T] extends [U] ? [U] extends [T] ? true : never : never;
+
+  type ITypeType<T> = T extends IType<unknown, unknown> ? T["type"] : never;
+
+  {
+    const _: Equal<ITypeType<FloatingPointType>, GPUFloatingPointType> = true;
+  }
+
+  {
+    const _: Equal<ITypeType<ScalarType>, GPUScalarType> = true;
+  }
+}
+
 export const Bool: BoolType = new BoolType();
 
 export const Float16: Float16Type = new Float16Type();
@@ -1198,16 +1217,10 @@ export const Mat4x4F: Mat4x4<Float32Type> = new Mat4x4(Float32);
 export const Vec2U: Vec2<Uint32Type> = new Vec2(Uint32);
 export const Vec3U: Vec3<Uint32Type> = new Vec3(Uint32);
 export const Vec4U: Vec4<Uint32Type> = new Vec4(Uint32);
-export const Mat2x2U: Mat2x2<Uint32Type> = new Mat2x2(Uint32);
-export const Mat3x3U: Mat3x3<Uint32Type> = new Mat3x3(Uint32);
-export const Mat4x4U: Mat4x4<Uint32Type> = new Mat4x4(Uint32);
 
 export const Vec2I: Vec2<Int32Type> = new Vec2(Int32);
 export const Vec3I: Vec3<Int32Type> = new Vec3(Int32);
 export const Vec4I: Vec4<Int32Type> = new Vec4(Int32);
-export const Mat2x2I: Mat2x2<Int32Type> = new Mat2x2(Int32);
-export const Mat3x3I: Mat3x3<Int32Type> = new Mat3x3(Int32);
-export const Mat4x4I: Mat4x4<Int32Type> = new Mat4x4(Int32);
 
 // Private helpers
 
@@ -1228,8 +1241,11 @@ function typedObjectKeys<T extends Record<string, unknown>>(
   return Object.keys(obj) as Array<keyof T>;
 }
 
-function assert(condition: boolean, message: string = "") {
-  if (!condition) {
-    throw TypeError(message);
+function assertTypeOneOf(
+  type: IType<unknown, unknown>,
+  types: ReadonlySet<GPUType>,
+) {
+  if (!types.has(type.type)) {
+    throw TypeError("Type must be one of " + Array.from(types));
   }
 }
