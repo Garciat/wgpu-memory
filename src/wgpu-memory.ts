@@ -161,7 +161,7 @@ type StructDescriptor<S> = {
     : never;
 };
 
-type StructFieldsOf<S extends StructDescriptor<S>> = {
+type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
   [K in keyof S]: StructField<S, K>;
 };
 
@@ -173,7 +173,9 @@ type StructV<S extends StructDescriptor<S>> = {
   [K in keyof S]: ITypeV<S[K]["type"]>;
 };
 
-export class Struct<S extends StructDescriptor<S>>
+type NonEmpty<T> = keyof T extends never ? never : T;
+
+export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   implements IType<StructR<S>, StructV<S>> {
   #fields: Array<StructField<S, keyof S>>;
   #fieldsByName: StructFieldsOf<S>;
@@ -277,7 +279,7 @@ export class Struct<S extends StructDescriptor<S>>
 }
 
 class StructField<
-  S extends StructDescriptor<S>,
+  S extends NonEmpty<StructDescriptor<S>>,
   Key extends keyof S,
   F extends { index: number; type: T } = S[Key],
   T extends IType<R, V> = S[Key]["type"],
@@ -1263,6 +1265,6 @@ function typedObjectKeys<T extends Record<string, unknown>>(
 
 function assert(condition: boolean, message: string = "") {
   if (!condition) {
-    throw Error(message);
+    throw TypeError(message);
   }
 }

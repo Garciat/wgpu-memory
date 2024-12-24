@@ -2,6 +2,10 @@ import { assertEquals, assertThrows } from "jsr:@std/assert";
 
 import * as memory from "../src/wgpu-memory.ts";
 
+const TestStruct = new memory.Struct({
+  a: { index: 0, type: memory.Float32 },
+});
+
 Deno.test("allocate", () => {
   const StructA = new memory.Struct({
     u: { index: 0, type: memory.Float32 },
@@ -428,6 +432,35 @@ Deno.test("Vec4", () => {
     Vec4F.view(buffer),
     new Float32Array([10, 20, 30, 40]),
   );
+});
+
+Deno.test("incompatible composite types", () => {
+  assertThrows(() => new memory.Mat2x2(memory.Bool), TypeError);
+  assertThrows(() => new memory.Mat2x2(memory.Vec2F), TypeError);
+  assertThrows(() => new memory.Mat2x2(memory.Mat2x2F), TypeError);
+  assertThrows(() => new memory.Mat2x2(TestStruct), TypeError);
+
+  assertThrows(() => new memory.Mat3x3(memory.Bool), TypeError);
+  assertThrows(() => new memory.Mat3x3(memory.Vec2F), TypeError);
+  assertThrows(() => new memory.Mat3x3(memory.Mat2x2F), TypeError);
+  assertThrows(() => new memory.Mat3x3(TestStruct), TypeError);
+
+  assertThrows(() => new memory.Mat4x4(memory.Bool), TypeError);
+  assertThrows(() => new memory.Mat4x4(memory.Vec2F), TypeError);
+  assertThrows(() => new memory.Mat4x4(memory.Mat2x2F), TypeError);
+  assertThrows(() => new memory.Mat4x4(TestStruct), TypeError);
+
+  assertThrows(() => new memory.Vec2(memory.Vec2F), TypeError);
+  assertThrows(() => new memory.Vec2(memory.Mat2x2F), TypeError);
+  assertThrows(() => new memory.Vec2(TestStruct), TypeError);
+
+  assertThrows(() => new memory.Vec3(memory.Vec2F), TypeError);
+  assertThrows(() => new memory.Vec3(memory.Mat2x2F), TypeError);
+  assertThrows(() => new memory.Vec3(TestStruct), TypeError);
+
+  assertThrows(() => new memory.Vec4(memory.Vec2F), TypeError);
+  assertThrows(() => new memory.Vec4(memory.Mat2x2F), TypeError);
+  assertThrows(() => new memory.Vec4(TestStruct), TypeError);
 });
 
 Deno.test("Float32Type", () => {
