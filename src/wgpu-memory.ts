@@ -425,16 +425,8 @@ export class Mat2x2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
     return this.#type.view(buffer, offset, length * 4);
   }
 
-  index(row: number, column: number): number {
-    return row * 2 + column;
-  }
-
-  offset(row: number, column: number): number {
-    return this.index(row, column) * this.#type.byteSize;
-  }
-
   get(view: DataView, row: number, column: number, offset: number = 0): R {
-    return this.#type.read(view, offset + this.offset(row, column));
+    return this.#type.read(view, offset + this.#offset(row, column));
   }
 
   set(
@@ -444,7 +436,15 @@ export class Mat2x2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
     value: R,
     offset: number = 0,
   ) {
-    this.#type.write(view, value, offset + this.offset(row, column));
+    this.#type.write(view, value, offset + this.#offset(row, column));
+  }
+
+  #index(row: number, column: number): number {
+    return row * 2 + column;
+  }
+
+  #offset(row: number, column: number): number {
+    return this.#index(row, column) * this.#type.byteSize;
   }
 }
 
