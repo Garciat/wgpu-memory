@@ -3,11 +3,11 @@ name: ci
 on: [push, pull_request]
 
 jobs:
-  oak:
+  wgpu-memory:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["v1.x", canary]
+        version: ["v2.x", canary]
     steps:
       - name: clone repository
         uses: actions/checkout@v4

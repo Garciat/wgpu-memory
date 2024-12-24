@@ -1,23 +1,29 @@
 // Type annotations
 
-const GPU_BOOL = 'bool';
-const GPU_I32 = 'i32';
-const GPU_U32 = 'u32';
-const GPU_F16 = 'f16';
-const GPU_F32 = 'f32';
-const GPU_VEC2 = 'vec2';
-const GPU_VEC3 = 'vec3';
-const GPU_VEC4 = 'vec4';
-const GPU_MAT2X2 = 'mat2x2';
-const GPU_MAT3X3 = 'mat3x3';
-const GPU_MAT4X4 = 'mat4x4';
-const GPU_ARRAY = 'array';
-const GPU_STRUCT = 'struct';
+const GPU_BOOL = "bool";
+const GPU_I32 = "i32";
+const GPU_U32 = "u32";
+const GPU_F16 = "f16";
+const GPU_F32 = "f32";
+const GPU_VEC2 = "vec2";
+const GPU_VEC3 = "vec3";
+const GPU_VEC4 = "vec4";
+const GPU_MAT2X2 = "mat2x2";
+const GPU_MAT3X3 = "mat3x3";
+const GPU_MAT4X4 = "mat4x4";
+const GPU_ARRAY = "array";
+const GPU_STRUCT = "struct";
 
 /**
  * @type {ReadonlySet<GPUType>}
  */
-const GPU_SCALAR_TYPES = new Set([GPU_BOOL, GPU_I32, GPU_U32, GPU_F16, GPU_F32]);
+const GPU_SCALAR_TYPES = new Set([
+  GPU_BOOL,
+  GPU_I32,
+  GPU_U32,
+  GPU_F16,
+  GPU_F32,
+]);
 
 /**
  * @type {ReadonlySet<GPUType>}
@@ -171,7 +177,8 @@ export class ArrayType {
    * @returns {number}
    */
   get byteSize() {
-    return this.#length * wgslRoundUp(this.#type.alignment, this.#type.byteSize);
+    return this.#length *
+      wgslRoundUp(this.#type.alignment, this.#type.byteSize);
   }
 
   /**
@@ -327,7 +334,8 @@ export class Struct {
 
     for (const name of typedObjectKeys(descriptor)) {
       const fieldDescriptor = descriptor[name];
-      const fieldType = /** @type {IType<unknown, unknown>} */ (fieldDescriptor.type);
+      const fieldType =
+        /** @type {IType<unknown, unknown>} */ (fieldDescriptor.type);
 
       if (fieldDescriptor.index > 0) {
         // Align the offset
@@ -350,7 +358,7 @@ export class Struct {
    * @returns {string}
    */
   toString() {
-    return `Struct(${this.#fields.map(String).join(', ')})`;
+    return `Struct(${this.#fields.map(String).join(", ")})`;
   }
 
   /**
@@ -547,7 +555,10 @@ class StructField {
    * @returns {R}
    */
   readAt(view, index, offset = 0) {
-    return this.#type.read(view, index * this.#parent.byteSize + this.#offset + offset);
+    return this.#type.read(
+      view,
+      index * this.#parent.byteSize + this.#offset + offset,
+    );
   }
 
   /**
@@ -557,7 +568,11 @@ class StructField {
    * @param {number} [offset=0]
    */
   writeAt(view, index, value, offset = 0) {
-    this.#type.write(view, value, index * this.#parent.byteSize + this.#offset + offset);
+    this.#type.write(
+      view,
+      value,
+      index * this.#parent.byteSize + this.#offset + offset,
+    );
   }
 
   /**
@@ -577,7 +592,10 @@ class StructField {
    * @returns {V}
    */
   viewAt(buffer, index, offset = 0) {
-    return this.#type.view(buffer, index * this.#parent.byteSize + this.#offset + offset);
+    return this.#type.view(
+      buffer,
+      index * this.#parent.byteSize + this.#offset + offset,
+    );
   }
 }
 
@@ -599,7 +617,10 @@ export class Mat2x2 {
    * @param {T} type
    */
   constructor(type) {
-    assert(GPU_NUMERIC_TYPES.has(type.type), 'Matrix type must be a numeric type');
+    assert(
+      GPU_NUMERIC_TYPES.has(type.type),
+      "Matrix type must be a numeric type",
+    );
     this.#type = type;
   }
 
@@ -739,7 +760,10 @@ export class Mat3x3 {
    * @param {T} type
    */
   constructor(type) {
-    assert(GPU_NUMERIC_TYPES.has(type.type), 'Matrix type must be a numeric type');
+    assert(
+      GPU_NUMERIC_TYPES.has(type.type),
+      "Matrix type must be a numeric type",
+    );
     this.#type = type;
   }
 
@@ -891,7 +915,10 @@ export class Mat4x4 {
    * @param {T} type
    */
   constructor(type) {
-    assert(GPU_NUMERIC_TYPES.has(type.type), 'Matrix type must be a numeric type');
+    assert(
+      GPU_NUMERIC_TYPES.has(type.type),
+      "Matrix type must be a numeric type",
+    );
     this.#type = type;
   }
 
@@ -1061,7 +1088,10 @@ export class Vec2 {
    * @param {T} type
    */
   constructor(type) {
-    assert(GPU_SCALAR_TYPES.has(type.type), 'Vector type must be a scalar type');
+    assert(
+      GPU_SCALAR_TYPES.has(type.type),
+      "Vector type must be a scalar type",
+    );
     this.#type = type;
   }
 
@@ -1194,11 +1224,13 @@ export class Vec3 {
   #type;
 
   /**
-   *
    * @param {T} type
    */
   constructor(type) {
-    assert(GPU_SCALAR_TYPES.has(type.type), 'Vector type must be a scalar type');
+    assert(
+      GPU_SCALAR_TYPES.has(type.type),
+      "Vector type must be a scalar type",
+    );
     this.#type = type;
   }
 
@@ -1358,7 +1390,10 @@ export class Vec4 {
    * @param {T} type
    */
   constructor(type) {
-    assert(GPU_SCALAR_TYPES.has(type.type), 'Vector type must be a scalar type');
+    assert(
+      GPU_SCALAR_TYPES.has(type.type),
+      "Vector type must be a scalar type",
+    );
     this.#type = type;
   }
 
@@ -1617,7 +1652,7 @@ class Float32Type {
    * @returns {string}
    */
   toString() {
-    return 'Float32';
+    return "Float32";
   }
 
   /**
@@ -1698,7 +1733,7 @@ class Uint32Type {
    * @returns {string}
    */
   toString() {
-    return 'Uint32';
+    return "Uint32";
   }
 
   /**
@@ -1779,7 +1814,7 @@ class Int32Type {
    * @returns {string}
    */
   toString() {
-    return 'Int32';
+    return "Int32";
   }
 
   /**
@@ -1860,7 +1895,7 @@ class BoolType {
    * @returns {string}
    */
   toString() {
-    return 'Bool';
+    return "Bool";
   }
 
   /**
@@ -2009,7 +2044,7 @@ function typedObjectKeys(obj) {
  * @param {boolean} condition
  * @param {string} [message]
  */
-function assert(condition, message = '') {
+function assert(condition, message = "") {
   if (!condition) {
     throw Error(message);
   }

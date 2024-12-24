@@ -1,11 +1,11 @@
 import { assertEquals } from "jsr:@std/assert";
 
-import * as memory from '../src/wgpu-memory.js'
+import * as memory from "../src/wgpu-memory.js";
 
 /**
  * @see https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size
  */
-Deno.test('alignment', () => {
+Deno.test("alignment", () => {
   assertEquals(memory.Bool.byteSize, 4);
   assertEquals(memory.Bool.alignment, 4);
   assertEquals(memory.Int32.byteSize, 4);
@@ -75,10 +75,10 @@ struct A {                                     //             align(8)  size(24)
 }
   */
   const StructA = new memory.Struct({
-    u: {index: 0, type: memory.Float32},
-    v: {index: 1, type: memory.Float32},
-    w: {index: 2, type: memory.Vec2F},
-    x: {index: 3, type: memory.Float32},
+    u: { index: 0, type: memory.Float32 },
+    v: { index: 1, type: memory.Float32 },
+    w: { index: 2, type: memory.Vec2F },
+    x: { index: 3, type: memory.Float32 },
   });
   assertEquals(StructA.fields.u.offset, 0);
   assertEquals(StructA.fields.u.alignment, 4);
@@ -112,14 +112,14 @@ struct B {                                     //             align(16) size(160
 }
   */
   const StructB = new memory.Struct({
-    a: {index: 0, type: memory.Vec2F},
-    b: {index: 1, type: memory.Vec3F},
-    c: {index: 2, type: memory.Float32},
-    d: {index: 3, type: memory.Float32},
-    e: {index: 4, type: StructA},
-    f: {index: 5, type: memory.Vec3F},
-    g: {index: 6, type: new memory.ArrayType(StructA, 3)},
-    h: {index: 7, type: memory.Int32},
+    a: { index: 0, type: memory.Vec2F },
+    b: { index: 1, type: memory.Vec3F },
+    c: { index: 2, type: memory.Float32 },
+    d: { index: 3, type: memory.Float32 },
+    e: { index: 4, type: StructA },
+    f: { index: 5, type: memory.Vec3F },
+    g: { index: 6, type: new memory.ArrayType(StructA, 3) },
+    h: { index: 7, type: memory.Int32 },
   });
   assertEquals(StructB.fields.a.offset, 0);
   assertEquals(StructB.fields.a.alignment, 8);
