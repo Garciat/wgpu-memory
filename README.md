@@ -6,6 +6,36 @@
 [![wgpu-memory ci](https://github.com/garciat/wgpu-memory/workflows/ci/badge.svg)](https://github.com/garciat/wgpu-memory)
 [![codecov](https://codecov.io/gh/garciat/wgpu-memory/branch/main/graph/badge.svg?token=KEKZ52NXGP)](https://codecov.io/gh/garciat/wgpu-memory)
 
+A utility library for WebGPU that provides strongly-typed `ArrayBuffer` memory
+access that is compatible with [WGSL](https://gpuweb.github.io/gpuweb/wgsl/)'s
+[alignment and size specifications](https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size).
+
+Supported types are:
+
+- [Scalar Types](https://gpuweb.github.io/gpuweb/wgsl/#scalar-types)
+  - `bool`
+  - `i32`
+  - `u32`
+  - `f32`
+  - `f16` - iff [Float16](https://github.com/tc39/proposal-float16array) is
+    implemented by the environment.
+- [Vector Types](https://gpuweb.github.io/gpuweb/wgsl/#vector-types)
+  - `vec2<T>`
+  - `vec3<T>`
+  - `vec4<T>`
+- [Matrix Types](https://gpuweb.github.io/gpuweb/wgsl/#matrix-types)
+  - `mat2x2<T>`
+  - `mat3x3<T>`
+  - `mat4x4<T>`
+- [Array Types](https://gpuweb.github.io/gpuweb/wgsl/#array-types)
+  - `array<E, N>` (fixed-size arrays)
+- [Structure Types](https://gpuweb.github.io/gpuweb/wgsl/#struct-types)
+  - `struct { M_1 : T_1 , ... , M_N : T_N }`
+
+NOTE: if you're looking for a WebGPU-compatible math library, I recommend
+[greggman/wgpu-matrix](https://github.com/greggman/wgpu-matrix). It also works
+directly on `ArrayBuffer`s without additional object wrapping.
+
 ## Example
 
 Importing the library:
