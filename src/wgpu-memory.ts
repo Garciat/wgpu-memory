@@ -76,7 +76,7 @@ export function count<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>(
   type: T,
   buffer: ArrayBufferLike | ArrayBufferView,
 ): number {
-  return buffer.byteLength / type.byteSize;
+  return Math.floor(buffer.byteLength / type.byteSize);
 }
 
 // Array type

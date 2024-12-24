@@ -1,6 +1,53 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals, assertThrows } from "jsr:@std/assert";
 
 import * as memory from "../src/wgpu-memory.ts";
+
+Deno.test("allocate", () => {
+  const StructA = new memory.Struct({
+    u: { index: 0, type: memory.Float32 },
+    v: { index: 1, type: memory.Float32 },
+    w: { index: 2, type: memory.Vec2F },
+    x: { index: 3, type: memory.Float32 },
+  });
+
+  const buffer = memory.allocate(StructA, 5);
+  assertEquals(buffer.byteLength, 120);
+});
+
+Deno.test("count", () => {
+  const buffer = new ArrayBuffer(32);
+
+  assertEquals(memory.count(memory.Vec2F, buffer), 4);
+  assertEquals(memory.count(memory.Vec3F, buffer), 2);
+});
+
+Deno.test("ArrayType", () => {
+  const i32x4 = new memory.ArrayType(memory.Int32, 4);
+  assertEquals(String(i32x4), 'Array(Int32, 4)');
+  assertEquals(i32x4.type, 'array');
+  assertEquals(i32x4.byteSize, 16);
+  assertEquals(i32x4.alignment, 4);
+
+  const buffer = memory.allocate(i32x4, 2);
+  assertEquals(buffer.byteLength, 32);
+
+  const view = new DataView(buffer);
+
+  assertEquals(i32x4.readAt(view, 0), [0, 0, 0, 0]);
+  assertEquals(i32x4.readAt(view, 1), [0, 0, 0, 0]);
+  assertThrows(() => i32x4.readAt(view, 2), RangeError);
+
+  i32x4.write(view, [1, 2, 3, 4]);
+  assertEquals(i32x4.read(view), [1, 2, 3, 4]);
+
+  i32x4.writeAt(view, 1, [5, 6, 7, 8]);
+  assertEquals(i32x4.readAt(view, 1), [5, 6, 7, 8]);
+
+  i32x4.set(view, 0, 9);
+  assertEquals(i32x4.get(view, 0), 9);
+
+  assertEquals(i32x4.view(buffer, 0, 2), new Int32Array([9, 2, 3, 4, 5, 6, 7, 8]));
+});
 
 /**
  * @see https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size
