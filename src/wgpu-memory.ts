@@ -948,86 +948,51 @@ export class Vec4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
 
 // Primitive types
 
-// /**
-//  * @implements {IType<number, Float16Array>}
-//  */
-// class Float16Type {
-//   /**
-//    * @returns {string}
-//    */
-//   toString() {
-//     return 'f16';
-//   }
+/**
+ * @experimental Float16 is not yet standard.
+ * @see https://github.com/tc39/proposal-float16array
+ */
+class Float16Type implements IType<number, Float16Array> {
+  toString(): string {
+    return "f16";
+  }
 
-//   /**
-//    * @returns {typeof GPU_F16}
-//    */
-//   get type() {
-//     return GPU_F16;
-//   }
+  get type(): typeof GPU_F16 {
+    return GPU_F16;
+  }
 
-//   /**
-//    * @returns {number}
-//    */
-//   get byteSize() {
-//     return 2;
-//   }
+  get byteSize(): number {
+    return 2;
+  }
 
-//   /**
-//    * @returns {number}
-//    */
-//   get alignment() {
-//     return 2;
-//   }
+  get alignment(): number {
+    return 2;
+  }
 
-//   /**
-//    * @param {DataView} view
-//    * @param {number} [offset=0]
-//    * @returns {number}
-//    */
-//   read(view, offset = 0) {
-//     return getFloat16(view, offset, true);
-//   }
+  read(view: DataView, offset: number = 0): number {
+    return view.getFloat16(offset, true);
+  }
 
-//   /**
-//    * @param {DataView} view
-//    * @param {number} value
-//    * @param {number} [offset=0]
-//    */
-//   write(view, value, offset = 0) {
-//     setFloat16(view, offset, value, true);
-//   }
+  write(view: DataView, value: number, offset: number = 0) {
+    return view.setFloat16(offset, value, true);
+  }
 
-//   /**
-//    * @param {DataView} view
-//    * @param {number} index
-//    * @param {number} [offset=0]
-//    * @returns {number}
-//    */
-//   readAt(view, index, offset = 0) {
-//     return this.read(view, index * this.byteSize + offset);
-//   }
+  readAt(view: DataView, index: number, offset: number = 0): number {
+    return this.read(view, index * this.byteSize + offset);
+  }
 
-//   /**
-//    * @param {DataView} view
-//    * @param {number} index
-//    * @param {number} value
-//    * @param {number} [offset=0]
-//    */
-//   writeAt(view, index, value, offset = 0) {
-//     this.write(view, value, index * this.byteSize + offset);
-//   }
+  writeAt(view: DataView, index: number, value: number, offset: number = 0) {
+    this.write(view, value, index * this.byteSize + offset);
+  }
 
-//   /**
-//    * @param {ArrayBuffer} buffer
-//    * @param {number} [offset=0]
-//    * @param {number} [length=1]
-//    * @returns {Float16Array}
-//    */
-//   view(buffer, offset = 0, length = 1) {
-//     return new Float16Array(buffer, offset, length);
-//   }
-// }
+  view(
+    buffer: ArrayBuffer,
+    offset: number = 0,
+    length: number = 1,
+  ): Float16Array {
+    return new Float16Array(buffer, offset, length);
+  }
+}
 
 class Float32Type implements IType<number, Float32Array> {
   toString(): string {
@@ -1207,7 +1172,7 @@ class BoolType implements IType<boolean, Uint32Array> {
 
 export const Bool: BoolType = new BoolType();
 
-// export const Float16 = new Float16Type();
+export const Float16: Float16Type = new Float16Type();
 export const Float32: Float32Type = new Float32Type();
 export const Uint32: Uint32Type = new Uint32Type();
 export const Int32: Int32Type = new Int32Type();
@@ -1216,12 +1181,12 @@ export const Vec2B: Vec2<BoolType> = new Vec2(Bool);
 export const Vec3B: Vec3<BoolType> = new Vec3(Bool);
 export const Vec4B: Vec4<BoolType> = new Vec4(Bool);
 
-// export const Vec2H = new Vec2(Float16);
-// export const Vec3H = new Vec3(Float16);
-// export const Vec4H = new Vec4(Float16);
-// export const Mat2x2H = new Mat2x2(Float16);
-// export const Mat3x3H = new Mat3x3(Float16);
-// export const Mat4x4H = new Mat4x4(Float16);
+export const Vec2H = new Vec2(Float16);
+export const Vec3H = new Vec3(Float16);
+export const Vec4H = new Vec4(Float16);
+export const Mat2x2H = new Mat2x2(Float16);
+export const Mat3x3H = new Mat3x3(Float16);
+export const Mat4x4H = new Mat4x4(Float16);
 
 export const Vec2F: Vec2<Float32Type> = new Vec2(Float32);
 export const Vec3F: Vec3<Float32Type> = new Vec3(Float32);

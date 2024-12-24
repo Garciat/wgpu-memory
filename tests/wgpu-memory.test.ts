@@ -488,6 +488,31 @@ Deno.test("Float32Type", () => {
   assertEquals(F32.view(buffer, 0, 2), new Float32Array([1, 2]));
 });
 
+Deno.test("Float16Type", () => {
+  const F16 = memory.Float16;
+  assertEquals(String(F16), "f16");
+  assertEquals(F16.type, "f16");
+  assertEquals(F16.byteSize, 2);
+  assertEquals(F16.alignment, 2);
+
+  const buffer = memory.allocate(F16, 2);
+  assertEquals(buffer.byteLength, 4);
+
+  const view = new DataView(buffer);
+
+  assertEquals(F16.readAt(view, 0), 0);
+  assertEquals(F16.readAt(view, 1), 0);
+  assertThrows(() => F16.readAt(view, 2), RangeError);
+
+  F16.write(view, 1);
+  assertEquals(F16.read(view), 1);
+
+  F16.writeAt(view, 1, 2);
+  assertEquals(F16.readAt(view, 1), 2);
+
+  assertEquals(F16.view(buffer, 0, 2), new Float16Array([1, 2]));
+});
+
 Deno.test("Int32Type", () => {
   const I32 = memory.Int32;
   assertEquals(String(I32), "i32");
