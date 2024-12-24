@@ -1,6 +1,6 @@
 import { assertEquals } from "jsr:@std/assert";
 
-import * as memory from "../src/wgpu-memory.js";
+import * as memory from "../src/wgpu-memory.ts";
 
 /**
  * @see https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size
