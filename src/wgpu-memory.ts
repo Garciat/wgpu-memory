@@ -971,7 +971,7 @@ class Float16Type implements IType<number, Float16Array> {
     return view.getFloat16(offset, true);
   }
 
-  write(view: DataView, value: number, offset: number = 0) {
+  write(view: DataView, value: number, offset: number = 0): void {
     return view.setFloat16(offset, value, true);
   }
 
@@ -1200,12 +1200,12 @@ export const Vec2B: Vec2<BoolType> = new Vec2(Bool);
 export const Vec3B: Vec3<BoolType> = new Vec3(Bool);
 export const Vec4B: Vec4<BoolType> = new Vec4(Bool);
 
-export const Vec2H = new Vec2(Float16);
-export const Vec3H = new Vec3(Float16);
-export const Vec4H = new Vec4(Float16);
-export const Mat2x2H = new Mat2x2(Float16);
-export const Mat3x3H = new Mat3x3(Float16);
-export const Mat4x4H = new Mat4x4(Float16);
+export const Vec2H: Vec2<Float16Type> = new Vec2(Float16);
+export const Vec3H: Vec3<Float16Type> = new Vec3(Float16);
+export const Vec4H: Vec4<Float16Type> = new Vec4(Float16);
+export const Mat2x2H: Mat2x2<Float16Type> = new Mat2x2(Float16);
+export const Mat3x3H: Mat3x3<Float16Type> = new Mat3x3(Float16);
+export const Mat4x4H: Mat4x4<Float16Type> = new Mat4x4(Float16);
 
 export const Vec2F: Vec2<Float32Type> = new Vec2(Float32);
 export const Vec3F: Vec3<Float32Type> = new Vec3(Float32);
