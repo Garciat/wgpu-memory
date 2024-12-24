@@ -430,6 +430,106 @@ Deno.test("Vec4", () => {
   );
 });
 
+Deno.test("Float32Type", () => {
+  const F32 = memory.Float32;
+  assertEquals(String(F32), "f32");
+  assertEquals(F32.type, "f32");
+  assertEquals(F32.byteSize, 4);
+  assertEquals(F32.alignment, 4);
+
+  const buffer = memory.allocate(F32, 2);
+  assertEquals(buffer.byteLength, 8);
+
+  const view = new DataView(buffer);
+
+  assertEquals(F32.readAt(view, 0), 0);
+  assertEquals(F32.readAt(view, 1), 0);
+  assertThrows(() => F32.readAt(view, 2), RangeError);
+
+  F32.write(view, 1);
+  assertEquals(F32.read(view), 1);
+
+  F32.writeAt(view, 1, 2);
+  assertEquals(F32.readAt(view, 1), 2);
+
+  assertEquals(F32.view(buffer, 0, 2), new Float32Array([1, 2]));
+});
+
+Deno.test("Int32Type", () => {
+  const I32 = memory.Int32;
+  assertEquals(String(I32), "i32");
+  assertEquals(I32.type, "i32");
+  assertEquals(I32.byteSize, 4);
+  assertEquals(I32.alignment, 4);
+
+  const buffer = memory.allocate(I32, 2);
+  assertEquals(buffer.byteLength, 8);
+
+  const view = new DataView(buffer);
+
+  assertEquals(I32.readAt(view, 0), 0);
+  assertEquals(I32.readAt(view, 1), 0);
+  assertThrows(() => I32.readAt(view, 2), RangeError);
+
+  I32.write(view, 1);
+  assertEquals(I32.read(view), 1);
+
+  I32.writeAt(view, 1, 2);
+  assertEquals(I32.readAt(view, 1), 2);
+
+  assertEquals(I32.view(buffer, 0, 2), new Int32Array([1, 2]));
+});
+
+Deno.test("Uint32Type", () => {
+  const U32 = memory.Uint32;
+  assertEquals(String(U32), "u32");
+  assertEquals(U32.type, "u32");
+  assertEquals(U32.byteSize, 4);
+  assertEquals(U32.alignment, 4);
+
+  const buffer = memory.allocate(U32, 2);
+  assertEquals(buffer.byteLength, 8);
+
+  const view = new DataView(buffer);
+
+  assertEquals(U32.readAt(view, 0), 0);
+  assertEquals(U32.readAt(view, 1), 0);
+  assertThrows(() => U32.readAt(view, 2), RangeError);
+
+  U32.write(view, 1);
+  assertEquals(U32.read(view), 1);
+
+  U32.writeAt(view, 1, 2);
+  assertEquals(U32.readAt(view, 1), 2);
+
+  assertEquals(U32.view(buffer, 0, 2), new Uint32Array([1, 2]));
+});
+
+Deno.test("BoolType", () => {
+  const Bool = memory.Bool;
+  assertEquals(String(Bool), "bool");
+  assertEquals(Bool.type, "bool");
+  assertEquals(Bool.byteSize, 4);
+  assertEquals(Bool.alignment, 4);
+
+  const buffer = memory.allocate(Bool, 2);
+  assertEquals(buffer.byteLength, 8);
+
+  const view = new DataView(buffer);
+
+  assertEquals(Bool.readAt(view, 0), false);
+  assertEquals(Bool.readAt(view, 1), false);
+  assertThrows(() => Bool.readAt(view, 2), RangeError);
+
+  Bool.write(view, true);
+  assertEquals(Bool.read(view), true);
+
+  Bool.writeAt(view, 1, false);
+  assertEquals(Bool.readAt(view, 1), false);
+
+  assertEquals(Bool.view(buffer, 0, 2), new Uint32Array([1, 0]));
+});
+
 /**
  * @see https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size
  */
