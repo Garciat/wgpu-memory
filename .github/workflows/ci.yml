@@ -30,7 +30,7 @@ jobs:
         run: deno task coverage > cov.lcov
 
       - name: upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./cov.lcov
           token: ${{ secrets.CODECOV_TOKEN }}
