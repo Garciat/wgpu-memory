@@ -1,0 +1,25 @@
+{
+  "name": "@garciat/wgpu-memory",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./src/wgpu-memory.js"
+  },
+  "publish": {
+    "exclude": [
+      ".devcontainer",
+      ".github",
+      ".vscode",
+      "examples",
+      "docs",
+      "**/*.test.ts"
+    ]
+  },
+  "tasks": {
+    "coverage": "deno coverage --lcov ./cov",
+    "test": "deno test --parallel --ignore=npm",
+    "test:coverage": "deno test --coverage=./cov --parallel --ignore=npm"
+  },
+  "fmt": {
+    "exclude": ["README.md"]
+  }
+}
