@@ -2,7 +2,6 @@
 
 [![jsr.io/@garciat/wgpu-memory](https://jsr.io/badges/@garciat/wgpu-memory)](https://jsr.io/@garciat/wgpu-memory)
 [![jsr.io/@garciat/wgpu-memory score](https://jsr.io/badges/@garciat/wgpu-memory/score)](https://jsr.io/@garciat/wgpu-memory)
-[![deno.land/x/wgpu-memory](https://deno.land/badge/wgpu-memory/version)](https://deno.land/x/wgpu-memory)
 [![npm Version](https://img.shields.io/npm/v/@garciat/wgpu-memory)](https://www.npmjs.com/package/@garciat/wgpu-memory)
 
 [![wgpu-memory ci](https://github.com/garciat/wgpu-memory/workflows/ci/badge.svg)](https://github.com/garciat/wgpu-memory)
