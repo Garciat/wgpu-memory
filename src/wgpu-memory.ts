@@ -92,7 +92,7 @@ export class ArrayType<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Array(${String(this.#type)}, ${this.#length})`;
+    return `array<${String(this.#type)}, ${this.#length}>`;
   }
 
   get type(): typeof GPU_ARRAY {
@@ -212,7 +212,7 @@ export class Struct<S extends StructDescriptor<S>>
   }
 
   toString(): string {
-    return `Struct(${this.#fields.map(String).join(", ")})`;
+    return `struct { ${this.#fields.map(String).join(", ")} }`;
   }
 
   get type(): typeof GPU_STRUCT {
@@ -373,7 +373,7 @@ export class Mat2x2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Mat2x2(${String(this.#type)})`;
+    return `mat2x2<${String(this.#type)}>`;
   }
 
   get type(): typeof GPU_MAT2X2 {
@@ -461,7 +461,7 @@ export class Mat3x3<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Mat3x3(${String(this.#type)})`;
+    return `mat3x3<${String(this.#type)}>`;
   }
 
   get type(): typeof GPU_MAT3X3 {
@@ -561,7 +561,7 @@ export class Mat4x4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Mat4x4(${String(this.#type)})`;
+    return `mat4x4<${String(this.#type)}>`;
   }
 
   get type(): typeof GPU_MAT4X4 {
@@ -679,7 +679,7 @@ export class Vec2<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Vec2(${String(this.#type)})`;
+    return `vec2<${String(this.#type)}>`;
   }
 
   get type(): typeof GPU_VEC2 {
@@ -755,7 +755,7 @@ export class Vec3<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Vec3(${String(this.#type)})`;
+    return `vec3<${String(this.#type)}>`;
   }
 
   get type(): typeof GPU_VEC3 {
@@ -852,7 +852,7 @@ export class Vec4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
   }
 
   toString(): string {
-    return `Vec4(${String(this.#type)})`;
+    return `vec4<${String(this.#type)}>`;
   }
 
   get type(): typeof GPU_VEC4 {
@@ -954,7 +954,7 @@ export class Vec4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
 //    * @returns {string}
 //    */
 //   toString() {
-//     return 'Float16';
+//     return 'f16';
 //   }
 
 //   /**
@@ -1029,7 +1029,7 @@ export class Vec4<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
 
 class Float32Type implements IType<number, Float32Array> {
   toString(): string {
-    return "Float32";
+    return "f32";
   }
 
   get type(): typeof GPU_F32 {
@@ -1071,7 +1071,7 @@ class Float32Type implements IType<number, Float32Array> {
 
 class Uint32Type implements IType<number, Uint32Array> {
   toString(): string {
-    return "Uint32";
+    return "u32";
   }
 
   get type(): typeof GPU_U32 {
@@ -1113,7 +1113,7 @@ class Uint32Type implements IType<number, Uint32Array> {
 
 class Int32Type implements IType<number, Int32Array> {
   toString(): string {
-    return "Int32";
+    return "i32";
   }
 
   get type(): typeof GPU_I32 {
@@ -1155,7 +1155,7 @@ class Int32Type implements IType<number, Int32Array> {
 
 class BoolType implements IType<boolean, Uint32Array> {
   toString(): string {
-    return "Bool";
+    return "bool";
   }
 
   get type(): typeof GPU_BOOL {

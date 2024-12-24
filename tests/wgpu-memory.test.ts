@@ -23,7 +23,7 @@ Deno.test("count", () => {
 
 Deno.test("ArrayType", () => {
   const i32x4 = new memory.ArrayType(memory.Int32, 4);
-  assertEquals(String(i32x4), "Array(Int32, 4)");
+  assertEquals(String(i32x4), "array<i32, 4>");
   assertEquals(i32x4.type, "array");
   assertEquals(i32x4.byteSize, 16);
   assertEquals(i32x4.alignment, 4);
@@ -62,7 +62,7 @@ Deno.test("Struct", () => {
 
   assertEquals(
     String(StructA),
-    "Struct(u: Float32, v: Float32, w: Vec2(Float32), x: Float32)",
+    "struct { u: f32, v: f32, w: vec2<f32>, x: f32 }",
   );
   assertEquals(StructA.type, "struct");
   assertEquals(StructA.byteSize, 24);
