@@ -319,6 +319,117 @@ Deno.test("Mat4x4", () => {
   );
 });
 
+Deno.test("Vec2", () => {
+  const Vec2F = memory.Vec2F;
+  assertEquals(String(Vec2F), "vec2<f32>");
+  assertEquals(Vec2F.type, "vec2");
+  assertEquals(Vec2F.byteSize, 8);
+  assertEquals(Vec2F.alignment, 8);
+
+  const buffer = memory.allocate(Vec2F, 2);
+  assertEquals(buffer.byteLength, 16);
+
+  const view = new DataView(buffer);
+
+  assertEquals(Vec2F.readAt(view, 0), [0, 0]);
+  assertEquals(Vec2F.readAt(view, 1), [0, 0]);
+  assertThrows(() => Vec2F.readAt(view, 2), RangeError);
+
+  Vec2F.write(view, [1, 2]);
+  assertEquals(Vec2F.read(view), [1, 2]);
+
+  Vec2F.writeAt(view, 1, [3, 4]);
+  assertEquals(Vec2F.readAt(view, 1), [3, 4]);
+
+  Vec2F.setX(view, 10);
+  assertEquals(Vec2F.getX(view), 10);
+
+  Vec2F.setY(view, 20);
+  assertEquals(Vec2F.getY(view), 20);
+
+  assertEquals(
+    Vec2F.view(buffer),
+    new Float32Array([10, 20]),
+  );
+});
+
+Deno.test("Vec3", () => {
+  const Vec3F = memory.Vec3F;
+  assertEquals(String(Vec3F), "vec3<f32>");
+  assertEquals(Vec3F.type, "vec3");
+  assertEquals(Vec3F.byteSize, 12);
+  assertEquals(Vec3F.alignment, 16);
+
+  const buffer = memory.allocate(Vec3F, 2);
+  assertEquals(buffer.byteLength, 24);
+
+  const view = new DataView(buffer);
+
+  assertEquals(Vec3F.readAt(view, 0), [0, 0, 0]);
+  assertEquals(Vec3F.readAt(view, 1), [0, 0, 0]);
+  assertThrows(() => Vec3F.readAt(view, 2), RangeError);
+
+  Vec3F.write(view, [1, 2, 3]);
+  assertEquals(Vec3F.read(view), [1, 2, 3]);
+
+  Vec3F.writeAt(view, 1, [4, 5, 6]);
+  assertEquals(Vec3F.readAt(view, 1), [4, 5, 6]);
+
+  Vec3F.setX(view, 10);
+  assertEquals(Vec3F.getX(view), 10);
+
+  Vec3F.setY(view, 20);
+  assertEquals(Vec3F.getY(view), 20);
+
+  Vec3F.setZ(view, 30);
+  assertEquals(Vec3F.getZ(view), 30);
+
+  assertEquals(
+    Vec3F.view(buffer),
+    new Float32Array([10, 20, 30]),
+  );
+});
+
+Deno.test("Vec4", () => {
+  const Vec4F = memory.Vec4F;
+  assertEquals(String(Vec4F), "vec4<f32>");
+  assertEquals(Vec4F.type, "vec4");
+  assertEquals(Vec4F.byteSize, 16);
+  assertEquals(Vec4F.alignment, 16);
+
+  const buffer = memory.allocate(Vec4F, 2);
+  assertEquals(buffer.byteLength, 32);
+
+  const view = new DataView(buffer);
+
+  assertEquals(Vec4F.readAt(view, 0), [0, 0, 0, 0]);
+  assertEquals(Vec4F.readAt(view, 1), [0, 0, 0, 0]);
+  assertThrows(() => Vec4F.readAt(view, 2), RangeError);
+
+  Vec4F.write(view, [1, 2, 3, 4]);
+  assertEquals(Vec4F.read(view), [1, 2, 3, 4]);
+
+  Vec4F.writeAt(view, 1, [5, 6, 7, 8]);
+  assertEquals(Vec4F.readAt(view, 1), [5, 6, 7, 8]);
+
+  Vec4F.setX(view, 10);
+  assertEquals(Vec4F.getX(view), 10);
+
+  Vec4F.setY(view, 20);
+  assertEquals(Vec4F.getY(view), 20);
+
+  Vec4F.setZ(view, 30);
+  assertEquals(Vec4F.getZ(view), 30);
+
+  Vec4F.setW(view, 40);
+  assertEquals(Vec4F.getW(view), 40);
+
+  assertEquals(
+    Vec4F.view(buffer),
+    new Float32Array([10, 20, 30, 40]),
+  );
+});
+
 /**
  * @see https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size
  */
