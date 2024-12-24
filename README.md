@@ -2,7 +2,6 @@
 
 [![jsr.io/@garciat/wgpu-memory](https://jsr.io/badges/@garciat/wgpu-memory)](https://jsr.io/@garciat/wgpu-memory)
 [![jsr.io/@garciat/wgpu-memory score](https://jsr.io/badges/@garciat/wgpu-memory/score)](https://jsr.io/@garciat/wgpu-memory)
-<!-- [![npm Version](https://img.shields.io/npm/v/@garciat/wgpu-memory)](https://www.npmjs.com/package/@garciat/wgpu-memory) -->
 
 [![wgpu-memory ci](https://github.com/garciat/wgpu-memory/workflows/ci/badge.svg)](https://github.com/garciat/wgpu-memory)
 [![codecov](https://codecov.io/gh/garciat/wgpu-memory/branch/main/graph/badge.svg?token=KEKZ52NXGP)](https://codecov.io/gh/garciat/wgpu-memory)
@@ -12,7 +11,7 @@
 Importing the library:
 
 ```typescript
-import * as memory from 'jsr:@garciat/wgpu-memory';
+import * as memory from "jsr:@garciat/wgpu-memory";
 ```
 
 Defining types:
@@ -40,12 +39,16 @@ const Instance = new memory.Struct({
 Using the types to allocate and write data:
 
 ```typescript
+import { mat4, vec3 } from "npm:wgpu-matrix@3.3.0";
+
 const cubeMeshData = memory.allocate(CubeMesh);
 {
   const view = new DataView(cubeMeshData);
 
+  // The input is type-checked to match the required nested shape of the data
   CubeMesh.write(view, [
     // Front face
+    // deno-fmt-ignore
     [
       { position: [-1, -1, 1, 1], color: [1, 0, 0, 1], normal: [0, 0, 1], uv: [0, 0] },
       { position: [1, -1, 1, 1], color: [0, 1, 0, 1], normal: [0, 0, 1], uv: [1, 0] },
@@ -66,9 +69,13 @@ const cubeInstanceData = memory.allocate(Instance, 2);
     const position = vec3.fromValues(0, 0, 0);
     const scale = vec3.fromValues(0.5, 0.5, 0.5);
 
+    // Write into the 0th instance's `tint` field
     Instance.fields.tint.writeAt(view, 0, [1, 1, 1, 1]);
 
-    const model = Instance.fields.model.view(cubeInstanceData, 0);
+    // Get a Float32Array view into the 0th instance's `model` field
+    const model = Instance.fields.model.viewAt(cubeInstanceData, 0);
+    // This view can be directly used with the wgpu-matrix library
+    // No copying needed at all
     mat4.identity(model);
     mat4.translate(model, position, model);
     mat4.scale(model, scale, model);
