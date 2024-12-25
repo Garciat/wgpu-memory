@@ -23,6 +23,16 @@ export function sizeOfArrayN(
   return elementCount * wgslRoundUp(alignOfElement, sizeOfElement);
 }
 
+/**
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#strideof
+ */
+export function strideOfArrayN(
+  alignOfElement: number,
+  sizeOfElement: number,
+): number {
+  return wgslRoundUp(alignOfElement, sizeOfElement);
+}
+
 export function alignOfVec2(componentType: GPUScalarType): number {
   switch (componentType) {
     case GPU_F16:

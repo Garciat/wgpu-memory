@@ -2,7 +2,11 @@ import { GPU_ARRAY, type IType, type ITypeR, type ITypeV } from "../types.ts";
 import type { Positive } from "../internal/constraints.ts";
 import { assertPositive } from "../internal/assert.ts";
 import { makeEmptyTupN, setTupN, type TupN } from "../internal/tuple.ts";
-import { alignOfArrayN, sizeOfArrayN } from "../internal/alignment.ts";
+import {
+  alignOfArrayN,
+  sizeOfArrayN,
+  strideOfArrayN,
+} from "../internal/alignment.ts";
 
 /**
  * A constructor for fixed-size array types.
@@ -19,6 +23,7 @@ export class ArrayType<
   #length: N;
   #byteSize: number;
   #alignment: number;
+  #stride: number;
 
   constructor(type: T, length: Positive<N>) {
     assertPositive(length);
@@ -26,6 +31,7 @@ export class ArrayType<
     this.#length = length;
     this.#byteSize = sizeOfArrayN(length, type.alignment, type.byteSize);
     this.#alignment = alignOfArrayN(type.alignment);
+    this.#stride = strideOfArrayN(type.alignment, type.byteSize);
   }
 
   toString(): string {
@@ -74,7 +80,11 @@ export class ArrayType<
   }
 
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
-    return this.#type.view(buffer, offset, length * this.#length);
+    return this.#type.view(
+      buffer,
+      offset,
+      length * this.#byteSize / this.#type.byteSize,
+    );
   }
 
   /**
@@ -84,10 +94,10 @@ export class ArrayType<
    * @returns {R}
    */
   get(view: DataView, index: number, offset: number = 0): R {
-    return this.#type.readAt(view, index, offset);
+    return this.#type.read(view, index * this.#stride + offset);
   }
 
   set(view: DataView, index: number, value: R, offset: number = 0) {
-    this.#type.writeAt(view, index, value, offset);
+    this.#type.write(view, value, index * this.#stride + offset);
   }
 }

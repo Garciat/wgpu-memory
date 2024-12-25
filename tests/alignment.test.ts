@@ -176,6 +176,29 @@ var bigger_stride: array<vec3<f32>, 8>;
   assertEquals(BiggerStride.byteSize, 128);
 });
 
+Deno.test("array stride", () => {
+  const Vec3Fx2 = new memory.ArrayType(memory.Vec3F, 2);
+  assertEquals(Vec3Fx2.alignment, 16);
+  assertEquals(Vec3Fx2.byteSize, 32);
+
+  const buffer = memory.allocate(Vec3Fx2);
+  assertEquals(buffer.byteLength, 32);
+
+  const view = new DataView(buffer);
+
+  Vec3Fx2.set(view, 0, [1, 2, 3]);
+  Vec3Fx2.set(view, 1, [4, 5, 6]);
+
+  assertEquals(
+    Vec3Fx2.view(buffer),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 0,
+      4, 5, 6, 0,
+    ]),
+  );
+});
+
 Deno.test("unsupported alignment cases", () => {
   assertThrows(() => alignOfVecN(2, asAny(memory.Vec2F)), TypeError);
   assertThrows(() => alignOfVecN(3, asAny(memory.Vec3F)), TypeError);
