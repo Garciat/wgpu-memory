@@ -1,6 +1,7 @@
 import {
   GPU_SCALAR_TYPES,
   GPU_VEC4,
+  type IFlatType,
   type IType,
   type ITypeR,
   type ITypeV,
@@ -18,7 +19,7 @@ import { alignOfVec4, sizeOfVec4, strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
  */
 export class Vec4<
-  T extends IType<R, V> & ScalarType,
+  T extends IFlatType<R, V> & ScalarType,
   R = ITypeR<T>,
   V = ITypeV<T>,
 > implements IType<Tup4<R>, V> {
@@ -79,8 +80,8 @@ export class Vec4<
     this.write(view, value, index * this.arrayStride + offset);
   }
 
-  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
-    return this.#type.view(buffer, offset, length * 4);
+  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
+    return this.#type.view(buffer, index * this.arrayStride + offset, 4);
   }
 
   get offsetX(): number {

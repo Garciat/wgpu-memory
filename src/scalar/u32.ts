@@ -1,11 +1,11 @@
-import { GPU_U32, type IType } from "../types.ts";
+import { GPU_U32, type IFlatType } from "../types.ts";
 
 /**
  * The 32-bit unsigned integer type.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#integer-types
  */
-export class Uint32Type implements IType<number, Uint32Array> {
+export class Uint32Type implements IFlatType<number, Uint32Array> {
   toString(): string {
     return "u32";
   }
@@ -48,5 +48,9 @@ export class Uint32Type implements IType<number, Uint32Array> {
     length: number = 1,
   ): Uint32Array {
     return new Uint32Array(buffer, offset, length);
+  }
+
+  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): Uint32Array {
+    return new Uint32Array(buffer, index * this.arrayStride + offset, 1);
   }
 }

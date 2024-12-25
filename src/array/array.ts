@@ -18,7 +18,7 @@ export class ArrayType<
   N extends number,
   R = ITypeR<T>,
   V = ITypeV<T>,
-> implements IType<TupN<R, N>, V> {
+> implements IType<TupN<R, N>, TupN<V, N>> {
   #type: T;
   #length: N;
   #byteSize: number;
@@ -83,12 +83,22 @@ export class ArrayType<
     this.write(view, value, index * this.arrayStride + offset);
   }
 
-  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
-    return this.#type.view(
-      buffer,
-      offset,
-      length * this.#byteSize / this.#type.byteSize,
-    );
+  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): TupN<V, N> {
+    const views = makeEmptyTupN<V, N>(this.#length);
+
+    for (let i = 0; i < this.#length; i++) {
+      setTupN(
+        views,
+        i,
+        this.#type.viewAt(
+          buffer,
+          i,
+          index * this.arrayStride + offset,
+        ),
+      );
+    }
+
+    return views;
   }
 
   get(view: DataView, index: number, offset: number = 0): R {

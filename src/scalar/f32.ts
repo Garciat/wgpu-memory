@@ -49,4 +49,8 @@ export class Float32Type implements IType<number, Float32Array> {
   ): Float32Array {
     return new Float32Array(buffer, offset, length);
   }
+
+  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): Float32Array {
+    return new Float32Array(buffer, index * this.arrayStride + offset, 1);
+  }
 }

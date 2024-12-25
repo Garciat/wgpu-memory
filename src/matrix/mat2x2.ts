@@ -1,6 +1,7 @@
 import {
   GPU_FLOATING_POINT_TYPES,
   GPU_MAT2X2,
+  type IFlatType,
   type IType,
   type ITypeR,
   type ITypeV,
@@ -32,7 +33,7 @@ type Index1 = TupIndex<ColumnType<unknown>>;
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
 export class Mat2x2<
-  T extends IType<R, V> & FloatingPointType,
+  T extends IFlatType<R, V> & FloatingPointType,
   R = ITypeR<T>,
   V = ITypeV<T>,
 > implements IType<MatrixType<R>, V> {
@@ -102,11 +103,11 @@ export class Mat2x2<
     this.write(view, value, index * this.arrayStride + offset);
   }
 
-  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
+  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
     return this.#type.view(
       buffer,
-      offset,
-      length * this.#byteSize / this.#type.byteSize,
+      index * this.arrayStride + offset,
+      this.byteSize / this.#type.byteSize,
     );
   }
 

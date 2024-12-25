@@ -71,7 +71,11 @@ export interface IType<R, V> {
   readAt(view: DataView, index: number, offset?: number): R;
   writeAt(view: DataView, index: number, value: R, offset?: number): void;
 
-  view(buffer: ArrayBuffer, offset?: number, length?: number): V;
+  viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
+}
+
+export interface IFlatType<R, V, VF = V> extends IType<R, V> {
+  view(buffer: ArrayBuffer, offset?: number, length?: number): VF;
 }
 
 export type ITypeR<T> = T extends IType<infer R, infer V> ? R : never;

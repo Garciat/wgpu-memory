@@ -57,8 +57,23 @@ Deno.test("ArrayType", () => {
   assertEquals(i32x4.get(view, 0), 9);
 
   assertEquals(
-    i32x4.view(buffer, 0, 2),
-    new Int32Array([9, 2, 3, 4, 5, 6, 7, 8]),
+    i32x4.viewAt(buffer, 0),
+    [
+      new Int32Array([9]),
+      new Int32Array([2]),
+      new Int32Array([3]),
+      new Int32Array([4]),
+    ],
+  );
+
+  assertEquals(
+    i32x4.viewAt(buffer, 1),
+    [
+      new Int32Array([5]),
+      new Int32Array([6]),
+      new Int32Array([7]),
+      new Int32Array([8]),
+    ],
   );
 
   assertEquals(
@@ -140,7 +155,7 @@ Deno.test("Struct", () => {
   assertEquals(StructA.fields.w.readAt(view, 1), [60, 70]);
 
   assertEquals(
-    StructA.view(buffer),
+    StructA.viewAt(buffer, 0),
     {
       u: new Float32Array([1]),
       v: new Float32Array([2]),
@@ -219,11 +234,20 @@ Deno.test("Mat2x2", () => {
   assertEquals(Mat2x2F.get(view, 1, 1), 42);
 
   assertEquals(
-    Mat2x2F.view(buffer),
+    Mat2x2F.viewAt(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2,
       3, 42,
+    ]),
+  );
+
+  assertEquals(
+    Mat2x2F.viewAt(buffer, 1),
+    // deno-fmt-ignore
+    new Float32Array([
+      5, 6,
+      7, 8,
     ]),
   );
 
@@ -289,12 +313,22 @@ Deno.test("Mat3x3", () => {
 
   // Note below how the vec3 columns have a vec4 storage due to alignment
   assertEquals(
-    Mat3x3F.view(buffer),
+    Mat3x3F.viewAt(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
       4, 42, 6, 0,
       7, 8, 9, 0,
+    ]),
+  );
+
+  assertEquals(
+    Mat3x3F.viewAt(buffer, 1),
+    // deno-fmt-ignore
+    new Float32Array([
+      10, 11, 12, 0,
+      13, 14, 15, 0,
+      16, 17, 18, 0,
     ]),
   );
 
@@ -369,13 +403,24 @@ Deno.test("Mat4x4", () => {
   assertEquals(Mat4x4F.get(view, 1, 1), 42);
 
   assertEquals(
-    Mat4x4F.view(buffer),
+    Mat4x4F.viewAt(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 4,
       5, 42, 7, 8,
       9, 10, 11, 12,
       13, 14, 15, 16,
+    ]),
+  );
+
+  assertEquals(
+    Mat4x4F.viewAt(buffer, 1),
+    // deno-fmt-ignore
+    new Float32Array([
+      17, 18, 19, 20,
+      21, 22, 23, 24,
+      25, 26, 27, 28,
+      29, 30, 31, 32,
     ]),
   );
 
@@ -424,8 +469,13 @@ Deno.test("Vec2", () => {
   assertEquals(Vec2F.getY(view), 20);
 
   assertEquals(
-    Vec2F.view(buffer),
+    Vec2F.viewAt(buffer, 0),
     new Float32Array([10, 20]),
+  );
+
+  assertEquals(
+    Vec2F.viewAt(buffer, 1),
+    new Float32Array([3, 4]),
   );
 
   assertEquals(
@@ -470,8 +520,13 @@ Deno.test("Vec3", () => {
   assertEquals(Vec3F.getZ(view), 30);
 
   assertEquals(
-    Vec3F.view(buffer),
+    Vec3F.viewAt(buffer, 0),
     new Float32Array([10, 20, 30]),
+  );
+
+  assertEquals(
+    Vec3F.viewAt(buffer, 1),
+    new Float32Array([4, 5, 6]),
   );
 
   assertEquals(
@@ -519,8 +574,13 @@ Deno.test("Vec4", () => {
   assertEquals(Vec4F.getW(view), 40);
 
   assertEquals(
-    Vec4F.view(buffer),
+    Vec4F.viewAt(buffer, 0),
     new Float32Array([10, 20, 30, 40]),
+  );
+
+  assertEquals(
+    Vec4F.viewAt(buffer, 1),
+    new Float32Array([5, 6, 7, 8]),
   );
 
   assertEquals(
@@ -591,6 +651,9 @@ Deno.test("Float32Type", () => {
   assertEquals(F32.readAt(view, 1), 2);
 
   assertEquals(F32.view(buffer, 0, 2), new Float32Array([1, 2]));
+
+  assertEquals(F32.viewAt(buffer, 0), new Float32Array([1]));
+  assertEquals(F32.viewAt(buffer, 1), new Float32Array([2]));
 });
 
 Deno.test("Float16Type", () => {
@@ -616,6 +679,9 @@ Deno.test("Float16Type", () => {
   assertEquals(F16.readAt(view, 1), 2);
 
   assertEquals(F16.view(buffer, 0, 2), new Float16Array([1, 2]));
+
+  assertEquals(F16.viewAt(buffer, 0), new Float16Array([1]));
+  assertEquals(F16.viewAt(buffer, 1), new Float16Array([2]));
 });
 
 Deno.test("Int32Type", () => {
@@ -641,6 +707,9 @@ Deno.test("Int32Type", () => {
   assertEquals(I32.readAt(view, 1), 2);
 
   assertEquals(I32.view(buffer, 0, 2), new Int32Array([1, 2]));
+
+  assertEquals(I32.viewAt(buffer, 0), new Int32Array([1]));
+  assertEquals(I32.viewAt(buffer, 1), new Int32Array([2]));
 });
 
 Deno.test("Uint32Type", () => {
@@ -666,6 +735,9 @@ Deno.test("Uint32Type", () => {
   assertEquals(U32.readAt(view, 1), 2);
 
   assertEquals(U32.view(buffer, 0, 2), new Uint32Array([1, 2]));
+
+  assertEquals(U32.viewAt(buffer, 0), new Uint32Array([1]));
+  assertEquals(U32.viewAt(buffer, 1), new Uint32Array([2]));
 });
 
 Deno.test("BoolType", () => {
@@ -691,4 +763,7 @@ Deno.test("BoolType", () => {
   assertEquals(Bool.readAt(view, 1), false);
 
   assertEquals(Bool.view(buffer, 0, 2), new Uint32Array([1, 0]));
+
+  assertEquals(Bool.viewAt(buffer, 0), new Uint32Array([1]));
+  assertEquals(Bool.viewAt(buffer, 1), new Uint32Array([0]));
 });

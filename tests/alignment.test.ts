@@ -190,7 +190,7 @@ Deno.test("array stride", () => {
   Vec3Fx2.set(view, 1, [4, 5, 6]);
 
   assertEquals(
-    Vec3Fx2.view(buffer),
+    new Float32Array(buffer),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,

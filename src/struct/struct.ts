@@ -103,18 +103,16 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     this.write(view, value, index * this.arrayStride + offset);
   }
 
-  view(buffer: ArrayBuffer, offset: number = 0): StructV<S> {
+  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): StructV<S> {
+    const effectiveOffset = index * this.arrayStride + offset;
+
     const obj = {} as StructV<S>;
 
     for (const field of this.#fields) {
-      obj[field.name] = field.view(buffer, offset);
+      obj[field.name] = field.viewAt(buffer, 0, effectiveOffset);
     }
 
     return obj;
-  }
-
-  viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): StructV<S> {
-    return this.view(buffer, index * this.byteSize + offset);
   }
 }
 
@@ -191,13 +189,10 @@ class StructField<
     );
   }
 
-  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
-    return this.#type.view(buffer, this.#offset + offset, length);
-  }
-
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
-    return this.#type.view(
+    return this.#type.viewAt(
       buffer,
+      0,
       index * this.#parent.byteSize + this.#offset + offset,
     );
   }
