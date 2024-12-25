@@ -18,8 +18,8 @@ Deno.test("WGSL alignment examples", () => {
   assertEquals(memory.Uint32.alignment, 4);
   assertEquals(memory.Float32.byteSize, 4);
   assertEquals(memory.Float32.alignment, 4);
-  // assertEquals(memory.Float16.byteSize, 2);
-  // assertEquals(memory.Float16.alignment, 2);
+  assertEquals(memory.Float16.byteSize, 2);
+  assertEquals(memory.Float16.alignment, 2);
 
   assertEquals(memory.Vec2B.byteSize, 8);
   assertEquals(memory.Vec2B.alignment, 8);
@@ -29,8 +29,8 @@ Deno.test("WGSL alignment examples", () => {
   assertEquals(memory.Vec2U.alignment, 8);
   assertEquals(memory.Vec2F.byteSize, 8);
   assertEquals(memory.Vec2F.alignment, 8);
-  // assertEquals(memory.Vec2H.byteSize, 4);
-  // assertEquals(memory.Vec2H.alignment, 4);
+  assertEquals(memory.Vec2H.byteSize, 4);
+  assertEquals(memory.Vec2H.alignment, 4);
 
   assertEquals(memory.Vec3B.byteSize, 12);
   assertEquals(memory.Vec3B.alignment, 16);
@@ -40,8 +40,8 @@ Deno.test("WGSL alignment examples", () => {
   assertEquals(memory.Vec3U.alignment, 16);
   assertEquals(memory.Vec3F.byteSize, 12);
   assertEquals(memory.Vec3F.alignment, 16);
-  // assertEquals(memory.Vec3H.byteSize, 6);
-  // assertEquals(memory.Vec3H.alignment, 8);
+  assertEquals(memory.Vec3H.byteSize, 6);
+  assertEquals(memory.Vec3H.alignment, 8);
 
   assertEquals(memory.Vec4B.byteSize, 16);
   assertEquals(memory.Vec4B.alignment, 16);
@@ -51,23 +51,23 @@ Deno.test("WGSL alignment examples", () => {
   assertEquals(memory.Vec4U.alignment, 16);
   assertEquals(memory.Vec4F.byteSize, 16);
   assertEquals(memory.Vec4F.alignment, 16);
-  // assertEquals(memory.Vec4H.byteSize, 8);
-  // assertEquals(memory.Vec4H.alignment, 8);
+  assertEquals(memory.Vec4H.byteSize, 8);
+  assertEquals(memory.Vec4H.alignment, 8);
 
   assertEquals(memory.Mat2x2F.byteSize, 16);
   assertEquals(memory.Mat2x2F.alignment, 8);
-  // assertEquals(memory.Mat2x2H.byteSize, 8);
-  // assertEquals(memory.Mat2x2H.alignment, 4);
+  assertEquals(memory.Mat2x2H.byteSize, 8);
+  assertEquals(memory.Mat2x2H.alignment, 4);
 
   assertEquals(memory.Mat3x3F.byteSize, 48);
   assertEquals(memory.Mat3x3F.alignment, 16);
-  // assertEquals(memory.Mat3x3H.byteSize, 24);
-  // assertEquals(memory.Mat3x3H.alignment, 8);
+  assertEquals(memory.Mat3x3H.byteSize, 24);
+  assertEquals(memory.Mat3x3H.alignment, 8);
 
   assertEquals(memory.Mat4x4F.byteSize, 64);
   assertEquals(memory.Mat4x4F.alignment, 16);
-  // assertEquals(memory.Mat4x4H.byteSize, 32);
-  // assertEquals(memory.Mat4x4H.alignment, 8);
+  assertEquals(memory.Mat4x4H.byteSize, 32);
+  assertEquals(memory.Mat4x4H.alignment, 8);
 
   /*
 struct A {                                     //             align(8)  size(24)
