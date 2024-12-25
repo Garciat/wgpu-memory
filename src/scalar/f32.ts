@@ -31,11 +31,11 @@ export class Float32Type implements IType<number, Float32Array> {
   }
 
   readAt(view: DataView, index: number, offset: number = 0): number {
-    return view.getFloat32(index * this.byteSize + offset, true);
+    return this.read(view, index * this.byteSize + offset);
   }
 
   writeAt(view: DataView, index: number, value: number, offset: number = 0) {
-    view.setFloat32(index * this.byteSize + offset, value, true);
+    this.write(view, value, index * this.byteSize + offset);
   }
 
   view(
