@@ -26,7 +26,7 @@ export function sizeOfArrayN(
 /**
  * @see https://gpuweb.github.io/gpuweb/wgsl/#strideof
  */
-export function strideOfArrayN(
+export function strideOf(
   alignOfElement: number,
   sizeOfElement: number,
 ): number {

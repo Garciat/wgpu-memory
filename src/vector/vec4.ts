@@ -10,7 +10,7 @@ import type { ScalarType } from "../scalar/mod.ts";
 
 import { assertTypeOneOf } from "../internal/assert.ts";
 import type { Tup4 } from "../internal/tuple.ts";
-import { alignOfVec4, sizeOfVec4 } from "../internal/alignment.ts";
+import { alignOfVec4, sizeOfVec4, strideOf } from "../internal/alignment.ts";
 
 /**
  * A constructor for 4D vector types.
@@ -25,12 +25,14 @@ export class Vec4<
   #type: T;
   #byteSize: number;
   #alignment: number;
+  #arrayStride: number;
 
   constructor(type: T) {
     assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
     this.#byteSize = sizeOfVec4(type.type);
     this.#alignment = alignOfVec4(type.type);
+    this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
   toString(): string {
@@ -49,20 +51,8 @@ export class Vec4<
     return this.#alignment;
   }
 
-  get offsetX(): number {
-    return 0;
-  }
-
-  get offsetY(): number {
-    return this.#type.byteSize;
-  }
-
-  get offsetZ(): number {
-    return this.#type.byteSize * 2;
-  }
-
-  get offsetW(): number {
-    return this.#type.byteSize * 3;
+  get arrayStride(): number {
+    return this.#arrayStride;
   }
 
   read(view: DataView, offset: number = 0): Tup4<R> {
@@ -82,15 +72,31 @@ export class Vec4<
   }
 
   readAt(view: DataView, index: number, offset: number = 0): Tup4<R> {
-    return this.read(view, index * this.byteSize + offset);
+    return this.read(view, index * this.arrayStride + offset);
   }
 
   writeAt(view: DataView, index: number, value: Tup4<R>, offset: number = 0) {
-    this.write(view, value, index * this.byteSize + offset);
+    this.write(view, value, index * this.arrayStride + offset);
   }
 
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
     return this.#type.view(buffer, offset, length * 4);
+  }
+
+  get offsetX(): number {
+    return 0;
+  }
+
+  get offsetY(): number {
+    return this.#type.byteSize;
+  }
+
+  get offsetZ(): number {
+    return this.#type.byteSize * 2;
+  }
+
+  get offsetW(): number {
+    return this.#type.byteSize * 3;
   }
 
   getX(view: DataView, offset: number = 0): R {

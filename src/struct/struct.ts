@@ -2,6 +2,7 @@ import { GPU_STRUCT, type IType, type ITypeR, type ITypeV } from "../types.ts";
 import type { NonEmpty } from "../internal/constraints.ts";
 import { wgslRoundUp } from "../internal/math.ts";
 import { typedObjectKeys } from "../internal/utils.ts";
+import { strideOf } from "../internal/alignment.ts";
 
 /**
  * A constructor for structure types.
@@ -14,6 +15,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
   #byteSize: number;
+  #arrayStride: number;
 
   /**
    * @see https://gpuweb.github.io/gpuweb/wgsl/#structure-member-layout
@@ -44,6 +46,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
 
     this.#alignment = alignment;
     this.#byteSize = wgslRoundUp(alignment, offset);
+    this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
   toString(): string {
@@ -66,6 +69,10 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     return this.#alignment;
   }
 
+  get arrayStride(): number {
+    return this.#arrayStride;
+  }
+
   read(view: DataView, offset: number = 0): StructR<S> {
     const obj = {} as StructR<S>;
 
@@ -84,7 +91,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   }
 
   readAt(view: DataView, index: number, offset: number = 0): StructR<S> {
-    return this.read(view, index * this.byteSize + offset);
+    return this.read(view, index * this.arrayStride + offset);
   }
 
   writeAt(
@@ -93,7 +100,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     value: StructR<S>,
     offset: number = 0,
   ) {
-    this.write(view, value, index * this.byteSize + offset);
+    this.write(view, value, index * this.arrayStride + offset);
   }
 
   view(buffer: ArrayBuffer, offset: number = 0): StructV<S> {
@@ -172,7 +179,7 @@ class StructField<
   readAt(view: DataView, index: number, offset: number = 0): R {
     return this.#type.read(
       view,
-      index * this.#parent.byteSize + this.#offset + offset,
+      index * this.#parent.arrayStride + this.#offset + offset,
     );
   }
 
@@ -180,7 +187,7 @@ class StructField<
     this.#type.write(
       view,
       value,
-      index * this.#parent.byteSize + this.#offset + offset,
+      index * this.#parent.arrayStride + this.#offset + offset,
     );
   }
 

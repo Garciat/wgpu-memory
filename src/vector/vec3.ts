@@ -10,7 +10,7 @@ import type { ScalarType } from "../scalar/mod.ts";
 
 import { assertTypeOneOf } from "../internal/assert.ts";
 import type { Tup3 } from "../internal/tuple.ts";
-import { alignOfVec3, sizeOfVec3 } from "../internal/alignment.ts";
+import { alignOfVec3, sizeOfVec3, strideOf } from "../internal/alignment.ts";
 
 /**
  * A constructor for 3D vector types.
@@ -25,12 +25,14 @@ export class Vec3<
   #type: T;
   #byteSize: number;
   #alignment: number;
+  #arrayStride: number;
 
   constructor(type: T) {
     assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
     this.#byteSize = sizeOfVec3(type.type);
     this.#alignment = alignOfVec3(type.type);
+    this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
   toString(): string {
@@ -49,6 +51,10 @@ export class Vec3<
     return this.#alignment;
   }
 
+  get arrayStride(): number {
+    return this.#arrayStride;
+  }
+
   read(view: DataView, offset: number = 0): Tup3<R> {
     return [
       this.getX(view, offset),
@@ -64,11 +70,11 @@ export class Vec3<
   }
 
   readAt(view: DataView, index: number, offset: number = 0): Tup3<R> {
-    return this.read(view, index * this.byteSize + offset);
+    return this.read(view, index * this.arrayStride + offset);
   }
 
   writeAt(view: DataView, index: number, value: Tup3<R>, offset: number = 0) {
-    this.write(view, value, index * this.byteSize + offset);
+    this.write(view, value, index * this.arrayStride + offset);
   }
 
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {

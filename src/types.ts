@@ -51,12 +51,26 @@ export type GPUType =
 
 export interface IType<R, V> {
   type: GPUType;
+
+  /**
+   * The size in bytes of the type. May include padding.
+   */
   byteSize: number;
+  /**
+   * The alignment in bytes of the type.
+   */
   alignment: number;
+  /**
+   * The stride in bytes for an array of the type.
+   */
+  arrayStride: number;
+
   read(view: DataView, offset?: number): R;
   write(view: DataView, value: R, offset?: number): void;
+
   readAt(view: DataView, index: number, offset?: number): R;
   writeAt(view: DataView, index: number, value: R, offset?: number): void;
+
   view(buffer: ArrayBuffer, offset?: number, length?: number): V;
 }
 

@@ -5,7 +5,7 @@ import { makeEmptyTupN, setTupN, type TupN } from "../internal/tuple.ts";
 import {
   alignOfArrayN,
   sizeOfArrayN,
-  strideOfArrayN,
+  strideOf,
 } from "../internal/alignment.ts";
 
 /**
@@ -23,7 +23,7 @@ export class ArrayType<
   #length: N;
   #byteSize: number;
   #alignment: number;
-  #stride: number;
+  #arrayStride: number;
 
   constructor(type: T, length: Positive<N>) {
     assertPositive(length);
@@ -31,7 +31,7 @@ export class ArrayType<
     this.#length = length;
     this.#byteSize = sizeOfArrayN(length, type.alignment, type.byteSize);
     this.#alignment = alignOfArrayN(type.alignment);
-    this.#stride = strideOfArrayN(type.alignment, type.byteSize);
+    this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
   toString(): string {
@@ -48,6 +48,10 @@ export class ArrayType<
 
   get alignment(): number {
     return this.#alignment;
+  }
+
+  get arrayStride(): number {
+    return this.#arrayStride;
   }
 
   read(view: DataView, offset: number = 0): TupN<R, N> {
@@ -67,7 +71,7 @@ export class ArrayType<
   }
 
   readAt(view: DataView, index: number, offset: number = 0): TupN<R, N> {
-    return this.read(view, index * this.byteSize + offset);
+    return this.read(view, index * this.arrayStride + offset);
   }
 
   writeAt(
@@ -76,7 +80,7 @@ export class ArrayType<
     value: TupN<R, N>,
     offset: number = 0,
   ) {
-    this.write(view, value, index * this.byteSize + offset);
+    this.write(view, value, index * this.arrayStride + offset);
   }
 
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
@@ -87,17 +91,11 @@ export class ArrayType<
     );
   }
 
-  /**
-   * @param {DataView} view
-   * @param {number} index
-   * @param {number} [offset=0]
-   * @returns {R}
-   */
   get(view: DataView, index: number, offset: number = 0): R {
-    return this.#type.read(view, index * this.#stride + offset);
+    return this.#type.readAt(view, index, offset);
   }
 
   set(view: DataView, index: number, value: R, offset: number = 0) {
-    this.#type.write(view, value, index * this.#stride + offset);
+    this.#type.writeAt(view, index, value, offset);
   }
 }

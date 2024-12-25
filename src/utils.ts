@@ -1,21 +1,33 @@
 import type { IType } from "./types.ts";
+import { assertPositive } from "./internal/assert.ts";
 
 /**
  * Allocate a new buffer for the given type.
+ *
+ * If `count` is greater than 1, then the corresponding array stride is taken into account.
  */
 export function allocate(
   type: IType<unknown, unknown>,
   count: number = 1,
 ): ArrayBuffer {
-  return new ArrayBuffer(type.byteSize * count);
+  assertPositive(count);
+  return new ArrayBuffer(
+    count === 1 ? type.byteSize : type.arrayStride * count,
+  );
 }
 
 /**
  * Count the number of elements that fit in the buffer.
+ *
+ * If the buffer size is greater than the byte size of the type, then the array stride is used.
  */
 export function count(
   type: IType<unknown, unknown>,
   buffer: ArrayBufferLike | ArrayBufferView,
 ): number {
-  return Math.floor(buffer.byteLength / type.byteSize);
+  if (buffer.byteLength === type.byteSize) {
+    return 1;
+  } else {
+    return Math.floor(buffer.byteLength / type.arrayStride);
+  }
 }

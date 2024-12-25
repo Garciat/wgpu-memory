@@ -11,7 +11,11 @@ import type { FloatingPointType } from "../scalar/mod.ts";
 import { assertTypeOneOf } from "../internal/assert.ts";
 
 import type { TupIndex, TupN } from "../internal/tuple.ts";
-import { alignOfMatCxR, sizeOfMatCxR } from "../internal/alignment.ts";
+import {
+  alignOfMatCxR,
+  sizeOfMatCxR,
+  strideOf,
+} from "../internal/alignment.ts";
 
 const NCol = 4;
 const NRow = 4;
@@ -35,12 +39,14 @@ export class Mat4x4<
   #type: T;
   #byteSize: number;
   #alignment: number;
+  #arrayStride: number;
 
   constructor(type: T) {
     assertTypeOneOf(type, GPU_FLOATING_POINT_TYPES);
     this.#type = type;
     this.#byteSize = sizeOfMatCxR(NCol, NRow, type.type);
     this.#alignment = alignOfMatCxR(NCol, NRow, type.type);
+    this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
   toString(): string {
@@ -57,6 +63,10 @@ export class Mat4x4<
 
   get alignment(): number {
     return this.#alignment;
+  }
+
+  get arrayStride(): number {
+    return this.#arrayStride;
   }
 
   read(view: DataView, offset: number = 0): MatrixType<R> {
@@ -108,7 +118,7 @@ export class Mat4x4<
   }
 
   readAt(view: DataView, index: number, offset: number = 0): MatrixType<R> {
-    return this.read(view, index * this.byteSize + offset);
+    return this.read(view, index * this.arrayStride + offset);
   }
 
   writeAt(
@@ -117,7 +127,7 @@ export class Mat4x4<
     value: MatrixType<R>,
     offset: number = 0,
   ) {
-    this.write(view, value, index * this.byteSize + offset);
+    this.write(view, value, index * this.arrayStride + offset);
   }
 
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
@@ -129,7 +139,7 @@ export class Mat4x4<
   }
 
   get(view: DataView, column: Index0, row: Index1, offset: number = 0): R {
-    return this.#type.read(view, offset + this.#offset(column, row));
+    return this.#type.read(view, this.#offset(column, row) + offset);
   }
 
   set(
@@ -139,7 +149,7 @@ export class Mat4x4<
     value: R,
     offset: number = 0,
   ) {
-    this.#type.write(view, value, offset + this.#offset(column, row));
+    this.#type.write(view, value, this.#offset(column, row) + offset);
   }
 
   #offset(column: Index0, row: Index1): number {

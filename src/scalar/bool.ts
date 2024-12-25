@@ -28,6 +28,10 @@ export class BoolType implements IType<boolean, Uint32Array> {
     return 4;
   }
 
+  get arrayStride(): 4 {
+    return 4;
+  }
+
   read(view: DataView, offset: number = 0): boolean {
     return !!view.getInt32(offset, true);
   }
@@ -37,11 +41,11 @@ export class BoolType implements IType<boolean, Uint32Array> {
   }
 
   readAt(view: DataView, index: number, offset: number = 0): boolean {
-    return this.read(view, index * this.byteSize + offset);
+    return this.read(view, index * this.arrayStride + offset);
   }
 
   writeAt(view: DataView, index: number, value: boolean, offset: number = 0) {
-    this.write(view, value, index * this.byteSize + offset);
+    this.write(view, value, index * this.arrayStride + offset);
   }
 
   view(
