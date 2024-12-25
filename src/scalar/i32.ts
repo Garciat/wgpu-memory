@@ -14,11 +14,11 @@ export class Int32Type implements IType<number, Int32Array> {
     return GPU_I32;
   }
 
-  get byteSize(): number {
+  get byteSize(): 4 {
     return 4;
   }
 
-  get alignment(): number {
+  get alignment(): 4 {
     return 4;
   }
 

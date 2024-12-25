@@ -203,7 +203,11 @@ Deno.test("Mat2x2", () => {
 
   assertEquals(
     Mat2x2F.view(buffer),
-    new Float32Array([1, 2, 3, 42]),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2,
+      3, 42,
+    ]),
   );
 });
 
@@ -257,9 +261,15 @@ Deno.test("Mat3x3", () => {
 
   assertEquals(Mat3x3F.get(view, 1, 1), 42);
 
+  // Note below how the vec3 columns have a vec4 storage due to alignment
   assertEquals(
     Mat3x3F.view(buffer),
-    new Float32Array([1, 2, 3, 4, 42, 6, 7, 8, 9]),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 0,
+      4, 42, 6, 0,
+      7, 8, 9, 0,
+    ]),
   );
 });
 

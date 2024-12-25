@@ -10,6 +10,7 @@ import type { ScalarType } from "../scalar/mod.ts";
 
 import { assertTypeOneOf } from "../internal/assert.ts";
 import type { Tup2 } from "../internal/tuple.ts";
+import { alignOfVec2, sizeOfVec2 } from "../internal/alignment.ts";
 
 /**
  * A constructor for 2D vector types.
@@ -22,10 +23,14 @@ export class Vec2<
   V = ITypeV<T>,
 > implements IType<Tup2<R>, V> {
   #type: T;
+  #byteSize: number;
+  #alignment: number;
 
   constructor(type: T) {
     assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
+    this.#byteSize = sizeOfVec2(type.type);
+    this.#alignment = alignOfVec2(type.type);
   }
 
   toString(): string {
@@ -37,12 +42,13 @@ export class Vec2<
   }
 
   get byteSize(): number {
-    return this.#type.byteSize * 2;
+    return this.#byteSize;
   }
 
   get alignment(): number {
-    return this.#type.alignment * 2;
+    return this.#alignment;
   }
+
   read(view: DataView, offset: number = 0): Tup2<R> {
     return [
       this.getX(view, offset),

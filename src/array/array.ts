@@ -1,8 +1,8 @@
 import { GPU_ARRAY, type IType, type ITypeR, type ITypeV } from "../types.ts";
 import type { Positive } from "../internal/constraints.ts";
 import { assertPositive } from "../internal/assert.ts";
-import { wgslRoundUp } from "../internal/math.ts";
 import { makeEmptyTupN, setTupN, type TupN } from "../internal/tuple.ts";
+import { alignOfArrayN, sizeOfArrayN } from "../internal/alignment.ts";
 
 /**
  * A constructor for fixed-size array types.
@@ -17,11 +17,15 @@ export class ArrayType<
 > implements IType<TupN<R, N>, V> {
   #type: T;
   #length: N;
+  #byteSize: number;
+  #alignment: number;
 
   constructor(type: T, length: Positive<N>) {
     assertPositive(length);
     this.#type = type;
     this.#length = length;
+    this.#byteSize = sizeOfArrayN(length, type.alignment, type.byteSize);
+    this.#alignment = alignOfArrayN(type.alignment);
   }
 
   toString(): string {
@@ -33,12 +37,11 @@ export class ArrayType<
   }
 
   get byteSize(): number {
-    return this.#length *
-      wgslRoundUp(this.#type.alignment, this.#type.byteSize);
+    return this.#byteSize;
   }
 
   get alignment(): number {
-    return this.#type.alignment;
+    return this.#alignment;
   }
 
   read(view: DataView, offset: number = 0): TupN<R, N> {

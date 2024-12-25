@@ -16,11 +16,11 @@ export class Float16Type implements IType<number, Float16Array> {
     return GPU_F16;
   }
 
-  get byteSize(): number {
+  get byteSize(): 2 {
     return 2;
   }
 
-  get alignment(): number {
+  get alignment(): 2 {
     return 2;
   }
 

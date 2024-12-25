@@ -9,8 +9,8 @@ import {
 import type { ScalarType } from "../scalar/mod.ts";
 
 import { assertTypeOneOf } from "../internal/assert.ts";
-import { nextPowerOfTwo } from "../internal/math.ts";
 import type { Tup3 } from "../internal/tuple.ts";
+import { alignOfVec3, sizeOfVec3 } from "../internal/alignment.ts";
 
 /**
  * A constructor for 3D vector types.
@@ -23,10 +23,14 @@ export class Vec3<
   V = ITypeV<T>,
 > implements IType<Tup3<R>, V> {
   #type: T;
+  #byteSize: number;
+  #alignment: number;
 
   constructor(type: T) {
     assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
+    this.#byteSize = sizeOfVec3(type.type);
+    this.#alignment = alignOfVec3(type.type);
   }
 
   toString(): string {
@@ -38,11 +42,11 @@ export class Vec3<
   }
 
   get byteSize(): number {
-    return this.#type.byteSize * 3;
+    return this.#byteSize;
   }
 
   get alignment(): number {
-    return nextPowerOfTwo(this.#type.alignment * 3);
+    return this.#alignment;
   }
 
   read(view: DataView, offset: number = 0): Tup3<R> {

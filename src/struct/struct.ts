@@ -13,7 +13,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   #fields: Array<StructField<S, keyof S>>;
   #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
-  #size: number;
+  #byteSize: number;
 
   /**
    * @see https://gpuweb.github.io/gpuweb/wgsl/#structure-member-layout
@@ -43,7 +43,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     }
 
     this.#alignment = alignment;
-    this.#size = wgslRoundUp(alignment, offset);
+    this.#byteSize = wgslRoundUp(alignment, offset);
   }
 
   toString(): string {
@@ -59,7 +59,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   }
 
   get byteSize(): number {
-    return this.#size;
+    return this.#byteSize;
   }
 
   get alignment(): number {

@@ -27,8 +27,13 @@ export const GPU_FLOATING_POINT_TYPES: ReadonlySet<GPUFloatingPointType> =
   ]);
 
 export type GPUBoolType = typeof GPU_BOOL;
-export type GPUIntegerType = typeof GPU_I32 | typeof GPU_U32;
-export type GPUFloatingPointType = typeof GPU_F16 | typeof GPU_F32;
+export type GPUInt32Type = typeof GPU_I32;
+export type GPUUint32Type = typeof GPU_U32;
+export type GPUFloat16Type = typeof GPU_F16;
+export type GPUFloat32Type = typeof GPU_F32;
+
+export type GPUIntegerType = GPUInt32Type | GPUUint32Type;
+export type GPUFloatingPointType = GPUFloat16Type | GPUFloat32Type;
 export type GPUScalarType = GPUBoolType | GPUIntegerType | GPUFloatingPointType;
 export type GPUVectorType = typeof GPU_VEC2 | typeof GPU_VEC3 | typeof GPU_VEC4;
 export type GPUMatrixType =

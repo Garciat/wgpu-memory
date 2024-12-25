@@ -10,6 +10,7 @@ import type { ScalarType } from "../scalar/mod.ts";
 
 import { assertTypeOneOf } from "../internal/assert.ts";
 import type { Tup4 } from "../internal/tuple.ts";
+import { alignOfVec4, sizeOfVec4 } from "../internal/alignment.ts";
 
 /**
  * A constructor for 4D vector types.
@@ -21,17 +22,15 @@ export class Vec4<
   R = ITypeR<T>,
   V = ITypeV<T>,
 > implements IType<Tup4<R>, V> {
-  /**
-   * @type {T}
-   */
   #type: T;
+  #byteSize: number;
+  #alignment: number;
 
-  /**
-   * @param {T} type
-   */
   constructor(type: T) {
     assertTypeOneOf(type, GPU_SCALAR_TYPES);
     this.#type = type;
+    this.#byteSize = sizeOfVec4(type.type);
+    this.#alignment = alignOfVec4(type.type);
   }
 
   toString(): string {
@@ -43,11 +42,11 @@ export class Vec4<
   }
 
   get byteSize(): number {
-    return this.#type.byteSize * 4;
+    return this.#byteSize;
   }
 
   get alignment(): number {
-    return this.#type.alignment * 4;
+    return this.#alignment;
   }
 
   get offsetX(): number {

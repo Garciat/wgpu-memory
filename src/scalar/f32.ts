@@ -14,11 +14,11 @@ export class Float32Type implements IType<number, Float32Array> {
     return GPU_F32;
   }
 
-  get byteSize(): number {
+  get byteSize(): 4 {
     return 4;
   }
 
-  get alignment(): number {
+  get alignment(): 4 {
     return 4;
   }
 

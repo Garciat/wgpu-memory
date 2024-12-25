@@ -17,14 +17,14 @@ export class BoolType implements IType<boolean, Uint32Array> {
   /**
    * @see https://gpuweb.github.io/gpuweb/wgsl/#why-is-bool-4-bytes
    */
-  get byteSize(): number {
+  get byteSize(): 4 {
     return 4;
   }
 
   /**
    * @see https://gpuweb.github.io/gpuweb/wgsl/#why-is-bool-4-bytes
    */
-  get alignment(): number {
+  get alignment(): 4 {
     return 4;
   }
 

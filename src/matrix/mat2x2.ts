@@ -11,6 +11,7 @@ import type { FloatingPointType } from "../scalar/mod.ts";
 import { assertTypeOneOf } from "../internal/assert.ts";
 
 import type { TupIndex, TupN } from "../internal/tuple.ts";
+import { alignOfMatCxR, sizeOfMatCxR } from "../internal/alignment.ts";
 
 const NCol = 2;
 const NRow = 2;
@@ -32,10 +33,14 @@ export class Mat2x2<
   V = ITypeV<T>,
 > implements IType<MatrixType<R>, V> {
   #type: T;
+  #byteSize: number;
+  #alignment: number;
 
   constructor(type: T) {
     assertTypeOneOf(type, GPU_FLOATING_POINT_TYPES);
     this.#type = type;
+    this.#byteSize = sizeOfMatCxR(NCol, NRow, type.type);
+    this.#alignment = alignOfMatCxR(NCol, NRow, type.type);
   }
 
   toString(): string {
@@ -47,11 +52,11 @@ export class Mat2x2<
   }
 
   get byteSize(): number {
-    return this.#type.byteSize * 4;
+    return this.#byteSize;
   }
 
   get alignment(): number {
-    return this.#type.alignment * 2;
+    return this.#alignment;
   }
 
   read(view: DataView, offset: number = 0): MatrixType<R> {
@@ -88,7 +93,11 @@ export class Mat2x2<
   }
 
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): V {
-    return this.#type.view(buffer, offset, length * 4);
+    return this.#type.view(
+      buffer,
+      offset,
+      length * this.#byteSize / this.#type.byteSize,
+    );
   }
 
   get(view: DataView, column: Index0, row: Index1, offset: number = 0): R {
@@ -105,11 +114,9 @@ export class Mat2x2<
     this.#type.write(view, value, offset + this.#offset(column, row));
   }
 
-  #index(column: Index0, row: Index1): number {
-    return column * 2 + row;
-  }
-
   #offset(column: Index0, row: Index1): number {
-    return this.#index(column, row) * this.#type.byteSize;
+    const columnVectorOffset = column * this.#alignment;
+    const rowComponentOffset = row * this.#type.byteSize;
+    return columnVectorOffset + rowComponentOffset;
   }
 }
