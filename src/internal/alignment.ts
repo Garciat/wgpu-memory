@@ -33,7 +33,7 @@ export function alignOfVec2(componentType: GPUScalarType): number {
     case GPU_BOOL:
       return 8;
     default:
-      throw new Error(
+      throw new TypeError(
         `Unsupported component type ${componentType satisfies never}`,
       );
   }
@@ -49,7 +49,7 @@ export function sizeOfVec2(componentType: GPUScalarType): number {
     case GPU_BOOL:
       return 8;
     default:
-      throw new Error(
+      throw new TypeError(
         `Unsupported component type ${componentType satisfies never}`,
       );
   }
@@ -65,7 +65,7 @@ export function alignOfVec3(componentType: GPUScalarType): number {
     case GPU_BOOL:
       return 16;
     default:
-      throw new Error(
+      throw new TypeError(
         `Unsupported component type ${componentType satisfies never}`,
       );
   }
@@ -81,7 +81,7 @@ export function sizeOfVec3(componentType: GPUScalarType): number {
     case GPU_BOOL:
       return 12;
     default:
-      throw new Error(
+      throw new TypeError(
         `Unsupported component type ${componentType satisfies never}`,
       );
   }
@@ -97,7 +97,7 @@ export function alignOfVec4(componentType: GPUScalarType): number {
     case GPU_BOOL:
       return 16;
     default:
-      throw new Error(
+      throw new TypeError(
         `Unsupported component type ${componentType satisfies never}`,
       );
   }
@@ -113,7 +113,7 @@ export function sizeOfVec4(componentType: GPUScalarType): number {
     case GPU_BOOL:
       return 16;
     default:
-      throw new Error(
+      throw new TypeError(
         `Unsupported component type ${componentType satisfies never}`,
       );
   }
@@ -121,7 +121,7 @@ export function sizeOfVec4(componentType: GPUScalarType): number {
 
 export function alignOfVecN(
   size: 2 | 3 | 4,
-  componentType: GPUFloatingPointType,
+  componentType: GPUScalarType,
 ): number {
   switch (size) {
     case 2:
@@ -131,13 +131,13 @@ export function alignOfVecN(
     case 4:
       return alignOfVec4(componentType);
     default:
-      throw new Error(`Unsupported vector size ${size satisfies never}`);
+      throw new RangeError(`Unsupported vector size ${size satisfies never}`);
   }
 }
 
 export function sizeOfVecN(
   size: 2 | 3 | 4,
-  componentType: GPUFloatingPointType,
+  componentType: GPUScalarType,
 ): number {
   switch (size) {
     case 2:
@@ -147,7 +147,7 @@ export function sizeOfVecN(
     case 4:
       return sizeOfVec4(componentType);
     default:
-      throw new Error(`Unsupported vector size ${size satisfies never}`);
+      throw new RangeError(`Unsupported vector size ${size satisfies never}`);
   }
 }
 
