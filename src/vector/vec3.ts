@@ -4,12 +4,13 @@ import {
   type IType,
   type ITypeR,
   type ITypeV,
-  type Tup3,
 } from "../types.ts";
 
-import { assertTypeOneOf, nextPowerOfTwo } from "../internal.ts";
-
 import type { ScalarType } from "../scalar/mod.ts";
+
+import { assertTypeOneOf } from "../internal/assert.ts";
+import { nextPowerOfTwo } from "../internal/math.ts";
+import type { Tup3 } from "../internal/tuple.ts";
 
 /**
  * A constructor for 3D vector types.

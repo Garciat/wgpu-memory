@@ -4,12 +4,13 @@ import {
   type IType,
   type ITypeR,
   type ITypeV,
-  type Tup2,
 } from "../types.ts";
 
-import { assertTypeOneOf } from "../internal.ts";
-
 import type { FloatingPointType } from "../scalar/mod.ts";
+
+import { assertTypeOneOf } from "../internal/assert.ts";
+
+import type { Tup2 } from "../internal/tuple.ts";
 
 /**
  * A 2x2 matrix type. The components are stored in column-major order per WGSL.

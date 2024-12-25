@@ -1,12 +1,8 @@
 import { GPU_ARRAY, type IType, type ITypeR, type ITypeV } from "../types.ts";
-import { assertPositive, wgslRoundUp } from "../internal.ts";
-
-/**
- * Generic constraint for positive number constants.
- */
-type Positive<N extends number> = `${N}` extends `-${infer NP}` ? never
-  : N extends 0 ? never
-  : N;
+import type { Positive } from "../internal/constraints.ts";
+import { assertPositive } from "../internal/assert.ts";
+import { wgslRoundUp } from "../internal/math.ts";
+import { makeEmptyTupN, setTupN, type TupN } from "../internal/tuple.ts";
 
 /**
  * A constructor for fixed-size array types.
@@ -18,7 +14,7 @@ export class ArrayType<
   N extends number,
   R = ITypeR<T>,
   V = ITypeV<T>,
-> implements IType<R[], V> {
+> implements IType<TupN<R, N>, V> {
   #type: T;
   #length: N;
 
@@ -45,27 +41,32 @@ export class ArrayType<
     return this.#type.alignment;
   }
 
-  read(view: DataView, offset: number = 0): R[] {
-    const values = Array(this.#length);
+  read(view: DataView, offset: number = 0): TupN<R, N> {
+    const values = makeEmptyTupN<R, N>(this.#length);
 
     for (let i = 0; i < this.#length; i++) {
-      values[i] = this.get(view, i, offset);
+      setTupN(values, i, this.get(view, i, offset));
     }
 
     return values;
   }
 
-  write(view: DataView, values: R[], offset: number = 0) {
+  write(view: DataView, values: TupN<R, N>, offset: number = 0) {
     for (let i = 0; i < this.#length; i++) {
       this.set(view, i, values[i], offset);
     }
   }
 
-  readAt(view: DataView, index: number, offset: number = 0): R[] {
+  readAt(view: DataView, index: number, offset: number = 0): TupN<R, N> {
     return this.read(view, index * this.byteSize + offset);
   }
 
-  writeAt(view: DataView, index: number, value: R[], offset: number = 0) {
+  writeAt(
+    view: DataView,
+    index: number,
+    value: TupN<R, N>,
+    offset: number = 0,
+  ) {
     this.write(view, value, index * this.byteSize + offset);
   }
 

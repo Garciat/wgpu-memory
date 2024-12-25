@@ -58,7 +58,3 @@ export interface IType<R, V> {
 export type ITypeR<T> = T extends IType<infer R, infer V> ? R : never;
 
 export type ITypeV<T> = T extends IType<infer R, infer V> ? V : never;
-
-export type Tup2<T> = [T, T];
-export type Tup3<T> = [T, T, T];
-export type Tup4<T> = [T, T, T, T];

@@ -4,12 +4,12 @@ import {
   type IType,
   type ITypeR,
   type ITypeV,
-  type Tup4,
 } from "../types.ts";
 
-import { assertTypeOneOf } from "../internal.ts";
-
 import type { ScalarType } from "../scalar/mod.ts";
+
+import { assertTypeOneOf } from "../internal/assert.ts";
+import type { Tup4 } from "../internal/tuple.ts";
 
 /**
  * A constructor for 4D vector types.

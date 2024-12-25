@@ -1,5 +1,7 @@
 import { GPU_STRUCT, type IType, type ITypeR, type ITypeV } from "../types.ts";
-import { typedObjectKeys, wgslRoundUp } from "../internal.ts";
+import type { NonEmpty } from "../internal/constraints.ts";
+import { wgslRoundUp } from "../internal/math.ts";
+import { typedObjectKeys } from "../internal/utils.ts";
 
 /**
  * A constructor for structure types.
@@ -213,8 +215,3 @@ type StructR<S extends StructDescriptor<S>> = {
 type StructV<S extends StructDescriptor<S>> = {
   [K in keyof S]: ITypeV<S[K]["type"]>;
 };
-
-/**
- * Generic constraint to ensure a record is not empty.
- */
-type NonEmpty<T> = keyof T extends never ? never : T;
