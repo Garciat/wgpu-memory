@@ -11,6 +11,11 @@ import { assertTypeOneOf } from "../internal.ts";
 
 import type { FloatingPointType } from "../scalar/mod.ts";
 
+/**
+ * A 4x4 matrix type. The components are stored in column-major order per WGSL.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
+ */
 export class Mat4x4<
   T extends IType<R, V> & FloatingPointType,
   R = ITypeR<T>,

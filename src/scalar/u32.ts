@@ -1,5 +1,10 @@
 import { GPU_U32, type IType } from "../types.ts";
 
+/**
+ * The 32-bit unsigned integer type.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#integer-types
+ */
 export class Uint32Type implements IType<number, Uint32Array> {
   toString(): string {
     return "u32";

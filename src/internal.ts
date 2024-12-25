@@ -25,3 +25,9 @@ export function assertTypeOneOf(
     throw TypeError("Type must be one of " + Array.from(types));
   }
 }
+
+export function assertPositive(value: number) {
+  if (value <= 0) {
+    throw RangeError("Value must be positive");
+  }
+}

@@ -11,6 +11,11 @@ import { assertTypeOneOf, nextPowerOfTwo } from "../internal.ts";
 
 import type { ScalarType } from "../scalar/mod.ts";
 
+/**
+ * A constructor for 3D vector types.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
+ */
 export class Vec3<
   T extends IType<R, V> & ScalarType,
   R = ITypeR<T>,

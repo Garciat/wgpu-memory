@@ -1,28 +1,11 @@
 import { GPU_STRUCT, type IType, type ITypeR, type ITypeV } from "../types.ts";
 import { typedObjectKeys, wgslRoundUp } from "../internal.ts";
 
-type StructDescriptor<S> = {
-  [K in keyof S]: S[K] extends { type: infer T } ? {
-      index: number;
-      type: T extends IType<infer R, infer V> ? T : never;
-    }
-    : never;
-};
-
-type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
-  [K in keyof S]: StructField<S, K>;
-};
-
-type StructR<S extends StructDescriptor<S>> = {
-  [K in keyof S]: ITypeR<S[K]["type"]>;
-};
-
-type StructV<S extends StructDescriptor<S>> = {
-  [K in keyof S]: ITypeV<S[K]["type"]>;
-};
-
-type NonEmpty<T> = keyof T extends never ? never : T;
-
+/**
+ * A constructor for structure types.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#struct-types
+ */
 export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   implements IType<StructR<S>, StructV<S>> {
   #fields: Array<StructField<S, keyof S>>;
@@ -126,6 +109,9 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   }
 }
 
+/**
+ * A view into a field of a structure.
+ */
 class StructField<
   S extends NonEmpty<StructDescriptor<S>>,
   Key extends keyof S,
@@ -207,3 +193,28 @@ class StructField<
     );
   }
 }
+
+type StructDescriptor<S> = {
+  [K in keyof S]: S[K] extends { type: infer T } ? {
+      index: number;
+      type: T extends IType<infer R, infer V> ? T : never;
+    }
+    : never;
+};
+
+type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
+  [K in keyof S]: StructField<S, K>;
+};
+
+type StructR<S extends StructDescriptor<S>> = {
+  [K in keyof S]: ITypeR<S[K]["type"]>;
+};
+
+type StructV<S extends StructDescriptor<S>> = {
+  [K in keyof S]: ITypeV<S[K]["type"]>;
+};
+
+/**
+ * Generic constraint to ensure a record is not empty.
+ */
+type NonEmpty<T> = keyof T extends never ? never : T;

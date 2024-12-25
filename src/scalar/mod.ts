@@ -6,8 +6,14 @@ import type { Uint32Type } from "./u32.ts";
 import type { Int32Type } from "./i32.ts";
 import type { BoolType } from "./bool.ts";
 
+/**
+ * All floating-point types.
+ */
 export type FloatingPointType = Float16Type | Float32Type;
 
+/**
+ * All scalar types.
+ */
 export type ScalarType =
   | Float16Type
   | Float32Type

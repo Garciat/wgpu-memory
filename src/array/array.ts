@@ -1,12 +1,29 @@
 import { GPU_ARRAY, type IType, type ITypeR, type ITypeV } from "../types.ts";
-import { wgslRoundUp } from "../internal.ts";
+import { assertPositive, wgslRoundUp } from "../internal.ts";
 
-export class ArrayType<T extends IType<R, V>, R = ITypeR<T>, V = ITypeV<T>>
-  implements IType<R[], V> {
+/**
+ * Generic constraint for positive number constants.
+ */
+type Positive<N extends number> = `${N}` extends `-${infer NP}` ? never
+  : N extends 0 ? never
+  : N;
+
+/**
+ * A constructor for fixed-size array types.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#array-types
+ */
+export class ArrayType<
+  T extends IType<R, V>,
+  N extends number,
+  R = ITypeR<T>,
+  V = ITypeV<T>,
+> implements IType<R[], V> {
   #type: T;
-  #length: number;
+  #length: N;
 
-  constructor(type: T, length: number) {
+  constructor(type: T, length: Positive<N>) {
+    assertPositive(length);
     this.#type = type;
     this.#length = length;
   }

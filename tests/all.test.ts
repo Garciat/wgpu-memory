@@ -6,6 +6,9 @@ const TestStruct = new memory.Struct({
   a: { index: 0, type: memory.Float32 },
 });
 
+// deno-lint-ignore no-explicit-any
+const asAny = (value: any) => value;
+
 Deno.test("allocate", () => {
   const StructA = new memory.Struct({
     u: { index: 0, type: memory.Float32 },
@@ -54,6 +57,11 @@ Deno.test("ArrayType", () => {
     i32x4.view(buffer, 0, 2),
     new Int32Array([9, 2, 3, 4, 5, 6, 7, 8]),
   );
+});
+
+Deno.test("ArrayType non-positive length", () => {
+  assertThrows(() => new memory.ArrayType(memory.Int32, asAny(0)), RangeError);
+  assertThrows(() => new memory.ArrayType(memory.Int32, asAny(-1)), RangeError);
 });
 
 Deno.test("Struct", () => {
@@ -435,9 +443,6 @@ Deno.test("Vec4", () => {
 });
 
 Deno.test("incompatible composite types", () => {
-  // deno-lint-ignore no-explicit-any
-  const asAny = (value: any) => value;
-
   assertThrows(() => new memory.Mat2x2(asAny(memory.Bool)), TypeError);
   assertThrows(() => new memory.Mat2x2(asAny(memory.Int32)), TypeError);
   assertThrows(() => new memory.Mat2x2(asAny(memory.Uint32)), TypeError);

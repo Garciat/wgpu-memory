@@ -11,6 +11,11 @@ import { assertTypeOneOf } from "../internal.ts";
 
 import type { ScalarType } from "../scalar/mod.ts";
 
+/**
+ * A constructor for 4D vector types.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
+ */
 export class Vec4<
   T extends IType<R, V> & ScalarType,
   R = ITypeR<T>,

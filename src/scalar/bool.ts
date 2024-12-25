@@ -1,5 +1,10 @@
 import { GPU_BOOL, type IType } from "../types.ts";
 
+/**
+ * The boolean type.
+ *
+ * @see https://gpuweb.github.io/gpuweb/wgsl/#bool-type
+ */
 export class BoolType implements IType<boolean, Uint32Array> {
   toString(): string {
     return "bool";
