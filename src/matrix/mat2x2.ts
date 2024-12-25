@@ -82,25 +82,25 @@ export class Mat2x2<
     return this.#type.view(buffer, offset, length * 4);
   }
 
-  get(view: DataView, row: number, column: number, offset: number = 0): R {
-    return this.#type.read(view, offset + this.#offset(row, column));
+  get(view: DataView, column: number, row: number, offset: number = 0): R {
+    return this.#type.read(view, offset + this.#offset(column, row));
   }
 
   set(
     view: DataView,
-    row: number,
     column: number,
+    row: number,
     value: R,
     offset: number = 0,
   ) {
-    this.#type.write(view, value, offset + this.#offset(row, column));
+    this.#type.write(view, value, offset + this.#offset(column, row));
   }
 
-  #index(row: number, column: number): number {
-    return row * 2 + column;
+  #index(column: number, row: number): number {
+    return column * 2 + row;
   }
 
-  #offset(row: number, column: number): number {
-    return this.#index(row, column) * this.#type.byteSize;
+  #offset(column: number, row: number): number {
+    return this.#index(column, row) * this.#type.byteSize;
   }
 }
