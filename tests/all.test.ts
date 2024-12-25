@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "jsr:@std/assert";
 
-import * as memory from "../src/wgpu-memory.ts";
+import * as memory from "../src/mod.ts";
 
 const TestStruct = new memory.Struct({
   a: { index: 0, type: memory.Float32 },
