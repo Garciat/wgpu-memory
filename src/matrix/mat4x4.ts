@@ -1,8 +1,8 @@
 import {
   GPU_FLOATING_POINT_TYPES,
   GPU_MAT4X4,
-  type IFlatType,
   type IType,
+  type ITypeBoundedVF,
   type ITypeR,
   type ITypeV,
 } from "../types.ts";
@@ -33,10 +33,11 @@ type Index1 = TupIndex<ColumnType<unknown>>;
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
 export class Mat4x4<
-  T extends IFlatType<R, V> & FloatingPointType,
+  T extends IType<R, V, VF> & FloatingPointType,
   R = ITypeR<T>,
   V = ITypeV<T>,
-> implements IType<MatrixType<R>, V> {
+  VF extends V = ITypeBoundedVF<T, V>,
+> implements IType<MatrixType<R>, V, VF> {
   #type: T;
   #byteSize: number;
   #alignment: number;
@@ -129,6 +130,14 @@ export class Mat4x4<
     offset: number = 0,
   ) {
     this.write(view, value, index * this.arrayStride + offset);
+  }
+
+  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
+    return this.#type.view(
+      buffer,
+      offset,
+      length * this.arrayStride / this.#type.byteSize,
+    );
   }
 
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {

@@ -1,11 +1,11 @@
-import { GPU_BOOL, type IFlatType } from "../types.ts";
+import { GPU_BOOL, type IType } from "../types.ts";
 
 /**
  * The boolean type.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#bool-type
  */
-export class BoolType implements IFlatType<boolean, Uint32Array> {
+export class BoolType implements IType<boolean, Uint32Array, Uint32Array> {
   toString(): string {
     return "bool";
   }

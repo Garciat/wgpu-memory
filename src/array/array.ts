@@ -1,4 +1,10 @@
-import { GPU_ARRAY, type IType, type ITypeR, type ITypeV } from "../types.ts";
+import {
+  GPU_ARRAY,
+  type IType,
+  type ITypeR,
+  type ITypeV,
+  type ITypeVF,
+} from "../types.ts";
 import type { Positive } from "../internal/constraints.ts";
 import { assertPositive } from "../internal/assert.ts";
 import { makeEmptyTupN, setTupN, type TupN } from "../internal/tuple.ts";
@@ -14,11 +20,12 @@ import {
  * @see https://gpuweb.github.io/gpuweb/wgsl/#array-types
  */
 export class ArrayType<
-  T extends IType<R, V>,
+  T extends IType<R, V, VF>,
   N extends number,
   R = ITypeR<T>,
   V = ITypeV<T>,
-> implements IType<TupN<R, N>, TupN<V, N>> {
+  VF = ITypeVF<T>,
+> implements IType<TupN<R, N>, TupN<V, N>, VF> {
   #type: T;
   #length: N;
   #byteSize: number;
@@ -81,6 +88,10 @@ export class ArrayType<
     offset: number = 0,
   ) {
     this.write(view, value, index * this.arrayStride + offset);
+  }
+
+  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
+    return this.#type.view(buffer, offset, length * this.#length);
   }
 
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): TupN<V, N> {

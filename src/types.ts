@@ -49,35 +49,86 @@ export type GPUType =
   | GPUArrayType
   | GPUStructureType;
 
-export interface IType<R, V> {
-  type: GPUType;
+/**
+ * @template R The read/write type.
+ * @template V The view type.
+ * @template VF The flat view type.
+ */
+export interface IType<R, V, VF> {
+  /**
+   * The type of the type.
+   */
+  readonly type: GPUType;
 
   /**
    * The size in bytes of the type. May include padding.
    */
-  byteSize: number;
+  readonly byteSize: number;
   /**
    * The alignment in bytes of the type.
    */
-  alignment: number;
+  readonly alignment: number;
   /**
    * The stride in bytes for an array of the type.
    */
-  arrayStride: number;
+  readonly arrayStride: number;
 
+  /**
+   * @returns A WGSL-like representation of the type.
+   */
+  toString(): string;
+
+  /**
+   * @param view The view to read from.
+   * @param [offset=0] The offset in bytes from the start of the view. Defaults to 0.
+   * @returns The value read.
+   */
   read(view: DataView, offset?: number): R;
+  /**
+   * @param view The view to write to.
+   * @param value The value to write.
+   * @param [offset=0] The offset in bytes from the start of the view. Defaults to 0.
+   */
   write(view: DataView, value: R, offset?: number): void;
 
+  /**
+   * @param view The view to read from.
+   * @param index The index of the element to read. The index is multiplied by the stride.
+   * @param [offset=0] The offset in bytes from the start of the view. Defaults to 0.
+   * @returns The value read.
+   */
   readAt(view: DataView, index: number, offset?: number): R;
+  /**
+   * @param view The view to write to.
+   * @param index The index of the element to write. The index is multiplied by the stride.
+   * @param value The value to write.
+   * @param [offset=0] The offset in bytes from the start of the view. Defaults to 0.
+   */
   writeAt(view: DataView, index: number, value: R, offset?: number): void;
 
+  /**
+   * @param buffer The buffer to create the view from.
+   * @param [offset=0] The offset in bytes from the start of the buffer. Defaults to 0.
+   * @param [length=1] The length in bytes of the view. Defaults to 1.
+   * @returns The view created. It includes alignment padding.
+   */
+  view(buffer: ArrayBuffer, offset?: number, length?: number): VF;
+  /**
+   * @param buffer The buffer to create the view from.
+   * @param index The index of the element to view. The index is multiplied by the stride.
+   * @param [offset=0] The offset in bytes from the start of the buffer. Defaults to 0.
+   * @returns The view created. It does NOT include alignment padding.
+   */
   viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
 }
 
-export interface IFlatType<R, V, VF = V> extends IType<R, V> {
-  view(buffer: ArrayBuffer, offset?: number, length?: number): VF;
-}
+type ITypeArgs<T> = T extends IType<infer R, infer V, infer VF> ? [R, V, VF]
+  : never;
 
-export type ITypeR<T> = T extends IType<infer R, infer V> ? R : never;
+export type ITypeR<T> = ITypeArgs<T>[0];
+export type ITypeV<T> = ITypeArgs<T>[1];
+export type ITypeVF<T> = ITypeArgs<T>[2];
 
-export type ITypeV<T> = T extends IType<infer R, infer V> ? V : never;
+export type ITypeBoundedVF<T, V> = T extends
+  IType<infer R, V, infer VF extends V> ? VF
+  : never;

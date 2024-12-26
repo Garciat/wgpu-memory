@@ -80,6 +80,23 @@ Deno.test("ArrayType", () => {
     new Int32Array(buffer),
     new Int32Array([9, 2, 3, 4, 5, 6, 7, 8]),
   );
+
+  assertEquals(
+    i32x4.view(buffer),
+    new Int32Array([9, 2, 3, 4]),
+  );
+  assertEquals(
+    i32x4.view(buffer, 0),
+    new Int32Array([9, 2, 3, 4]),
+  );
+  assertEquals(
+    i32x4.view(buffer, 0, 1),
+    new Int32Array([9, 2, 3, 4]),
+  );
+  assertEquals(
+    i32x4.view(buffer, 0, 2),
+    new Int32Array([9, 2, 3, 4, 5, 6, 7, 8]),
+  );
 });
 
 Deno.test("ArrayType non-positive length", () => {
@@ -187,6 +204,8 @@ Deno.test("Struct", () => {
       6, 7, 60, 70, 10, 0,
     ]),
   );
+
+  assertThrows(() => StructA.view(buffer), TypeError);
 });
 
 Deno.test("Mat2x2", () => {
@@ -253,6 +272,39 @@ Deno.test("Mat2x2", () => {
 
   assertEquals(
     new Float32Array(buffer),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 42,
+      5, 6, 7, 8,
+    ]),
+  );
+
+  assertEquals(
+    Mat2x2F.view(buffer),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2,
+      3, 42,
+    ]),
+  );
+  assertEquals(
+    Mat2x2F.view(buffer, 0),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2,
+      3, 42,
+    ]),
+  );
+  assertEquals(
+    Mat2x2F.view(buffer, 0, 1),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2,
+      3, 42,
+    ]),
+  );
+  assertEquals(
+    Mat2x2F.view(buffer, 0, 2),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 42,
@@ -334,6 +386,46 @@ Deno.test("Mat3x3", () => {
 
   assertEquals(
     new Float32Array(buffer),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 0,
+      4, 42, 6, 0,
+      7, 8, 9, 0,
+      10, 11, 12, 0,
+      13, 14, 15, 0,
+      16, 17, 18, 0,
+    ]),
+  );
+
+  assertEquals(
+    Mat3x3F.view(buffer),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 0,
+      4, 42, 6, 0,
+      7, 8, 9, 0,
+    ]),
+  );
+  assertEquals(
+    Mat3x3F.view(buffer, 0),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 0,
+      4, 42, 6, 0,
+      7, 8, 9, 0,
+    ]),
+  );
+  assertEquals(
+    Mat3x3F.view(buffer, 0, 1),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 0,
+      4, 42, 6, 0,
+      7, 8, 9, 0,
+    ]),
+  );
+  assertEquals(
+    Mat3x3F.view(buffer, 0, 2),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
@@ -438,6 +530,51 @@ Deno.test("Mat4x4", () => {
       29, 30, 31, 32,
     ]),
   );
+
+  assertEquals(
+    Mat4x4F.view(buffer),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 4,
+      5, 42, 7, 8,
+      9, 10, 11, 12,
+      13, 14, 15, 16,
+    ]),
+  );
+  assertEquals(
+    Mat4x4F.view(buffer, 0),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 4,
+      5, 42, 7, 8,
+      9, 10, 11, 12,
+      13, 14, 15, 16,
+    ]),
+  );
+  assertEquals(
+    Mat4x4F.view(buffer, 0, 1),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 4,
+      5, 42, 7, 8,
+      9, 10, 11, 12,
+      13, 14, 15, 16,
+    ]),
+  );
+  assertEquals(
+    Mat4x4F.view(buffer, 0, 2),
+    // deno-fmt-ignore
+    new Float32Array([
+      1, 2, 3, 4,
+      5, 42, 7, 8,
+      9, 10, 11, 12,
+      13, 14, 15, 16,
+      17, 18, 19, 20,
+      21, 22, 23, 24,
+      25, 26, 27, 28,
+      29, 30, 31, 32,
+    ]),
+  );
 });
 
 Deno.test("Vec2", () => {
@@ -485,6 +622,23 @@ Deno.test("Vec2", () => {
       10, 20,
       3, 4,
     ]),
+  );
+
+  assertEquals(
+    Vec2F.view(buffer),
+    new Float32Array([10, 20]),
+  );
+  assertEquals(
+    Vec2F.view(buffer, 0),
+    new Float32Array([10, 20]),
+  );
+  assertEquals(
+    Vec2F.view(buffer, 0, 1),
+    new Float32Array([10, 20]),
+  );
+  assertEquals(
+    Vec2F.view(buffer, 0, 2),
+    new Float32Array([10, 20, 3, 4]),
   );
 });
 
@@ -536,6 +690,23 @@ Deno.test("Vec3", () => {
       10, 20, 30, 0,
       4, 5, 6, 0,
     ]),
+  );
+
+  assertEquals(
+    Vec3F.view(buffer),
+    new Float32Array([10, 20, 30, 0]),
+  );
+  assertEquals(
+    Vec3F.view(buffer, 0),
+    new Float32Array([10, 20, 30, 0]),
+  );
+  assertEquals(
+    Vec3F.view(buffer, 0, 1),
+    new Float32Array([10, 20, 30, 0]),
+  );
+  assertEquals(
+    Vec3F.view(buffer, 0, 2),
+    new Float32Array([10, 20, 30, 0, 4, 5, 6, 0]),
   );
 });
 
@@ -590,6 +761,23 @@ Deno.test("Vec4", () => {
       10, 20, 30, 40,
       5, 6, 7, 8,
     ]),
+  );
+
+  assertEquals(
+    Vec4F.view(buffer),
+    new Float32Array([10, 20, 30, 40]),
+  );
+  assertEquals(
+    Vec4F.view(buffer, 0),
+    new Float32Array([10, 20, 30, 40]),
+  );
+  assertEquals(
+    Vec4F.view(buffer, 0, 1),
+    new Float32Array([10, 20, 30, 40]),
+  );
+  assertEquals(
+    Vec4F.view(buffer, 0, 2),
+    new Float32Array([10, 20, 30, 40, 5, 6, 7, 8]),
   );
 });
 

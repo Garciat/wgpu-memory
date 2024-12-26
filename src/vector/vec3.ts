@@ -1,8 +1,8 @@
 import {
   GPU_SCALAR_TYPES,
   GPU_VEC3,
-  type IFlatType,
   type IType,
+  type ITypeBoundedVF,
   type ITypeR,
   type ITypeV,
 } from "../types.ts";
@@ -19,10 +19,11 @@ import { alignOfVec3, sizeOfVec3, strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
  */
 export class Vec3<
-  T extends IFlatType<R, V> & ScalarType,
+  T extends IType<R, V, VF> & ScalarType,
   R = ITypeR<T>,
   V = ITypeV<T>,
-> implements IType<Tup3<R>, V> {
+  VF extends V = ITypeBoundedVF<T, V>,
+> implements IType<Tup3<R>, V, VF> {
   #type: T;
   #byteSize: number;
   #alignment: number;
@@ -76,6 +77,14 @@ export class Vec3<
 
   writeAt(view: DataView, index: number, value: Tup3<R>, offset: number = 0) {
     this.write(view, value, index * this.arrayStride + offset);
+  }
+
+  view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
+    return this.#type.view(
+      buffer,
+      offset,
+      length * this.arrayStride / this.#type.byteSize,
+    );
   }
 
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {

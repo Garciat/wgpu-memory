@@ -5,7 +5,7 @@ import { GPU_F32, type IType } from "../types.ts";
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#floating-point-types
  */
-export class Float32Type implements IType<number, Float32Array> {
+export class Float32Type implements IType<number, Float32Array, Float32Array> {
   toString(): string {
     return "f32";
   }

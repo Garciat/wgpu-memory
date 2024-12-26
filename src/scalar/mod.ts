@@ -26,7 +26,8 @@ export type ScalarType =
   // See: https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
   type Equal<T, U> = [T] extends [U] ? [U] extends [T] ? true : never : never;
 
-  type ITypeType<T> = T extends IType<unknown, unknown> ? T["type"] : never;
+  type ITypeType<T> = T extends IType<unknown, unknown, unknown> ? T["type"]
+    : never;
 
   {
     const _: Equal<ITypeType<FloatingPointType>, GPUFloatingPointType> = true;

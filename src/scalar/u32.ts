@@ -1,11 +1,11 @@
-import { GPU_U32, type IFlatType } from "../types.ts";
+import { GPU_U32, type IType } from "../types.ts";
 
 /**
  * The 32-bit unsigned integer type.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#integer-types
  */
-export class Uint32Type implements IFlatType<number, Uint32Array> {
+export class Uint32Type implements IType<number, Uint32Array, Uint32Array> {
   toString(): string {
     return "u32";
   }

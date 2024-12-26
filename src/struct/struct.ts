@@ -1,4 +1,10 @@
-import { GPU_STRUCT, type IType, type ITypeR, type ITypeV } from "../types.ts";
+import {
+  GPU_STRUCT,
+  type IType,
+  type ITypeR,
+  type ITypeV,
+  type ITypeVF,
+} from "../types.ts";
 import type { NonEmpty } from "../internal/constraints.ts";
 import { wgslRoundUp } from "../internal/math.ts";
 import { typedObjectKeys } from "../internal/utils.ts";
@@ -10,7 +16,7 @@ import { strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#struct-types
  */
 export class Struct<S extends NonEmpty<StructDescriptor<S>>>
-  implements IType<StructR<S>, StructV<S>> {
+  implements IType<StructR<S>, StructV<S>, never> {
   #fields: Array<StructField<S, keyof S>>;
   #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
@@ -29,7 +35,11 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
 
     for (const name of typedObjectKeys(descriptor)) {
       const fieldDescriptor = descriptor[name];
-      const fieldType = fieldDescriptor.type as IType<unknown, unknown>;
+      const fieldType = fieldDescriptor.type as IType<
+        unknown,
+        unknown,
+        unknown
+      >;
 
       if (fieldDescriptor.index > 0) {
         // Align the offset
@@ -103,6 +113,10 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     this.write(view, value, index * this.arrayStride + offset);
   }
 
+  view(_buffer: ArrayBuffer, _offset?: number, _length?: number): never {
+    throw TypeError("Not implemented");
+  }
+
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): StructV<S> {
     const effectiveOffset = index * this.arrayStride + offset;
 
@@ -123,9 +137,10 @@ class StructField<
   S extends NonEmpty<StructDescriptor<S>>,
   Key extends keyof S,
   F extends { index: number; type: T } = S[Key],
-  T extends IType<R, V> = S[Key]["type"],
+  T extends IType<R, V, VF> = S[Key]["type"],
   R = ITypeR<T>,
   V = ITypeV<T>,
+  VF = ITypeVF<T>,
 > {
   #parent: Struct<S>;
   #index: number;
@@ -201,7 +216,7 @@ class StructField<
 type StructDescriptor<S> = {
   [K in keyof S]: S[K] extends { type: infer T } ? {
       index: number;
-      type: T extends IType<infer R, infer V> ? T : never;
+      type: T extends IType<infer R, infer V, infer VF> ? T : never;
     }
     : never;
 };

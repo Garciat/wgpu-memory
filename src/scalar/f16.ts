@@ -1,4 +1,4 @@
-import { GPU_F16, type IFlatType } from "../types.ts";
+import { GPU_F16, type IType } from "../types.ts";
 
 /**
  * The 16-bit floating-point type.
@@ -7,7 +7,7 @@ import { GPU_F16, type IFlatType } from "../types.ts";
  * @see https://github.com/tc39/proposal-float16array
  * @see https://gpuweb.github.io/gpuweb/wgsl/#floating-point-types
  */
-export class Float16Type implements IFlatType<number, Float16Array> {
+export class Float16Type implements IType<number, Float16Array, Float16Array> {
   toString(): string {
     return "f16";
   }
