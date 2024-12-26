@@ -59,30 +59,51 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
-  toString(): string {
-    return `struct { ${this.#fields.map(String).join(", ")} }`;
-  }
-
-  get type(): typeof GPU_STRUCT {
-    return GPU_STRUCT;
-  }
-
+  /**
+   * @returns Field accessors for the structure.
+   */
   get fields(): StructFieldsOf<S> {
     return this.#fieldsByName;
   }
 
+  /**
+   * @inheritdoc
+   */
+  toString(): string {
+    return `struct { ${this.#fields.map(String).join(", ")} }`;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  get type(): typeof GPU_STRUCT {
+    return GPU_STRUCT;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get byteSize(): number {
     return this.#byteSize;
   }
 
+  /**
+   * @inheritdoc
+   */
   get alignment(): number {
     return this.#alignment;
   }
 
+  /**
+   * @inheritdoc
+   */
   get arrayStride(): number {
     return this.#arrayStride;
   }
 
+  /**
+   * @inheritdoc
+   */
   read(view: DataView, offset: number = 0): StructR<S> {
     const obj = {} as StructR<S>;
 
@@ -93,6 +114,9 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     return obj;
   }
 
+  /**
+   * @inheritdoc
+   */
   write(view: DataView, values: StructR<S>, offset: number = 0) {
     for (const name of typedObjectKeys(this.#fieldsByName)) {
       const field = this.#fieldsByName[name];
@@ -100,10 +124,16 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     }
   }
 
+  /**
+   * @inheritdoc
+   */
   readAt(view: DataView, index: number, offset: number = 0): StructR<S> {
     return this.read(view, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   writeAt(
     view: DataView,
     index: number,
@@ -113,10 +143,18 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     this.write(view, value, index * this.arrayStride + offset);
   }
 
+  /**
+   * This method is not implemented for structures.
+   *
+   * It is not possible to create a uniformly-typed, multi-element view into a structure.
+   */
   view(_buffer: ArrayBuffer, _offset?: number, _length?: number): never {
     throw TypeError("Not implemented");
   }
 
+  /**
+   * @inheritdoc
+   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): StructV<S> {
     const effectiveOffset = index * this.arrayStride + offset;
 
@@ -131,9 +169,9 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
 }
 
 /**
- * A view into a field of a structure.
+ * A given structure's field accessor.
  */
-class StructField<
+export class StructField<
   S extends NonEmpty<StructDescriptor<S>>,
   Key extends keyof S,
   F extends { index: number; type: T } = S[Key],
@@ -161,34 +199,72 @@ class StructField<
     this.#offset = offset;
   }
 
+  /**
+   * @returns The name and type of the field in WGSL-like syntax.
+   */
   toString(): string {
     return `${String(this.#name)}: ${String(this.#type)}`;
   }
 
+  /**
+   * @returns The index of the field within the structure.
+   */
+  get index(): number {
+    return this.#index;
+  }
+
+  /**
+   * @returns The name of the field.
+   */
   get name(): Key {
     return this.#name;
   }
 
+  /**
+   * @returns The byte size of the field, ignoring padding.
+   */
   get byteSize(): number {
     return this.#type.byteSize;
   }
 
+  /**
+   * @returns The alignment of the field.
+   */
   get alignment(): number {
     return this.#type.alignment;
   }
 
+  /**
+   * @returns The byte offset of the field within the structure.
+   */
   get offset(): number {
     return this.#offset;
   }
 
+  /**
+   * @param view The view to read from.
+   * @param [offset=0] The offset within the view to read from. Defaults to 0.
+   * @returns The value of the field.
+   */
   read(view: DataView, offset: number = 0): R {
     return this.#type.read(view, this.#offset + offset);
   }
 
+  /**
+   * @param view The view to write to.
+   * @param value The value to write.
+   * @param [offset=0] The offset within the view to write to. Defaults to 0.
+   */
   write(view: DataView, value: R, offset: number = 0) {
     this.#type.write(view, value, this.#offset + offset);
   }
 
+  /**
+   * @param view The view to read from.
+   * @param index The index of the structure to read from. The index is multiplied by the structure's stride.
+   * @param [offset=0] The offset within the view to read from. Defaults to 0.
+   * @returns The value of the field.
+   */
   readAt(view: DataView, index: number, offset: number = 0): R {
     return this.#type.read(
       view,
@@ -196,6 +272,12 @@ class StructField<
     );
   }
 
+  /**
+   * @param view The view to write to.
+   * @param index The index of the structure to write to. The index is multiplied by the structure's stride.
+   * @param value The value to write to the field.
+   * @param [offset=0] The offset within the view to write to. Defaults to 0.
+   */
   writeAt(view: DataView, index: number, value: R, offset: number = 0) {
     this.#type.write(
       view,
@@ -204,6 +286,12 @@ class StructField<
     );
   }
 
+  /**
+   * @param buffer The buffer to create the view from.
+   * @param index The index of the structure to create the view from. The index is multiplied by the structure's stride.
+   * @param [offset=0] The offset within the buffer to create the view from. Defaults to 0.
+   * @returns A view of the field.
+   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
     return this.#type.viewAt(
       buffer,
@@ -213,7 +301,13 @@ class StructField<
   }
 }
 
-type StructDescriptor<S> = {
+/**
+ * A user-defined object that describes the fields of a structure.
+ *
+ * @example
+ * { field1: { index: 0, type: Int32 }, field2: { index: 1, type: Vec2F } }
+ */
+export type StructDescriptor<S> = {
   [K in keyof S]: S[K] extends { type: infer T } ? {
       index: number;
       type: T extends IType<infer R, infer V, infer VF> ? T : never;
@@ -221,14 +315,23 @@ type StructDescriptor<S> = {
     : never;
 };
 
-type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
+/**
+ * Maps the fields of a structure to their respective field accessors.
+ */
+export type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
   [K in keyof S]: StructField<S, K>;
 };
 
-type StructR<S extends StructDescriptor<S>> = {
+/**
+ * A structure's object representation.
+ */
+export type StructR<S extends StructDescriptor<S>> = {
   [K in keyof S]: ITypeR<S[K]["type"]>;
 };
 
-type StructV<S extends StructDescriptor<S>> = {
+/**
+ * A structure's view representation.
+ */
+export type StructV<S extends StructDescriptor<S>> = {
   [K in keyof S]: ITypeV<S[K]["type"]>;
 };

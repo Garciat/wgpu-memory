@@ -121,21 +121,25 @@ Deno.test("Struct", () => {
   assertEquals(StructA.alignment, 8);
 
   assertEquals(StructA.fields.u.name, "u");
+  assertEquals(StructA.fields.u.index, 0);
   assertEquals(StructA.fields.u.offset, 0);
   assertEquals(StructA.fields.u.alignment, 4);
   assertEquals(StructA.fields.u.byteSize, 4);
 
   assertEquals(StructA.fields.v.name, "v");
+  assertEquals(StructA.fields.v.index, 1);
   assertEquals(StructA.fields.v.offset, 4);
   assertEquals(StructA.fields.v.alignment, 4);
   assertEquals(StructA.fields.v.byteSize, 4);
 
   assertEquals(StructA.fields.w.name, "w");
+  assertEquals(StructA.fields.w.index, 2);
   assertEquals(StructA.fields.w.offset, 8);
   assertEquals(StructA.fields.w.alignment, 8);
   assertEquals(StructA.fields.w.byteSize, 8);
 
   assertEquals(StructA.fields.x.name, "x");
+  assertEquals(StructA.fields.x.index, 3);
   assertEquals(StructA.fields.x.offset, 16);
   assertEquals(StructA.fields.x.alignment, 4);
   assertEquals(StructA.fields.x.byteSize, 4);

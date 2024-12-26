@@ -1,6 +1,13 @@
 export { ArrayType } from "./array/array.ts";
 
-export { Struct } from "./struct/struct.ts";
+export {
+  Struct,
+  type StructDescriptor,
+  type StructField,
+  type StructFieldsOf,
+  type StructR,
+  type StructV,
+} from "./struct/struct.ts";
 
 export { Mat2x2 } from "./matrix/mat2x2.ts";
 export { Mat3x3 } from "./matrix/mat3x3.ts";

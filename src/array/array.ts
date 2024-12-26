@@ -41,26 +41,44 @@ export class ArrayType<
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
+  /**
+   * @inheritdoc
+   */
   toString(): string {
     return `array<${String(this.#type)}, ${this.#length}>`;
   }
 
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_ARRAY {
     return GPU_ARRAY;
   }
 
+  /**
+   * @inheritdoc
+   */
   get byteSize(): number {
     return this.#byteSize;
   }
 
+  /**
+   * @inheritdoc
+   */
   get alignment(): number {
     return this.#alignment;
   }
 
+  /**
+   * @inheritdoc
+   */
   get arrayStride(): number {
     return this.#arrayStride;
   }
 
+  /**
+   * @inheritdoc
+   */
   read(view: DataView, offset: number = 0): TupN<R, N> {
     const values = makeEmptyTupN<R, N>(this.#length);
 
@@ -71,16 +89,25 @@ export class ArrayType<
     return values;
   }
 
+  /**
+   * @inheritdoc
+   */
   write(view: DataView, values: TupN<R, N>, offset: number = 0) {
     for (let i = 0; i < this.#length; i++) {
       this.set(view, i, values[i], offset);
     }
   }
 
+  /**
+   * @inheritdoc
+   */
   readAt(view: DataView, index: number, offset: number = 0): TupN<R, N> {
     return this.read(view, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   writeAt(
     view: DataView,
     index: number,
@@ -90,10 +117,16 @@ export class ArrayType<
     this.write(view, value, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
     return this.#type.view(buffer, offset, length * this.#length);
   }
 
+  /**
+   * @inheritdoc
+   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): TupN<V, N> {
     const views = makeEmptyTupN<V, N>(this.#length);
 

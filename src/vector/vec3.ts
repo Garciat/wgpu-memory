@@ -37,26 +37,44 @@ export class Vec3<
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
+  /**
+   * @inheritdoc
+   */
   toString(): string {
     return `vec3<${String(this.#type)}>`;
   }
 
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_VEC3 {
     return GPU_VEC3;
   }
 
+  /**
+   * @inheritdoc
+   */
   get byteSize(): number {
     return this.#byteSize;
   }
 
+  /**
+   * @inheritdoc
+   */
   get alignment(): number {
     return this.#alignment;
   }
 
+  /**
+   * @inheritdoc
+   */
   get arrayStride(): number {
     return this.#arrayStride;
   }
 
+  /**
+   * @inheritdoc
+   */
   read(view: DataView, offset: number = 0): Tup3<R> {
     return [
       this.getX(view, offset),
@@ -65,20 +83,32 @@ export class Vec3<
     ];
   }
 
+  /**
+   * @inheritdoc
+   */
   write(view: DataView, value: Tup3<R>, offset: number = 0) {
     this.setX(view, value[0], offset);
     this.setY(view, value[1], offset);
     this.setZ(view, value[2], offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   readAt(view: DataView, index: number, offset: number = 0): Tup3<R> {
     return this.read(view, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   writeAt(view: DataView, index: number, value: Tup3<R>, offset: number = 0) {
     this.write(view, value, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
     return this.#type.view(
       buffer,
@@ -87,6 +117,9 @@ export class Vec3<
     );
   }
 
+  /**
+   * @inheritdoc
+   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
     return this.#type.view(buffer, index * this.arrayStride + offset, 3);
   }

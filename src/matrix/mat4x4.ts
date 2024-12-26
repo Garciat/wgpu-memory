@@ -51,26 +51,44 @@ export class Mat4x4<
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
+  /**
+   * @inheritdoc
+   */
   toString(): string {
     return `mat${NCol}x${NRow}<${String(this.#type)}>`;
   }
 
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_MAT4X4 {
     return GPU_MAT4X4;
   }
 
+  /**
+   * @inheritdoc
+   */
   get byteSize(): number {
     return this.#byteSize;
   }
 
+  /**
+   * @inheritdoc
+   */
   get alignment(): number {
     return this.#alignment;
   }
 
+  /**
+   * @inheritdoc
+   */
   get arrayStride(): number {
     return this.#arrayStride;
   }
 
+  /**
+   * @inheritdoc
+   */
   read(view: DataView, offset: number = 0): MatrixType<R> {
     return [
       [
@@ -100,6 +118,9 @@ export class Mat4x4<
     ];
   }
 
+  /**
+   * @inheritdoc
+   */
   write(view: DataView, value: MatrixType<R>, offset: number = 0) {
     this.set(view, 0, 0, value[0][0], offset);
     this.set(view, 0, 1, value[0][1], offset);
@@ -119,10 +140,16 @@ export class Mat4x4<
     this.set(view, 3, 3, value[3][3], offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   readAt(view: DataView, index: number, offset: number = 0): MatrixType<R> {
     return this.read(view, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   writeAt(
     view: DataView,
     index: number,
@@ -132,6 +159,9 @@ export class Mat4x4<
     this.write(view, value, index * this.arrayStride + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
     return this.#type.view(
       buffer,
@@ -140,6 +170,9 @@ export class Mat4x4<
     );
   }
 
+  /**
+   * @inheritdoc
+   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
     return this.#type.view(
       buffer,
