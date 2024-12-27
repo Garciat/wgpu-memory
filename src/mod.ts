@@ -1,4 +1,4 @@
-export type { MemoryType } from "./types.ts";
+export type { MatrixType, MemoryType, VectorType } from "./types.ts";
 
 export { ArrayType } from "./array/array.ts";
 
