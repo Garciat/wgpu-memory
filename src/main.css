@@ -8,6 +8,57 @@ html {
   font-size: clamp(18px, 100vw / var(--width), 20px);
 }
 
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3 {
+  font-weight: 300;
+}
+
+main {
+  margin-bottom: 5rem;
+}
+main > *:not(.centered) {
+  max-width: calc(1rem * var(--width));
+  margin: 0 auto;
+  padding: 1rem 1.25rem 0;
+}
+main > .centered {
+  width: max-content;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 0;
+}
+
+.memory-type-editor {
+  border: 1px solid #666;
+  padding: 0.5rem;
+}
+
+.array-value-editor {
+  border-spacing: 0;
+  border: 1px solid #666;
+}
+
+.array-value-editor th, .array-value-editor td {
+  padding: 0.25rem 0.5rem;
+  font-weight: inherit;
+}
+
+.array-value-editor thead {
+  background-color: var(--accent-bg);
+  color: var(--accent-fg);
+}
+
+.array-value-editor tbody > tr:nth-child(2n+1) {
+  background-color: #eee;
+}
+
+.array-value-editor tbody > tr.column-index {
+  text-align: right;
+}
+
 pre,
 code {
   font: 0.8rem/1.2rem "Consolas", Menlo, monospace;
