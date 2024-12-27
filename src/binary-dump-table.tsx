@@ -4,10 +4,19 @@ import { useState } from "npm:preact@10.25.3/hooks";
 export interface BinaryDumpTableProps {
   buffer: ArrayBuffer;
   defaultBytesPerRow?: number;
+  minBytesPerRow?: number;
+  maxBytesPerRow?: number;
+  stepBytesPerRow?: number;
 }
 
 export const BinaryDumpTable = (
-  { buffer, defaultBytesPerRow = 16 }: BinaryDumpTableProps,
+  {
+    buffer,
+    defaultBytesPerRow = 16,
+    minBytesPerRow = 4,
+    maxBytesPerRow = 32,
+    stepBytesPerRow = 4,
+  }: BinaryDumpTableProps,
 ) => {
   const [bytesPerRow, setBytesPerRow] = useState(defaultBytesPerRow);
 
@@ -23,6 +32,11 @@ export const BinaryDumpTable = (
     );
   });
 
+  const bytesPerRowOptions = range(minBytesPerRow, maxBytesPerRow, {
+    step: stepBytesPerRow,
+    inclusive: true,
+  });
+
   return (
     <table class="binary-dump-table">
       <thead>
@@ -32,18 +46,15 @@ export const BinaryDumpTable = (
           <th>ASCII</th>
         </tr>
         <tr class="row-offset">
-          <th>
-            <input
-              type="number"
-              min={4}
-              max={32}
-              step={4}
-              required={true}
-              defaultValue={bytesPerRow}
-              onInput={(e) =>
-                e.currentTarget.checkValidity() &&
-                setBytesPerRow(parseInt(e.currentTarget.value))}
-            />
+          <th class="column-offset">
+            <select
+              name="bytes-per-row"
+              onInput={(e) => setBytesPerRow(parseInt(e.currentTarget.value))}
+            >
+              {bytesPerRowOptions.map((value) => (
+                <option selected={value === bytesPerRow}>{value}</option>
+              ))}
+            </select>
           </th>
           <th class="column-hex">
             <pre>{rowOffsets}</pre>
@@ -109,8 +120,15 @@ function formatAsciiView(bytes: number[]): JSX.Element[] {
   });
 }
 
-function range(start: number, end: number): number[] {
-  return buildArray(end - start, (i) => i + start);
+function range(
+  start: number,
+  end: number,
+  { step = 1, inclusive = false } = {},
+): number[] {
+  return buildArray(
+    Math.floor((end - start) / step) + (inclusive ? 1 : 0),
+    (i) => start + i * step,
+  );
 }
 
 function buildArray<T>(length: number, f: (i: number) => T): T[] {
