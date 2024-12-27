@@ -1,0 +1,58 @@
+:root {
+  --width: 34.5;
+  --accent-bg: #696;
+  --accent-fg: #fff;
+}
+
+html {
+  font-size: clamp(18px, 100vw / var(--width), 20px);
+}
+
+pre,
+code {
+  font: 0.8rem/1.2rem "Consolas", Menlo, monospace;
+  font-feature-settings: "lnum", "tnum";
+}
+
+pre {
+  margin: 0;
+}
+
+.binary-dump-table {
+  border-spacing: 0;
+}
+
+.binary-dump-table .column-hex .space:nth-of-type(8n) {
+  display: inline-block;
+}
+.binary-dump-table .column-hex .space:nth-of-type(8n)::before {
+  content: " ";
+  border-right: 1px solid #ccc;
+}
+
+.binary-dump-table > thead {
+  background-color: var(--accent-bg);
+  color: var(--accent-fg);
+  font: 0.8rem/1.2rem "Consolas", Menlo, monospace;
+}
+
+.binary-dump-table > thead > tr.row-offset {
+  background-color: #666;
+}
+
+.binary-dump-table > thead th {
+  font-weight: normal;
+}
+
+.binary-dump-table > tbody td {
+  padding: 0 0.4rem;
+}
+
+.binary-dump-table > tbody .column-offset {
+  background: #eee;
+  color: #888;
+}
+
+.binary-dump-table > tbody .column-ascii .non-printable {
+  color: #aaa;
+}
