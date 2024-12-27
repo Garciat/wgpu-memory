@@ -26,6 +26,7 @@ pre {
   background-color: var(--accent-bg);
   color: var(--accent-fg);
   font: 0.8rem/1.2rem "Consolas", Menlo, monospace;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -36,6 +37,7 @@ pre {
 
 .binary-dump-table > tbody td {
   padding: 0 0.4rem;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -49,14 +51,17 @@ pre {
 }
 
 .binary-dump-table > tbody .column-hex {
+  -webkit-user-select: auto;
   user-select: auto;
 }
 
 .binary-dump-table > tbody .column-hex .byte {
+  -webkit-user-select: all;
   user-select: all;
 }
 
 .binary-dump-table > tbody .column-hex .space {
+  -webkit-user-select: none;
   user-select: none;
 }
 
