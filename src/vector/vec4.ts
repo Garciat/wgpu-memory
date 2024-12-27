@@ -5,6 +5,7 @@ import {
   type MemoryTypeBoundedVF,
   type MemoryTypeR,
   type MemoryTypeV,
+  type VectorType,
 } from "../types.ts";
 
 import type { ScalarType } from "../scalar/mod.ts";
@@ -23,7 +24,7 @@ export class Vec4<
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
-> implements MemoryType<Tup4<R>, V, VF> {
+> implements VectorType<T, 4, R, V, VF> {
   #type: T;
   #byteSize: number;
   #alignment: number;
@@ -35,6 +36,20 @@ export class Vec4<
     this.#byteSize = sizeOfVec4(type.type);
     this.#alignment = alignOfVec4(type.type);
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
+  }
+
+  /**
+   * The shape of the vector.
+   */
+  get shape(): [4] {
+    return [4];
+  }
+
+  /**
+   * The component type of the vector.
+   */
+  get componentType(): T {
+    return this.#type;
   }
 
   /**
@@ -172,5 +187,13 @@ export class Vec4<
 
   setW(view: DataView, value: R, offset: number = 0) {
     this.#type.write(view, value, offset + this.offsetW);
+  }
+
+  get(view: DataView, indices: [0 | 1 | 2 | 3], offset: number = 0): R {
+    return this.#type.read(view, offset + indices[0] * this.#type.byteSize);
+  }
+
+  set(view: DataView, indices: [0 | 1 | 2 | 3], value: R, offset: number = 0) {
+    this.#type.write(view, value, offset + indices[0] * this.#type.byteSize);
   }
 }

@@ -42,6 +42,20 @@ export class ArrayType<
   }
 
   /**
+   * The element count of the array.
+   */
+  get elementCount(): N {
+    return this.#length;
+  }
+
+  /**
+   * The element type of the array.
+   */
+  get elementType(): T {
+    return this.#type;
+  }
+
+  /**
    * @inheritdoc
    */
   toString(): string {

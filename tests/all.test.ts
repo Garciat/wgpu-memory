@@ -33,6 +33,8 @@ Deno.test("count", () => {
 
 Deno.test("ArrayType", () => {
   const i32x4 = new memory.ArrayType(memory.Int32, 4);
+  assertEquals(i32x4.elementCount, 4);
+  assertEquals(i32x4.elementType, memory.Int32);
   assertEquals(String(i32x4), "array<i32, 4>");
   assertEquals(i32x4.type, "array");
   assertEquals(i32x4.byteSize, 16);
@@ -213,51 +215,55 @@ Deno.test("Struct", () => {
 });
 
 Deno.test("Mat2x2", () => {
-  const Mat2x2F = memory.Mat2x2F;
-  assertEquals(String(Mat2x2F), "mat2x2<f32>");
-  assertEquals(Mat2x2F.type, "mat2x2");
-  assertEquals(Mat2x2F.byteSize, 16);
-  assertEquals(Mat2x2F.alignment, 8);
+  const M = memory.Mat2x2F;
+  assertEquals(M.shape, [2, 2]);
+  assertEquals(M.componentType, memory.Float32);
+  assertEquals(String(M), "mat2x2<f32>");
+  assertEquals(M.type, "mat2x2");
+  assertEquals(M.byteSize, 16);
+  assertEquals(M.alignment, 8);
 
-  const buffer = memory.allocate(Mat2x2F, 2);
+  const buffer = memory.allocate(M, 2);
   assertEquals(buffer.byteLength, 32);
 
   const view = new DataView(buffer);
 
-  assertEquals(Mat2x2F.readAt(view, 0), [
+  assertEquals(M.readAt(view, 0), [
     [0, 0],
     [0, 0],
   ]);
-  assertEquals(Mat2x2F.readAt(view, 1), [
+  assertEquals(M.readAt(view, 1), [
     [0, 0],
     [0, 0],
   ]);
-  assertThrows(() => Mat2x2F.readAt(view, 2), RangeError);
+  assertThrows(() => M.readAt(view, 2), RangeError);
 
-  Mat2x2F.write(view, [
+  M.write(view, [
     [1, 2],
     [3, 4],
   ]);
-  assertEquals(Mat2x2F.read(view), [
+  assertEquals(M.read(view), [
     [1, 2],
     [3, 4],
   ]);
 
-  Mat2x2F.writeAt(view, 1, [
+  M.writeAt(view, 1, [
     [5, 6],
     [7, 8],
   ]);
-  assertEquals(Mat2x2F.readAt(view, 1), [
+  assertEquals(M.readAt(view, 1), [
     [5, 6],
     [7, 8],
   ]);
 
-  Mat2x2F.set(view, 1, 1, 42);
+  M.set(view, [1, 1], 10);
+  assertEquals(M.get(view, [1, 1]), 10);
 
-  assertEquals(Mat2x2F.get(view, 1, 1), 42);
+  M.setAt(view, 1, 1, 42);
+  assertEquals(M.getAt(view, 1, 1), 42);
 
   assertEquals(
-    Mat2x2F.viewAt(buffer, 0),
+    M.viewAt(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2,
@@ -266,7 +272,7 @@ Deno.test("Mat2x2", () => {
   );
 
   assertEquals(
-    Mat2x2F.viewAt(buffer, 1),
+    M.viewAt(buffer, 1),
     // deno-fmt-ignore
     new Float32Array([
       5, 6,
@@ -284,7 +290,7 @@ Deno.test("Mat2x2", () => {
   );
 
   assertEquals(
-    Mat2x2F.view(buffer),
+    M.view(buffer),
     // deno-fmt-ignore
     new Float32Array([
       1, 2,
@@ -292,7 +298,7 @@ Deno.test("Mat2x2", () => {
     ]),
   );
   assertEquals(
-    Mat2x2F.view(buffer, 0),
+    M.view(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2,
@@ -300,7 +306,7 @@ Deno.test("Mat2x2", () => {
     ]),
   );
   assertEquals(
-    Mat2x2F.view(buffer, 0, 1),
+    M.view(buffer, 0, 1),
     // deno-fmt-ignore
     new Float32Array([
       1, 2,
@@ -308,7 +314,7 @@ Deno.test("Mat2x2", () => {
     ]),
   );
   assertEquals(
-    Mat2x2F.view(buffer, 0, 2),
+    M.view(buffer, 0, 2),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 42,
@@ -318,58 +324,62 @@ Deno.test("Mat2x2", () => {
 });
 
 Deno.test("Mat3x3", () => {
-  const Mat3x3F = memory.Mat3x3F;
-  assertEquals(String(Mat3x3F), "mat3x3<f32>");
-  assertEquals(Mat3x3F.type, "mat3x3");
-  assertEquals(Mat3x3F.byteSize, 48);
-  assertEquals(Mat3x3F.alignment, 16);
+  const M = memory.Mat3x3F;
+  assertEquals(M.shape, [3, 3]);
+  assertEquals(M.componentType, memory.Float32);
+  assertEquals(String(M), "mat3x3<f32>");
+  assertEquals(M.type, "mat3x3");
+  assertEquals(M.byteSize, 48);
+  assertEquals(M.alignment, 16);
 
-  const buffer = memory.allocate(Mat3x3F, 2);
+  const buffer = memory.allocate(M, 2);
   assertEquals(buffer.byteLength, 96);
 
   const view = new DataView(buffer);
 
-  assertEquals(Mat3x3F.readAt(view, 0), [
+  assertEquals(M.readAt(view, 0), [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
   ]);
-  assertEquals(Mat3x3F.readAt(view, 1), [
+  assertEquals(M.readAt(view, 1), [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
   ]);
-  assertThrows(() => Mat3x3F.readAt(view, 2), RangeError);
+  assertThrows(() => M.readAt(view, 2), RangeError);
 
-  Mat3x3F.write(view, [
+  M.write(view, [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
   ]);
-  assertEquals(Mat3x3F.read(view), [
+  assertEquals(M.read(view), [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
   ]);
 
-  Mat3x3F.writeAt(view, 1, [
+  M.writeAt(view, 1, [
     [10, 11, 12],
     [13, 14, 15],
     [16, 17, 18],
   ]);
-  assertEquals(Mat3x3F.readAt(view, 1), [
+  assertEquals(M.readAt(view, 1), [
     [10, 11, 12],
     [13, 14, 15],
     [16, 17, 18],
   ]);
 
-  Mat3x3F.set(view, 1, 1, 42);
+  M.set(view, [1, 1], 10);
+  assertEquals(M.get(view, [1, 1]), 10);
 
-  assertEquals(Mat3x3F.get(view, 1, 1), 42);
+  M.setAt(view, 1, 1, 42);
+  assertEquals(M.getAt(view, 1, 1), 42);
 
   // Note below how the vec3 columns have a vec4 storage due to alignment
   assertEquals(
-    Mat3x3F.viewAt(buffer, 0),
+    M.viewAt(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
@@ -379,7 +389,7 @@ Deno.test("Mat3x3", () => {
   );
 
   assertEquals(
-    Mat3x3F.viewAt(buffer, 1),
+    M.viewAt(buffer, 1),
     // deno-fmt-ignore
     new Float32Array([
       10, 11, 12, 0,
@@ -402,7 +412,7 @@ Deno.test("Mat3x3", () => {
   );
 
   assertEquals(
-    Mat3x3F.view(buffer),
+    M.view(buffer),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
@@ -411,7 +421,7 @@ Deno.test("Mat3x3", () => {
     ]),
   );
   assertEquals(
-    Mat3x3F.view(buffer, 0),
+    M.view(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
@@ -420,7 +430,7 @@ Deno.test("Mat3x3", () => {
     ]),
   );
   assertEquals(
-    Mat3x3F.view(buffer, 0, 1),
+    M.view(buffer, 0, 1),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
@@ -429,7 +439,7 @@ Deno.test("Mat3x3", () => {
     ]),
   );
   assertEquals(
-    Mat3x3F.view(buffer, 0, 2),
+    M.view(buffer, 0, 2),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 0,
@@ -443,63 +453,67 @@ Deno.test("Mat3x3", () => {
 });
 
 Deno.test("Mat4x4", () => {
-  const Mat4x4F = memory.Mat4x4F;
-  assertEquals(String(Mat4x4F), "mat4x4<f32>");
-  assertEquals(Mat4x4F.type, "mat4x4");
-  assertEquals(Mat4x4F.byteSize, 64);
-  assertEquals(Mat4x4F.alignment, 16);
+  const M = memory.Mat4x4F;
+  assertEquals(M.shape, [4, 4]);
+  assertEquals(M.componentType, memory.Float32);
+  assertEquals(String(M), "mat4x4<f32>");
+  assertEquals(M.type, "mat4x4");
+  assertEquals(M.byteSize, 64);
+  assertEquals(M.alignment, 16);
 
-  const buffer = memory.allocate(Mat4x4F, 2);
+  const buffer = memory.allocate(M, 2);
   assertEquals(buffer.byteLength, 128);
 
   const view = new DataView(buffer);
 
-  assertEquals(Mat4x4F.readAt(view, 0), [
+  assertEquals(M.readAt(view, 0), [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
   ]);
-  assertEquals(Mat4x4F.readAt(view, 1), [
+  assertEquals(M.readAt(view, 1), [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
   ]);
-  assertThrows(() => Mat4x4F.readAt(view, 2), RangeError);
+  assertThrows(() => M.readAt(view, 2), RangeError);
 
-  Mat4x4F.write(view, [
+  M.write(view, [
     [1, 2, 3, 4],
     [5, 6, 7, 8],
     [9, 10, 11, 12],
     [13, 14, 15, 16],
   ]);
-  assertEquals(Mat4x4F.read(view), [
+  assertEquals(M.read(view), [
     [1, 2, 3, 4],
     [5, 6, 7, 8],
     [9, 10, 11, 12],
     [13, 14, 15, 16],
   ]);
 
-  Mat4x4F.writeAt(view, 1, [
+  M.writeAt(view, 1, [
     [17, 18, 19, 20],
     [21, 22, 23, 24],
     [25, 26, 27, 28],
     [29, 30, 31, 32],
   ]);
-  assertEquals(Mat4x4F.readAt(view, 1), [
+  assertEquals(M.readAt(view, 1), [
     [17, 18, 19, 20],
     [21, 22, 23, 24],
     [25, 26, 27, 28],
     [29, 30, 31, 32],
   ]);
 
-  Mat4x4F.set(view, 1, 1, 42);
+  M.set(view, [1, 1], 10);
+  assertEquals(M.get(view, [1, 1]), 10);
 
-  assertEquals(Mat4x4F.get(view, 1, 1), 42);
+  M.setAt(view, 1, 1, 42);
+  assertEquals(M.getAt(view, 1, 1), 42);
 
   assertEquals(
-    Mat4x4F.viewAt(buffer, 0),
+    M.viewAt(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 4,
@@ -510,7 +524,7 @@ Deno.test("Mat4x4", () => {
   );
 
   assertEquals(
-    Mat4x4F.viewAt(buffer, 1),
+    M.viewAt(buffer, 1),
     // deno-fmt-ignore
     new Float32Array([
       17, 18, 19, 20,
@@ -536,7 +550,7 @@ Deno.test("Mat4x4", () => {
   );
 
   assertEquals(
-    Mat4x4F.view(buffer),
+    M.view(buffer),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 4,
@@ -546,7 +560,7 @@ Deno.test("Mat4x4", () => {
     ]),
   );
   assertEquals(
-    Mat4x4F.view(buffer, 0),
+    M.view(buffer, 0),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 4,
@@ -556,7 +570,7 @@ Deno.test("Mat4x4", () => {
     ]),
   );
   assertEquals(
-    Mat4x4F.view(buffer, 0, 1),
+    M.view(buffer, 0, 1),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 4,
@@ -566,7 +580,7 @@ Deno.test("Mat4x4", () => {
     ]),
   );
   assertEquals(
-    Mat4x4F.view(buffer, 0, 2),
+    M.view(buffer, 0, 2),
     // deno-fmt-ignore
     new Float32Array([
       1, 2, 3, 4,
@@ -582,40 +596,45 @@ Deno.test("Mat4x4", () => {
 });
 
 Deno.test("Vec2", () => {
-  const Vec2F = memory.Vec2F;
-  assertEquals(String(Vec2F), "vec2<f32>");
-  assertEquals(Vec2F.type, "vec2");
-  assertEquals(Vec2F.byteSize, 8);
-  assertEquals(Vec2F.alignment, 8);
+  const V = memory.Vec2F;
+  assertEquals(V.shape, [2]);
+  assertEquals(V.componentType, memory.Float32);
+  assertEquals(String(V), "vec2<f32>");
+  assertEquals(V.type, "vec2");
+  assertEquals(V.byteSize, 8);
+  assertEquals(V.alignment, 8);
 
-  const buffer = memory.allocate(Vec2F, 2);
+  const buffer = memory.allocate(V, 2);
   assertEquals(buffer.byteLength, 16);
 
   const view = new DataView(buffer);
 
-  assertEquals(Vec2F.readAt(view, 0), [0, 0]);
-  assertEquals(Vec2F.readAt(view, 1), [0, 0]);
-  assertThrows(() => Vec2F.readAt(view, 2), RangeError);
+  assertEquals(V.readAt(view, 0), [0, 0]);
+  assertEquals(V.readAt(view, 1), [0, 0]);
+  assertThrows(() => V.readAt(view, 2), RangeError);
 
-  Vec2F.write(view, [1, 2]);
-  assertEquals(Vec2F.read(view), [1, 2]);
+  V.write(view, [1, 2]);
+  assertEquals(V.read(view), [1, 2]);
 
-  Vec2F.writeAt(view, 1, [3, 4]);
-  assertEquals(Vec2F.readAt(view, 1), [3, 4]);
+  V.writeAt(view, 1, [3, 4]);
+  assertEquals(V.readAt(view, 1), [3, 4]);
 
-  Vec2F.setX(view, 10);
-  assertEquals(Vec2F.getX(view), 10);
+  V.set(view, [1], 40);
+  assertEquals(V.get(view, [1]), 40);
 
-  Vec2F.setY(view, 20);
-  assertEquals(Vec2F.getY(view), 20);
+  V.setX(view, 10);
+  assertEquals(V.getX(view), 10);
+
+  V.setY(view, 20);
+  assertEquals(V.getY(view), 20);
 
   assertEquals(
-    Vec2F.viewAt(buffer, 0),
+    V.viewAt(buffer, 0),
     new Float32Array([10, 20]),
   );
 
   assertEquals(
-    Vec2F.viewAt(buffer, 1),
+    V.viewAt(buffer, 1),
     new Float32Array([3, 4]),
   );
 
@@ -629,61 +648,66 @@ Deno.test("Vec2", () => {
   );
 
   assertEquals(
-    Vec2F.view(buffer),
+    V.view(buffer),
     new Float32Array([10, 20]),
   );
   assertEquals(
-    Vec2F.view(buffer, 0),
+    V.view(buffer, 0),
     new Float32Array([10, 20]),
   );
   assertEquals(
-    Vec2F.view(buffer, 0, 1),
+    V.view(buffer, 0, 1),
     new Float32Array([10, 20]),
   );
   assertEquals(
-    Vec2F.view(buffer, 0, 2),
+    V.view(buffer, 0, 2),
     new Float32Array([10, 20, 3, 4]),
   );
 });
 
 Deno.test("Vec3", () => {
-  const Vec3F = memory.Vec3F;
-  assertEquals(String(Vec3F), "vec3<f32>");
-  assertEquals(Vec3F.type, "vec3");
-  assertEquals(Vec3F.byteSize, 12);
-  assertEquals(Vec3F.alignment, 16);
+  const V = memory.Vec3F;
+  assertEquals(V.shape, [3]);
+  assertEquals(V.componentType, memory.Float32);
+  assertEquals(String(V), "vec3<f32>");
+  assertEquals(V.type, "vec3");
+  assertEquals(V.byteSize, 12);
+  assertEquals(V.alignment, 16);
 
-  const buffer = memory.allocate(Vec3F, 2);
+  const buffer = memory.allocate(V, 2);
   assertEquals(buffer.byteLength, 32);
 
   const view = new DataView(buffer);
 
-  assertEquals(Vec3F.readAt(view, 0), [0, 0, 0]);
-  assertEquals(Vec3F.readAt(view, 1), [0, 0, 0]);
-  assertThrows(() => Vec3F.readAt(view, 2), RangeError);
+  assertEquals(V.readAt(view, 0), [0, 0, 0]);
+  assertEquals(V.readAt(view, 1), [0, 0, 0]);
+  assertThrows(() => V.readAt(view, 2), RangeError);
 
-  Vec3F.write(view, [1, 2, 3]);
-  assertEquals(Vec3F.read(view), [1, 2, 3]);
+  V.write(view, [1, 2, 3]);
+  assertEquals(V.read(view), [1, 2, 3]);
 
-  Vec3F.writeAt(view, 1, [4, 5, 6]);
-  assertEquals(Vec3F.readAt(view, 1), [4, 5, 6]);
+  V.writeAt(view, 1, [4, 5, 6]);
+  assertEquals(V.readAt(view, 1), [4, 5, 6]);
 
-  Vec3F.setX(view, 10);
-  assertEquals(Vec3F.getX(view), 10);
+  V.set(view, [1], 40);
+  assertEquals(V.get(view, [1]), 40);
 
-  Vec3F.setY(view, 20);
-  assertEquals(Vec3F.getY(view), 20);
+  V.setX(view, 10);
+  assertEquals(V.getX(view), 10);
 
-  Vec3F.setZ(view, 30);
-  assertEquals(Vec3F.getZ(view), 30);
+  V.setY(view, 20);
+  assertEquals(V.getY(view), 20);
+
+  V.setZ(view, 30);
+  assertEquals(V.getZ(view), 30);
 
   assertEquals(
-    Vec3F.viewAt(buffer, 0),
+    V.viewAt(buffer, 0),
     new Float32Array([10, 20, 30]),
   );
 
   assertEquals(
-    Vec3F.viewAt(buffer, 1),
+    V.viewAt(buffer, 1),
     new Float32Array([4, 5, 6]),
   );
 
@@ -697,64 +721,69 @@ Deno.test("Vec3", () => {
   );
 
   assertEquals(
-    Vec3F.view(buffer),
+    V.view(buffer),
     new Float32Array([10, 20, 30, 0]),
   );
   assertEquals(
-    Vec3F.view(buffer, 0),
+    V.view(buffer, 0),
     new Float32Array([10, 20, 30, 0]),
   );
   assertEquals(
-    Vec3F.view(buffer, 0, 1),
+    V.view(buffer, 0, 1),
     new Float32Array([10, 20, 30, 0]),
   );
   assertEquals(
-    Vec3F.view(buffer, 0, 2),
+    V.view(buffer, 0, 2),
     new Float32Array([10, 20, 30, 0, 4, 5, 6, 0]),
   );
 });
 
 Deno.test("Vec4", () => {
-  const Vec4F = memory.Vec4F;
-  assertEquals(String(Vec4F), "vec4<f32>");
-  assertEquals(Vec4F.type, "vec4");
-  assertEquals(Vec4F.byteSize, 16);
-  assertEquals(Vec4F.alignment, 16);
+  const V = memory.Vec4F;
+  assertEquals(V.shape, [4]);
+  assertEquals(V.componentType, memory.Float32);
+  assertEquals(String(V), "vec4<f32>");
+  assertEquals(V.type, "vec4");
+  assertEquals(V.byteSize, 16);
+  assertEquals(V.alignment, 16);
 
-  const buffer = memory.allocate(Vec4F, 2);
+  const buffer = memory.allocate(V, 2);
   assertEquals(buffer.byteLength, 32);
 
   const view = new DataView(buffer);
 
-  assertEquals(Vec4F.readAt(view, 0), [0, 0, 0, 0]);
-  assertEquals(Vec4F.readAt(view, 1), [0, 0, 0, 0]);
-  assertThrows(() => Vec4F.readAt(view, 2), RangeError);
+  assertEquals(V.readAt(view, 0), [0, 0, 0, 0]);
+  assertEquals(V.readAt(view, 1), [0, 0, 0, 0]);
+  assertThrows(() => V.readAt(view, 2), RangeError);
 
-  Vec4F.write(view, [1, 2, 3, 4]);
-  assertEquals(Vec4F.read(view), [1, 2, 3, 4]);
+  V.write(view, [1, 2, 3, 4]);
+  assertEquals(V.read(view), [1, 2, 3, 4]);
 
-  Vec4F.writeAt(view, 1, [5, 6, 7, 8]);
-  assertEquals(Vec4F.readAt(view, 1), [5, 6, 7, 8]);
+  V.writeAt(view, 1, [5, 6, 7, 8]);
+  assertEquals(V.readAt(view, 1), [5, 6, 7, 8]);
 
-  Vec4F.setX(view, 10);
-  assertEquals(Vec4F.getX(view), 10);
+  V.set(view, [1], 40);
+  assertEquals(V.get(view, [1]), 40);
 
-  Vec4F.setY(view, 20);
-  assertEquals(Vec4F.getY(view), 20);
+  V.setX(view, 10);
+  assertEquals(V.getX(view), 10);
 
-  Vec4F.setZ(view, 30);
-  assertEquals(Vec4F.getZ(view), 30);
+  V.setY(view, 20);
+  assertEquals(V.getY(view), 20);
 
-  Vec4F.setW(view, 40);
-  assertEquals(Vec4F.getW(view), 40);
+  V.setZ(view, 30);
+  assertEquals(V.getZ(view), 30);
+
+  V.setW(view, 40);
+  assertEquals(V.getW(view), 40);
 
   assertEquals(
-    Vec4F.viewAt(buffer, 0),
+    V.viewAt(buffer, 0),
     new Float32Array([10, 20, 30, 40]),
   );
 
   assertEquals(
-    Vec4F.viewAt(buffer, 1),
+    V.viewAt(buffer, 1),
     new Float32Array([5, 6, 7, 8]),
   );
 
@@ -768,19 +797,19 @@ Deno.test("Vec4", () => {
   );
 
   assertEquals(
-    Vec4F.view(buffer),
+    V.view(buffer),
     new Float32Array([10, 20, 30, 40]),
   );
   assertEquals(
-    Vec4F.view(buffer, 0),
+    V.view(buffer, 0),
     new Float32Array([10, 20, 30, 40]),
   );
   assertEquals(
-    Vec4F.view(buffer, 0, 1),
+    V.view(buffer, 0, 1),
     new Float32Array([10, 20, 30, 40]),
   );
   assertEquals(
-    Vec4F.view(buffer, 0, 2),
+    V.view(buffer, 0, 2),
     new Float32Array([10, 20, 30, 40, 5, 6, 7, 8]),
   );
 });

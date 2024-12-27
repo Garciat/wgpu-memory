@@ -1,3 +1,5 @@
+import type { TupIndexN, TupN, TupNM } from "./internal/tuple.ts";
+
 export const GPU_BOOL = "bool";
 export const GPU_I32 = "i32";
 export const GPU_U32 = "u32";
@@ -133,3 +135,48 @@ export type MemoryTypeVF<T> = MemoryTypeArgs<T>[2];
 export type MemoryTypeBoundedVF<T, V> = T extends
   MemoryType<infer R, V, infer VF extends V> ? VF
   : never;
+
+export interface VectorType<
+  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  N extends 2 | 3 | 4,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> extends MemoryType<TupN<R, N>, V, VF> {
+  readonly shape: [N];
+  readonly componentType: T;
+
+  get(view: DataView, indices: [TupIndexN<N>], offset?: number): R;
+
+  set(
+    view: DataView,
+    indices: [TupIndexN<N>],
+    value: R,
+    offset?: number,
+  ): void;
+}
+
+export interface MatrixType<
+  T extends MemoryType<R, V, VF> & { type: GPUFloatingPointType },
+  Cols extends 2 | 3 | 4,
+  Rows extends 2 | 3 | 4,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> extends MemoryType<TupNM<R, Cols, Rows>, V, VF> {
+  readonly shape: [Cols, Rows];
+  readonly componentType: T;
+
+  get(
+    view: DataView,
+    indices: [TupIndexN<Cols>, TupIndexN<Rows>],
+    offset?: number,
+  ): R;
+
+  set(
+    view: DataView,
+    indices: [TupIndexN<Cols>, TupIndexN<Rows>],
+    value: R,
+    offset?: number,
+  ): void;
+}

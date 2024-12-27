@@ -9,9 +9,18 @@ export type TupN<T, N extends number> = N extends 0 ? []
   : N extends 4 ? [T, T, T, T]
   : TupDigits<T, Digits<N>>; // Delegate large tuples to recursive type
 
+export type TupNM<T, N extends number, M extends number> = TupN<TupN<T, M>, N>;
+
 export type TupIndex<T> = T extends [infer _, ...infer Tail]
   ? Tail["length"] | TupIndex<Tail>
   : 0;
+
+export type TupIndexN<N extends number> = TupIndex<TupN<unknown, N>>;
+
+export type TupIndexNM<N extends number, M extends number> = [
+  TupIndex<TupN<unknown, N>>,
+  TupIndex<TupN<unknown, M>>,
+];
 
 export function makeEmptyTupN<T, N extends number>(
   length: N,
