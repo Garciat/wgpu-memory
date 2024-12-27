@@ -1,3 +1,5 @@
+export type { MemoryType } from "./types.ts";
+
 export { ArrayType } from "./array/array.ts";
 
 export {

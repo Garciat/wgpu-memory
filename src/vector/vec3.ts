@@ -1,10 +1,10 @@
 import {
   GPU_SCALAR_TYPES,
   GPU_VEC3,
-  type IType,
-  type ITypeBoundedVF,
-  type ITypeR,
-  type ITypeV,
+  type MemoryType,
+  type MemoryTypeBoundedVF,
+  type MemoryTypeR,
+  type MemoryTypeV,
 } from "../types.ts";
 
 import type { ScalarType } from "../scalar/mod.ts";
@@ -19,11 +19,11 @@ import { alignOfVec3, sizeOfVec3, strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
  */
 export class Vec3<
-  T extends IType<R, V, VF> & ScalarType,
-  R = ITypeR<T>,
-  V = ITypeV<T>,
-  VF extends V = ITypeBoundedVF<T, V>,
-> implements IType<Tup3<R>, V, VF> {
+  T extends MemoryType<R, V, VF> & ScalarType,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> implements MemoryType<Tup3<R>, V, VF> {
   #type: T;
   #byteSize: number;
   #alignment: number;

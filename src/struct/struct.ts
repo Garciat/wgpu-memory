@@ -1,9 +1,9 @@
 import {
   GPU_STRUCT,
-  type IType,
-  type ITypeR,
-  type ITypeV,
-  type ITypeVF,
+  type MemoryType,
+  type MemoryTypeR,
+  type MemoryTypeV,
+  type MemoryTypeVF,
 } from "../types.ts";
 import type { NonEmpty } from "../internal/constraints.ts";
 import { wgslRoundUp } from "../internal/math.ts";
@@ -16,7 +16,7 @@ import { strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#struct-types
  */
 export class Struct<S extends NonEmpty<StructDescriptor<S>>>
-  implements IType<StructR<S>, StructV<S>, never> {
+  implements MemoryType<StructR<S>, StructV<S>, never> {
   #fields: Array<StructField<S, keyof S>>;
   #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
@@ -35,7 +35,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
 
     for (const name of typedObjectKeys(descriptor)) {
       const fieldDescriptor = descriptor[name];
-      const fieldType = fieldDescriptor.type as IType<
+      const fieldType = fieldDescriptor.type as MemoryType<
         unknown,
         unknown,
         unknown
@@ -175,10 +175,10 @@ export class StructField<
   S extends NonEmpty<StructDescriptor<S>>,
   Key extends keyof S,
   F extends { index: number; type: T } = S[Key],
-  T extends IType<R, V, VF> = S[Key]["type"],
-  R = ITypeR<T>,
-  V = ITypeV<T>,
-  VF = ITypeVF<T>,
+  T extends MemoryType<R, V, VF> = S[Key]["type"],
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF = MemoryTypeVF<T>,
 > {
   #parent: Struct<S>;
   #index: number;
@@ -310,7 +310,7 @@ export class StructField<
 export type StructDescriptor<S> = {
   [K in keyof S]: S[K] extends { type: infer T } ? {
       index: number;
-      type: T extends IType<infer R, infer V, infer VF> ? T : never;
+      type: T extends MemoryType<infer R, infer V, infer VF> ? T : never;
     }
     : never;
 };
@@ -326,12 +326,12 @@ export type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
  * A structure's object representation.
  */
 export type StructR<S extends StructDescriptor<S>> = {
-  [K in keyof S]: ITypeR<S[K]["type"]>;
+  [K in keyof S]: MemoryTypeR<S[K]["type"]>;
 };
 
 /**
  * A structure's view representation.
  */
 export type StructV<S extends StructDescriptor<S>> = {
-  [K in keyof S]: ITypeV<S[K]["type"]>;
+  [K in keyof S]: MemoryTypeV<S[K]["type"]>;
 };

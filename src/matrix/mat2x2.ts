@@ -1,10 +1,10 @@
 import {
   GPU_FLOATING_POINT_TYPES,
   GPU_MAT2X2,
-  type IType,
-  type ITypeBoundedVF,
-  type ITypeR,
-  type ITypeV,
+  type MemoryType,
+  type MemoryTypeBoundedVF,
+  type MemoryTypeR,
+  type MemoryTypeV,
 } from "../types.ts";
 
 import type { FloatingPointType } from "../scalar/mod.ts";
@@ -33,11 +33,11 @@ type Index1 = TupIndex<ColumnType<unknown>>;
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
 export class Mat2x2<
-  T extends IType<R, V, VF> & FloatingPointType,
-  R = ITypeR<T>,
-  V = ITypeV<T>,
-  VF extends V = ITypeBoundedVF<T, V>,
-> implements IType<MatrixType<R>, V, VF> {
+  T extends MemoryType<R, V, VF> & FloatingPointType,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> implements MemoryType<MatrixType<R>, V, VF> {
   #type: T;
   #byteSize: number;
   #alignment: number;

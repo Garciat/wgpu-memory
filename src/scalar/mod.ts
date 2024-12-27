@@ -1,4 +1,8 @@
-import type { GPUFloatingPointType, GPUScalarType, IType } from "../types.ts";
+import type {
+  GPUFloatingPointType,
+  GPUScalarType,
+  MemoryType,
+} from "../types.ts";
 
 import type { Float16Type } from "./f16.ts";
 import type { Float32Type } from "./f32.ts";
@@ -26,14 +30,16 @@ export type ScalarType =
   // See: https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
   type Equal<T, U> = [T] extends [U] ? [U] extends [T] ? true : never : never;
 
-  type ITypeType<T> = T extends IType<unknown, unknown, unknown> ? T["type"]
+  type MemoryTypeType<T> = T extends MemoryType<unknown, unknown, unknown>
+    ? T["type"]
     : never;
 
   {
-    const _: Equal<ITypeType<FloatingPointType>, GPUFloatingPointType> = true;
+    const _: Equal<MemoryTypeType<FloatingPointType>, GPUFloatingPointType> =
+      true;
   }
 
   {
-    const _: Equal<ITypeType<ScalarType>, GPUScalarType> = true;
+    const _: Equal<MemoryTypeType<ScalarType>, GPUScalarType> = true;
   }
 }

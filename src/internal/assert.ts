@@ -1,7 +1,7 @@
-import type { GPUType, IType } from "../types.ts";
+import type { GPUType, MemoryType } from "../types.ts";
 
 export function assertTypeOneOf(
-  type: IType<unknown, unknown, unknown>,
+  type: MemoryType<unknown, unknown, unknown>,
   types: ReadonlySet<GPUType>,
 ) {
   if (!types.has(type.type)) {

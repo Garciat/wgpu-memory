@@ -54,7 +54,7 @@ export type GPUType =
  * @template V The view type.
  * @template VF The flat view type.
  */
-export interface IType<R, V, VF> {
+export interface MemoryType<R, V, VF> {
   /**
    * The type of the type.
    */
@@ -122,13 +122,14 @@ export interface IType<R, V, VF> {
   viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
 }
 
-type ITypeArgs<T> = T extends IType<infer R, infer V, infer VF> ? [R, V, VF]
+type MemoryTypeArgs<T> = T extends MemoryType<infer R, infer V, infer VF>
+  ? [R, V, VF]
   : never;
 
-export type ITypeR<T> = ITypeArgs<T>[0];
-export type ITypeV<T> = ITypeArgs<T>[1];
-export type ITypeVF<T> = ITypeArgs<T>[2];
+export type MemoryTypeR<T> = MemoryTypeArgs<T>[0];
+export type MemoryTypeV<T> = MemoryTypeArgs<T>[1];
+export type MemoryTypeVF<T> = MemoryTypeArgs<T>[2];
 
-export type ITypeBoundedVF<T, V> = T extends
-  IType<infer R, V, infer VF extends V> ? VF
+export type MemoryTypeBoundedVF<T, V> = T extends
+  MemoryType<infer R, V, infer VF extends V> ? VF
   : never;

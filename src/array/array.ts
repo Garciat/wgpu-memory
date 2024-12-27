@@ -1,9 +1,9 @@
 import {
   GPU_ARRAY,
-  type IType,
-  type ITypeR,
-  type ITypeV,
-  type ITypeVF,
+  type MemoryType,
+  type MemoryTypeR,
+  type MemoryTypeV,
+  type MemoryTypeVF,
 } from "../types.ts";
 import type { Positive } from "../internal/constraints.ts";
 import { assertPositive } from "../internal/assert.ts";
@@ -20,12 +20,12 @@ import {
  * @see https://gpuweb.github.io/gpuweb/wgsl/#array-types
  */
 export class ArrayType<
-  T extends IType<R, V, VF>,
+  T extends MemoryType<R, V, VF>,
   N extends number,
-  R = ITypeR<T>,
-  V = ITypeV<T>,
-  VF = ITypeVF<T>,
-> implements IType<TupN<R, N>, TupN<V, N>, VF> {
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF = MemoryTypeVF<T>,
+> implements MemoryType<TupN<R, N>, TupN<V, N>, VF> {
   #type: T;
   #length: N;
   #byteSize: number;

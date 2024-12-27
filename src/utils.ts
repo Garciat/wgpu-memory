@@ -1,4 +1,4 @@
-import type { IType } from "./types.ts";
+import type { MemoryType } from "./types.ts";
 import { assertPositive } from "./internal/assert.ts";
 
 /**
@@ -7,7 +7,7 @@ import { assertPositive } from "./internal/assert.ts";
  * If `count` is greater than 1, then the corresponding array stride is taken into account.
  */
 export function allocate(
-  type: IType<unknown, unknown, unknown>,
+  type: MemoryType<unknown, unknown, unknown>,
   count: number = 1,
 ): ArrayBuffer {
   assertPositive(count);
@@ -22,7 +22,7 @@ export function allocate(
  * If the buffer size is greater than the byte size of the type, then the array stride is used.
  */
 export function count(
-  type: IType<unknown, unknown, unknown>,
+  type: MemoryType<unknown, unknown, unknown>,
   buffer: ArrayBufferLike | ArrayBufferView,
 ): number {
   if (buffer.byteLength === type.byteSize) {
