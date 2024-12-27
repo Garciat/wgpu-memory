@@ -19,8 +19,8 @@ import {
   strideOf,
 } from "../internal/alignment.ts";
 
-const NCol = 2;
-const NRow = 2;
+const NCol: 2 = 2 as const;
+const NRow: 2 = 2 as const;
 
 /**
  * A 2x2 matrix type. The components are stored in column-major order per WGSL.
