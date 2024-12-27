@@ -65,6 +65,15 @@ export class ArrayType<
   /**
    * @inheritdoc
    */
+  toCode(namespace: string, indentation?: number): string {
+    return `new ${namespace}.ArrayType(${
+      this.#type.toCode(namespace, indentation)
+    }, ${this.#length})`;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_ARRAY {
     return GPU_ARRAY;
   }

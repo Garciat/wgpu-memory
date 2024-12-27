@@ -19,6 +19,13 @@ export class Float16Type
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    return `${namespace}.Float16`;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_F16 {
     return GPU_F16;
   }

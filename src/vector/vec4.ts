@@ -58,6 +58,23 @@ export class Vec4<
   toString(): string {
     return `vec4<${String(this.#type)}>`;
   }
+  /**
+   * @inheritdoc
+   */
+  toCode(namespace: string): string {
+    switch (this.#type.type) {
+      case "f32":
+        return `${namespace}.Vec4F`;
+      case "f16":
+        return `${namespace}.Vec4H`;
+      case "i32":
+        return `${namespace}.Vec4I`;
+      case "u32":
+        return `${namespace}.Vec4U`;
+      case "bool":
+        return `${namespace}.Vec4B`;
+    }
+  }
 
   /**
    * @inheritdoc

@@ -17,6 +17,13 @@ export class Uint32Type
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    return `${namespace}.Uint32`;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_U32 {
     return GPU_U32;
   }

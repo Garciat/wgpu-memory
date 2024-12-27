@@ -81,6 +81,11 @@ export interface MemoryType<R, V, VF> {
   toString(): string;
 
   /**
+   * @returns A JavaScript representation of the type.
+   */
+  toCode(namespace: string, indentation?: number): string;
+
+  /**
    * @param view The view to read from.
    * @param [offset=0] The offset in bytes from the start of the view. Defaults to 0.
    * @returns The value read.

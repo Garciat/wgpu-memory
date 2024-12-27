@@ -70,6 +70,18 @@ export class Mat3x3<
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    switch (this.#type.type) {
+      case "f32":
+        return `${namespace}.Mat${NCol}x${NRow}F`;
+      case "f16":
+        return `${namespace}.Mat${NCol}x${NRow}H`;
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_MAT3X3 {
     return GPU_MAT3X3;
   }

@@ -62,6 +62,24 @@ export class Vec3<
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    switch (this.#type.type) {
+      case "f32":
+        return `${namespace}.Vec3F`;
+      case "f16":
+        return `${namespace}.Vec3H`;
+      case "i32":
+        return `${namespace}.Vec3I`;
+      case "u32":
+        return `${namespace}.Vec3U`;
+      case "bool":
+        return `${namespace}.Vec3B`;
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_VEC3 {
     return GPU_VEC3;
   }

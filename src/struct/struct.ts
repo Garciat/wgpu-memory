@@ -76,6 +76,20 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   /**
    * @inheritdoc
    */
+  toCode(namespace: string, indentation: number = 0): string {
+    const fields = this.#fields.map((field) =>
+      field.toCode(namespace, indentation + 2)
+    );
+    return [
+      `new ${namespace}.Struct({`,
+      ...fields.map((field) => `${" ".repeat(indentation + 2)}${field},`),
+      `${" ".repeat(indentation)}})`,
+    ].join("\n");
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_STRUCT {
     return GPU_STRUCT;
   }
@@ -207,6 +221,15 @@ export class StructField<
   }
 
   /**
+   * @returns The field in JavaScript syntax.
+   */
+  toCode(namespace: string, indentation?: number): string {
+    return `${String(this.#name)}: { index: ${this.#index}, type: ${
+      this.#type.toCode(namespace, indentation)
+    } }`;
+  }
+
+  /**
    * @returns The index of the field within the structure.
    */
   get index(): number {
@@ -218,6 +241,13 @@ export class StructField<
    */
   get name(): Key {
     return this.#name;
+  }
+
+  /**
+   * @returns The type of the field.
+   */
+  get type(): T {
+    return this.#type;
   }
 
   /**

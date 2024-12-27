@@ -16,6 +16,13 @@ export class BoolType implements MemoryType<boolean, Uint32Array, Uint32Array> {
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    return `${namespace}.Bool`;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_BOOL {
     return GPU_BOOL;
   }

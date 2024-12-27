@@ -32,34 +32,35 @@ Deno.test("count", () => {
 });
 
 Deno.test("ArrayType", () => {
-  const i32x4 = new memory.ArrayType(memory.Int32, 4);
-  assertEquals(i32x4.elementCount, 4);
-  assertEquals(i32x4.elementType, memory.Int32);
-  assertEquals(String(i32x4), "array<i32, 4>");
-  assertEquals(i32x4.type, "array");
-  assertEquals(i32x4.byteSize, 16);
-  assertEquals(i32x4.alignment, 4);
+  const A = new memory.ArrayType(memory.Int32, 4);
+  assertEquals(A.elementCount, 4);
+  assertEquals(A.elementType, memory.Int32);
+  assertEquals(String(A), "array<i32, 4>");
+  assertEquals(A.toCode("memory"), "new memory.ArrayType(memory.Int32, 4)");
+  assertEquals(A.type, "array");
+  assertEquals(A.byteSize, 16);
+  assertEquals(A.alignment, 4);
 
-  const buffer = memory.allocate(i32x4, 2);
+  const buffer = memory.allocate(A, 2);
   assertEquals(buffer.byteLength, 32);
 
   const view = new DataView(buffer);
 
-  assertEquals(i32x4.readAt(view, 0), [0, 0, 0, 0]);
-  assertEquals(i32x4.readAt(view, 1), [0, 0, 0, 0]);
-  assertThrows(() => i32x4.readAt(view, 2), RangeError);
+  assertEquals(A.readAt(view, 0), [0, 0, 0, 0]);
+  assertEquals(A.readAt(view, 1), [0, 0, 0, 0]);
+  assertThrows(() => A.readAt(view, 2), RangeError);
 
-  i32x4.write(view, [1, 2, 3, 4]);
-  assertEquals(i32x4.read(view), [1, 2, 3, 4]);
+  A.write(view, [1, 2, 3, 4]);
+  assertEquals(A.read(view), [1, 2, 3, 4]);
 
-  i32x4.writeAt(view, 1, [5, 6, 7, 8]);
-  assertEquals(i32x4.readAt(view, 1), [5, 6, 7, 8]);
+  A.writeAt(view, 1, [5, 6, 7, 8]);
+  assertEquals(A.readAt(view, 1), [5, 6, 7, 8]);
 
-  i32x4.set(view, 0, 9);
-  assertEquals(i32x4.get(view, 0), 9);
+  A.set(view, 0, 9);
+  assertEquals(A.get(view, 0), 9);
 
   assertEquals(
-    i32x4.viewAt(buffer, 0),
+    A.viewAt(buffer, 0),
     [
       new Int32Array([9]),
       new Int32Array([2]),
@@ -69,7 +70,7 @@ Deno.test("ArrayType", () => {
   );
 
   assertEquals(
-    i32x4.viewAt(buffer, 1),
+    A.viewAt(buffer, 1),
     [
       new Int32Array([5]),
       new Int32Array([6]),
@@ -84,19 +85,19 @@ Deno.test("ArrayType", () => {
   );
 
   assertEquals(
-    i32x4.view(buffer),
+    A.view(buffer),
     new Int32Array([9, 2, 3, 4]),
   );
   assertEquals(
-    i32x4.view(buffer, 0),
+    A.view(buffer, 0),
     new Int32Array([9, 2, 3, 4]),
   );
   assertEquals(
-    i32x4.view(buffer, 0, 1),
+    A.view(buffer, 0, 1),
     new Int32Array([9, 2, 3, 4]),
   );
   assertEquals(
-    i32x4.view(buffer, 0, 2),
+    A.view(buffer, 0, 2),
     new Int32Array([9, 2, 3, 4, 5, 6, 7, 8]),
   );
 });
@@ -118,30 +119,45 @@ Deno.test("Struct", () => {
     String(StructA),
     "struct { u: f32, v: f32, w: vec2<f32>, x: f32 }",
   );
+  assertEquals(
+    StructA.toCode("memory"),
+    [
+      "new memory.Struct({",
+      "  u: { index: 0, type: memory.Float32 },",
+      "  v: { index: 1, type: memory.Float32 },",
+      "  w: { index: 2, type: memory.Vec2F },",
+      "  x: { index: 3, type: memory.Float32 },",
+      "})",
+    ].join("\n"),
+  );
   assertEquals(StructA.type, "struct");
   assertEquals(StructA.byteSize, 24);
   assertEquals(StructA.alignment, 8);
 
   assertEquals(StructA.fields.u.name, "u");
   assertEquals(StructA.fields.u.index, 0);
+  assertEquals(StructA.fields.u.type, memory.Float32);
   assertEquals(StructA.fields.u.offset, 0);
   assertEquals(StructA.fields.u.alignment, 4);
   assertEquals(StructA.fields.u.byteSize, 4);
 
   assertEquals(StructA.fields.v.name, "v");
   assertEquals(StructA.fields.v.index, 1);
+  assertEquals(StructA.fields.v.type, memory.Float32);
   assertEquals(StructA.fields.v.offset, 4);
   assertEquals(StructA.fields.v.alignment, 4);
   assertEquals(StructA.fields.v.byteSize, 4);
 
   assertEquals(StructA.fields.w.name, "w");
   assertEquals(StructA.fields.w.index, 2);
+  assertEquals(StructA.fields.w.type, memory.Vec2F);
   assertEquals(StructA.fields.w.offset, 8);
   assertEquals(StructA.fields.w.alignment, 8);
   assertEquals(StructA.fields.w.byteSize, 8);
 
   assertEquals(StructA.fields.x.name, "x");
   assertEquals(StructA.fields.x.index, 3);
+  assertEquals(StructA.fields.x.type, memory.Float32);
   assertEquals(StructA.fields.x.offset, 16);
   assertEquals(StructA.fields.x.alignment, 4);
   assertEquals(StructA.fields.x.byteSize, 4);
@@ -215,6 +231,9 @@ Deno.test("Struct", () => {
 });
 
 Deno.test("Mat2x2", () => {
+  assertEquals(memory.Mat2x2F.toCode("memory"), "memory.Mat2x2F");
+  assertEquals(memory.Mat2x2H.toCode("memory"), "memory.Mat2x2H");
+
   const M = memory.Mat2x2F;
   assertEquals(M.shape, [2, 2]);
   assertEquals(M.componentType, memory.Float32);
@@ -324,6 +343,9 @@ Deno.test("Mat2x2", () => {
 });
 
 Deno.test("Mat3x3", () => {
+  assertEquals(memory.Mat3x3F.toCode("memory"), "memory.Mat3x3F");
+  assertEquals(memory.Mat3x3H.toCode("memory"), "memory.Mat3x3H");
+
   const M = memory.Mat3x3F;
   assertEquals(M.shape, [3, 3]);
   assertEquals(M.componentType, memory.Float32);
@@ -453,6 +475,9 @@ Deno.test("Mat3x3", () => {
 });
 
 Deno.test("Mat4x4", () => {
+  assertEquals(memory.Mat4x4F.toCode("memory"), "memory.Mat4x4F");
+  assertEquals(memory.Mat4x4H.toCode("memory"), "memory.Mat4x4H");
+
   const M = memory.Mat4x4F;
   assertEquals(M.shape, [4, 4]);
   assertEquals(M.componentType, memory.Float32);
@@ -596,6 +621,12 @@ Deno.test("Mat4x4", () => {
 });
 
 Deno.test("Vec2", () => {
+  assertEquals(memory.Vec2F.toCode("memory"), "memory.Vec2F");
+  assertEquals(memory.Vec2H.toCode("memory"), "memory.Vec2H");
+  assertEquals(memory.Vec2I.toCode("memory"), "memory.Vec2I");
+  assertEquals(memory.Vec2U.toCode("memory"), "memory.Vec2U");
+  assertEquals(memory.Vec2B.toCode("memory"), "memory.Vec2B");
+
   const V = memory.Vec2F;
   assertEquals(V.shape, [2]);
   assertEquals(V.componentType, memory.Float32);
@@ -666,6 +697,12 @@ Deno.test("Vec2", () => {
 });
 
 Deno.test("Vec3", () => {
+  assertEquals(memory.Vec3F.toCode("memory"), "memory.Vec3F");
+  assertEquals(memory.Vec3H.toCode("memory"), "memory.Vec3H");
+  assertEquals(memory.Vec3I.toCode("memory"), "memory.Vec3I");
+  assertEquals(memory.Vec3U.toCode("memory"), "memory.Vec3U");
+  assertEquals(memory.Vec3B.toCode("memory"), "memory.Vec3B");
+
   const V = memory.Vec3F;
   assertEquals(V.shape, [3]);
   assertEquals(V.componentType, memory.Float32);
@@ -739,6 +776,12 @@ Deno.test("Vec3", () => {
 });
 
 Deno.test("Vec4", () => {
+  assertEquals(memory.Vec4F.toCode("memory"), "memory.Vec4F");
+  assertEquals(memory.Vec4H.toCode("memory"), "memory.Vec4H");
+  assertEquals(memory.Vec4I.toCode("memory"), "memory.Vec4I");
+  assertEquals(memory.Vec4U.toCode("memory"), "memory.Vec4U");
+  assertEquals(memory.Vec4B.toCode("memory"), "memory.Vec4B");
+
   const V = memory.Vec4F;
   assertEquals(V.shape, [4]);
   assertEquals(V.componentType, memory.Float32);
@@ -852,6 +895,7 @@ Deno.test("incompatible composite types", () => {
 Deno.test("Float32Type", () => {
   const F32 = memory.Float32;
   assertEquals(String(F32), "f32");
+  assertEquals(F32.toCode("memory"), "memory.Float32");
   assertEquals(F32.type, "f32");
   assertEquals(F32.byteSize, 4);
   assertEquals(F32.alignment, 4);
@@ -880,6 +924,7 @@ Deno.test("Float32Type", () => {
 Deno.test("Float16Type", () => {
   const F16 = memory.Float16;
   assertEquals(String(F16), "f16");
+  assertEquals(F16.toCode("memory"), "memory.Float16");
   assertEquals(F16.type, "f16");
   assertEquals(F16.byteSize, 2);
   assertEquals(F16.alignment, 2);
@@ -908,6 +953,7 @@ Deno.test("Float16Type", () => {
 Deno.test("Int32Type", () => {
   const I32 = memory.Int32;
   assertEquals(String(I32), "i32");
+  assertEquals(I32.toCode("memory"), "memory.Int32");
   assertEquals(I32.type, "i32");
   assertEquals(I32.byteSize, 4);
   assertEquals(I32.alignment, 4);
@@ -936,6 +982,7 @@ Deno.test("Int32Type", () => {
 Deno.test("Uint32Type", () => {
   const U32 = memory.Uint32;
   assertEquals(String(U32), "u32");
+  assertEquals(U32.toCode("memory"), "memory.Uint32");
   assertEquals(U32.type, "u32");
   assertEquals(U32.byteSize, 4);
   assertEquals(U32.alignment, 4);
@@ -964,6 +1011,7 @@ Deno.test("Uint32Type", () => {
 Deno.test("BoolType", () => {
   const Bool = memory.Bool;
   assertEquals(String(Bool), "bool");
+  assertEquals(Bool.toCode("memory"), "memory.Bool");
   assertEquals(Bool.type, "bool");
   assertEquals(Bool.byteSize, 4);
   assertEquals(Bool.alignment, 4);

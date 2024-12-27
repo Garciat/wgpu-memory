@@ -17,6 +17,13 @@ export class Float32Type
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    return `${namespace}.Float32`;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_F32 {
     return GPU_F32;
   }

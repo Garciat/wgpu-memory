@@ -16,6 +16,13 @@ export class Int32Type implements MemoryType<number, Int32Array, Int32Array> {
   /**
    * @inheritdoc
    */
+  toCode(namespace: string): string {
+    return `${namespace}.Int32`;
+  }
+
+  /**
+   * @inheritdoc
+   */
   get type(): typeof GPU_I32 {
     return GPU_I32;
   }
