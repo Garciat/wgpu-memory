@@ -1,18 +1,27 @@
-import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
+import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
 
 export type AnyMemoryType = memory.MemoryType<unknown, unknown, unknown>;
 
-export type AnyNumericMemoryType =
-  | typeof memory.Int32
-  | typeof memory.Uint32
+export type AnyFloatingPointMemoryType =
   | typeof memory.Float32
   | typeof memory.Float16;
+
+export type AnyNumericMemoryType =
+  | AnyFloatingPointMemoryType
+  | typeof memory.Int32
+  | typeof memory.Uint32;
 
 export type AnyScalarMemoryType =
   | AnyNumericMemoryType
   | typeof memory.Bool;
 
 export type AnyVectorType = memory.VectorType<AnyScalarMemoryType, 2 | 3 | 4>;
+
+export type AnyMatrixType = memory.MatrixType<
+  AnyFloatingPointMemoryType,
+  2 | 3 | 4,
+  2 | 3 | 4
+>;
 
 export type AnyArrayType = memory.ArrayType<AnyMemoryType, number>;
 
@@ -25,13 +34,21 @@ export type AnyStructDescriptorType = Record<
 
 export type MemoryTypeKey = AnyMemoryType["type"];
 
+export type FloatingPointMemoryTypeKey = AnyFloatingPointMemoryType["type"];
+
 export type ScalarMemoryTypeKey = AnyScalarMemoryType["type"];
 
-export const ScalarMemoryTypeKeys: ReadonlySet<ScalarMemoryTypeKey> = new Set([
-  "i32",
-  "u32",
+export const FloatingPointMemoryTypeKeys: ReadonlySet<
+  FloatingPointMemoryTypeKey
+> = new Set([
   "f32",
   "f16",
+]);
+
+export const ScalarMemoryTypeKeys: ReadonlySet<ScalarMemoryTypeKey> = new Set([
+  ...FloatingPointMemoryTypeKeys,
+  "i32",
+  "u32",
   "bool",
 ]);
 

@@ -1,12 +1,15 @@
 import { Component, ComponentChildren, JSX } from "npm:preact@10.25.3";
-import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
+import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
 import {
   AnyArrayType,
+  AnyFloatingPointMemoryType,
+  AnyMatrixType,
   AnyMemoryType,
   AnyScalarMemoryType,
   AnyStructDescriptorType,
   AnyStructType,
   AnyVectorType,
+  FloatingPointMemoryTypeKeys,
   MemoryTypeKey,
   MemoryTypeKeys,
   parseMemoryTypeKey,
@@ -151,6 +154,71 @@ class VectorTypeEditor
   private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
     this.setState({
       componentType: event.type as AnyScalarMemoryType,
+    }, this.triggerOnChange);
+  };
+}
+
+interface MatrixTypeEditorProps extends TypeEditorProps {
+  type: AnyMatrixType;
+}
+
+interface MatrixTypeEditorState {
+  componentType: AnyFloatingPointMemoryType;
+}
+
+class MatrixTypeEditor
+  extends Component<MatrixTypeEditorProps, MatrixTypeEditorState> {
+  constructor({ type }: MatrixTypeEditorProps) {
+    super();
+    this.state = {
+      componentType: type.componentType,
+    };
+  }
+
+  override componentDidMount(): void {
+    this.triggerOnChange();
+  }
+
+  override render(): ComponentChildren {
+    return (
+      <div class="matrix-type-editor">
+        <p>
+          <span>{"Component Type: "}</span>
+          <MemoryTypeEditor
+            type={this.state.componentType}
+            allowedTypes={FloatingPointMemoryTypeKeys}
+            onChange={this.onComponentTypeChange}
+          />
+        </p>
+      </div>
+    );
+  }
+
+  private triggerOnChange() {
+    switch (this.props.type.type) {
+      case "mat2x2":
+        this.props.onChange?.({
+          type: new memory.Mat2x2(this.state.componentType),
+        });
+        break;
+      case "mat3x3":
+        this.props.onChange?.({
+          type: new memory.Mat3x3(this.state.componentType),
+        });
+        break;
+      case "mat4x4":
+        this.props.onChange?.({
+          type: new memory.Mat4x4(this.state.componentType),
+        });
+        break;
+      default:
+        throw new Error(`Unknown matrix type: ${this.props.type.type}`);
+    }
+  }
+
+  private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
+    this.setState({
+      componentType: event.type as AnyFloatingPointMemoryType,
     }, this.triggerOnChange);
   };
 }
@@ -351,20 +419,30 @@ function getMemoryTypeEditor(
 
     case "vec2":
     case "vec3":
-    case "vec4": {
-      const vectorType = type as AnyVectorType;
-      return <VectorTypeEditor type={vectorType} onChange={onChange} />;
-    }
+    case "vec4":
+      return (
+        <VectorTypeEditor type={type as AnyVectorType} onChange={onChange} />
+      );
 
-    case "array": {
-      const arrayType = type as AnyArrayType;
-      return <ArrayTypeEditor type={arrayType} onChange={onChange} />;
-    }
+    case "mat2x2":
+    case "mat3x3":
+    case "mat4x4":
+      return (
+        <MatrixTypeEditor type={type as AnyMatrixType} onChange={onChange} />
+      );
 
-    case "struct": {
-      const structType = type as AnyStructType;
-      return <StructTypeEditor type={structType} onChange={onChange} />;
-    }
+    case "array":
+      return (
+        <ArrayTypeEditor
+          type={type as AnyArrayType}
+          onChange={onChange}
+        />
+      );
+
+    case "struct":
+      return (
+        <StructTypeEditor type={type as AnyStructType} onChange={onChange} />
+      );
 
     default:
       throw new Error(`Unknown memory type: ${type.type}`);

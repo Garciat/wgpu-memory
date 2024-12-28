@@ -1,7 +1,8 @@
 import { JSX } from "npm:preact@10.25.3";
-import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
+import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
 import {
   AnyArrayType,
+  AnyMatrixType,
   AnyMemoryType,
   AnyNumericMemoryType,
   AnyStructType,
@@ -118,10 +119,53 @@ const VectorValueEditor = (
                 {getMemoryValueEditor({
                   type: type.componentType,
                   buffer,
-                  offset: offset + i * type.componentType.byteSize,
+                  offset: offset + type.offset([i as 0 | 1 | 2 | 3]),
                   onChange,
                 })}
               </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+interface MatrixValueEditorProps extends ValueEditorProps {
+  type: AnyMatrixType;
+}
+
+const MatrixValueEditor = (
+  { type, buffer, offset, onChange }: MatrixValueEditorProps,
+) => {
+  return (
+    <table class="matrix-value-editor table-value-editor">
+      <thead>
+        <tr>
+          <th colspan={2}>
+            <pre>{type.type}</pre>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: type.shape[1] }).map((_, row) => {
+          return (
+            <tr>
+              {Array.from({ length: type.shape[0] }).map((_, col) => {
+                return (
+                  <td>
+                    {getMemoryValueEditor({
+                      type: type.componentType,
+                      buffer,
+                      offset: offset + type.offset([
+                        col as 0 | 1 | 2 | 3,
+                        row as 0 | 1 | 2 | 3,
+                      ]),
+                      onChange,
+                    })}
+                  </td>
+                );
+              })}
             </tr>
           );
         })}
@@ -283,6 +327,18 @@ function getMemoryValueEditor(
       return (
         <VectorValueEditor
           type={type as AnyVectorType}
+          buffer={buffer}
+          offset={offset}
+          onChange={onChange}
+        />
+      );
+
+    case "mat2x2":
+    case "mat3x3":
+    case "mat4x4":
+      return (
+        <MatrixValueEditor
+          type={type as AnyMatrixType}
           buffer={buffer}
           offset={offset}
           onChange={onChange}

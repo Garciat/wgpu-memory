@@ -1,6 +1,6 @@
 import { render } from "npm:preact@10.25.3";
 import { useState } from "npm:preact@10.25.3/hooks";
-import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
+import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
 
 import { BinaryDumpTable } from "./binary-dump-table.tsx";
 import {
@@ -86,7 +86,7 @@ const App = ({}: AppProps) => {
       <h2>JavaScript</h2>
       <section class="centered">
         <pre class="syntax-highlight">
-          {`import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";\n\n`}
+          {`import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";\n\n`}
           {`const myType = ${memoryType.toCode("memory")};`}
         </pre>
       </section>
