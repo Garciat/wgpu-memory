@@ -52,10 +52,10 @@ const NumericValueEditor = (
       <input
         type="number"
         required={true}
-        defaultValue={String(type.read(new DataView(buffer, offset)))}
         min={min}
         max={max}
         step={isInteger ? undefined : "any"}
+        value={String(type.read(new DataView(buffer, offset)))}
         onInput={onInput}
       />
       <code>{`: ${type.type}`}</code>
