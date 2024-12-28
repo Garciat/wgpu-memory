@@ -2,6 +2,8 @@ import { render } from "npm:preact@10.25.3";
 import { useState } from "npm:preact@10.25.3/hooks";
 import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
 
+import "./float16-polyfill.ts";
+
 import { BinaryDumpTable } from "./binary-dump-table.tsx";
 import {
   type MemoryTypeChangeEvent,
@@ -86,6 +88,11 @@ const App = ({}: AppProps) => {
       </p>
       <p>Below you may use a visual editor for the supported memory types.</p>
       <h2>Memory Type</h2>
+      <p class="warning" hidden={"Float16Array" in globalThis}>
+        <strong>Note:</strong> Your JavaScript environment does not support{" "}
+        <a href="https://tc39.es/proposal-float16array/">Float 16</a>. If you
+        use <code>f16</code> below, then the page will stop working.
+      </p>
       <section class="centered">
         <MemoryTypeEditor type={memoryType} onChange={onMemoryTypeChange} />
       </section>
