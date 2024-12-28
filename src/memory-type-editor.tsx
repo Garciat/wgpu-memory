@@ -5,7 +5,7 @@ export interface MemoryTypeChangeEvent {
   type: memory.MemoryType<unknown, unknown, unknown>;
 }
 
-interface MemoryTypeEditorProps {
+interface TypeEditorProps {
   type: memory.MemoryType<unknown, unknown, unknown>;
   onChange?: (event: MemoryTypeChangeEvent) => void;
 }
@@ -31,8 +31,15 @@ const PredefinedTypes = {
   }),
 };
 
+const AllTypes = new Set(Object.keys(PredefinedTypes));
+const ScalarTypes = new Set(["i32", "u32", "f32", "f16", "bool"]);
+
+interface MemoryTypeEditorProps extends TypeEditorProps {
+  allowedTypes?: Set<string>;
+}
+
 export const MemoryTypeEditor = (
-  { type, onChange }: MemoryTypeEditorProps,
+  { type, allowedTypes = AllTypes, onChange }: MemoryTypeEditorProps,
 ) => {
   function onMemoryTypeChange(event: JSX.TargetedEvent<HTMLSelectElement>) {
     const type = PredefinedTypes[
@@ -47,7 +54,7 @@ export const MemoryTypeEditor = (
         name="memory-type"
         onInput={onMemoryTypeChange}
       >
-        {Object.keys(PredefinedTypes).map((key) => (
+        {Array.from(allowedTypes).map((key) => (
           <option selected={key === type.type}>{key}</option>
         ))}
       </select>
@@ -56,7 +63,7 @@ export const MemoryTypeEditor = (
   );
 };
 
-class ScalarTypeEditor extends Component<MemoryTypeEditorProps> {
+class ScalarTypeEditor extends Component<TypeEditorProps> {
   override componentDidMount(): void {
     this.props.onChange?.({
       type: this.props.type,
@@ -68,7 +75,7 @@ class ScalarTypeEditor extends Component<MemoryTypeEditorProps> {
   }
 }
 
-interface VectorTypeEditorProps extends MemoryTypeEditorProps {
+interface VectorTypeEditorProps extends TypeEditorProps {
   type: memory.VectorType<
     memory.MemoryType<number, unknown, unknown> & {
       type: "f16" | "f32" | "i32" | "u32";
@@ -86,7 +93,7 @@ interface VectorTypeEditorState {
   };
 }
 
-interface ArrayTypeEditorProps extends MemoryTypeEditorProps {
+interface ArrayTypeEditorProps extends TypeEditorProps {
   type: memory.ArrayType<
     memory.MemoryType<unknown, unknown, unknown>,
     number
@@ -113,6 +120,7 @@ class VectorTypeEditor
           <span>{"Component Type: "}</span>
           <MemoryTypeEditor
             type={this.state.componentType}
+            allowedTypes={ScalarTypes}
             onChange={this.onComponentTypeChange}
           />
         </p>
@@ -225,7 +233,7 @@ class ArrayTypeEditor
   };
 }
 
-interface StructTypeEditorProps extends MemoryTypeEditorProps {
+interface StructTypeEditorProps extends TypeEditorProps {
   type: memory.Struct<
     Record<
       string,
@@ -343,7 +351,7 @@ class StructTypeEditor
 }
 
 function getMemoryTypeEditor(
-  { type, onChange }: MemoryTypeEditorProps,
+  { type, onChange }: TypeEditorProps,
 ) {
   switch (type.type) {
     case "i32":
