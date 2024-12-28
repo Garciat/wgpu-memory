@@ -26,12 +26,6 @@ const ScalarValueEditor = (
     if (!e.currentTarget.checkValidity()) {
       return;
     }
-    console.log(
-      "onInput",
-      e.currentTarget.value,
-      offset,
-      new DataView(buffer, offset),
-    );
     type.write(
       new DataView(buffer, offset),
       parseFloat(e.currentTarget.value),
@@ -46,6 +40,36 @@ const ScalarValueEditor = (
         defaultValue={String(type.read(new DataView(buffer, offset)))}
         min={min}
         max={max}
+        onInput={onInput}
+      />
+      <code>{`: ${type.type}`}</code>
+    </>
+  );
+};
+
+interface BooleanValueEditorProps extends ValueEditorProps {
+  type: typeof memory.Bool;
+}
+
+const BooleanValueEditor = (
+  { type, buffer, offset, onChange }: BooleanValueEditorProps,
+) => {
+  function onInput(e: JSX.TargetedInputEvent<HTMLInputElement>) {
+    if (!e.currentTarget.checkValidity()) {
+      return;
+    }
+    type.write(
+      new DataView(buffer, offset),
+      e.currentTarget.checked,
+    );
+    onChange?.();
+  }
+
+  return (
+    <>
+      <input
+        type="checkbox"
+        checked={type.read(new DataView(buffer, offset))}
         onInput={onInput}
       />
       <code>{`: ${type.type}`}</code>
@@ -243,10 +267,8 @@ function getMemoryValueEditor(
       );
     case "bool":
       return (
-        <ScalarValueEditor
-          type={type}
-          min={0}
-          max={1}
+        <BooleanValueEditor
+          type={type as typeof memory.Bool}
           buffer={buffer}
           offset={offset}
           onChange={onChange}
