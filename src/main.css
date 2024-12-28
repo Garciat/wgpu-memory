@@ -36,6 +36,12 @@ main > .centered {
   margin: 0 auto;
   padding: 1rem 1.25rem 0;
 }
+main > .centered + .centered {
+  padding-top: 0;
+}
+main > .centered > * {
+  margin: 0 auto 1rem;
+}
 
 select[name="memory-type"] {
   margin: 0.25rem;
@@ -51,7 +57,6 @@ input.field-name {
 }
 
 .memory-editor-table {
-  margin: 0 auto 1rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
   border-spacing: 0;
 }
@@ -106,7 +111,6 @@ pre.syntax-highlight {
 }
 
 .binary-dump-table {
-  margin: 0 auto 1rem;
   border-spacing: 0;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
 }

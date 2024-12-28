@@ -89,9 +89,8 @@ const App = ({}: AppProps) => {
       <section class="centered">
         <MemoryTypeEditor type={memoryType} onChange={onMemoryTypeChange} />
       </section>
-      <h2>Type Properties</h2>
-      <section>
-        <pre>{
+      <section class="centered">
+        <pre class="syntax-highlight">{
           JSON.stringify({
             byteSize: memoryType.byteSize,
             alignment: memoryType.alignment,
@@ -100,8 +99,8 @@ const App = ({}: AppProps) => {
         }</pre>
       </section>
       <h2>WGSL (approximate)</h2>
-      <section>
-        <pre>{String(memoryType)}</pre>
+      <section class="centered">
+        <pre class="syntax-highlight">{String(memoryType)}</pre>
       </section>
       <h2>JavaScript</h2>
       <section class="centered">
@@ -111,7 +110,7 @@ const App = ({}: AppProps) => {
         </pre>
       </section>
       <h2>Object Value</h2>
-      <section class="object-value-container">
+      <section class="centered object-value-container">
         <MemoryValueEditor
           type={memoryType}
           buffer={bytes.buffer}
