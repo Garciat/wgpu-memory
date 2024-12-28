@@ -303,6 +303,7 @@ class ArrayTypeEditor
 
   private onArraySizeChange = (e: JSX.TargetedInputEvent<HTMLInputElement>) => {
     if (!e.currentTarget.checkValidity()) {
+      e.currentTarget.reportValidity();
       return;
     }
     this.setState(

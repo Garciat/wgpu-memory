@@ -35,6 +35,7 @@ const NumericValueEditor = (
 ) => {
   function onInput(e: JSX.TargetedInputEvent<HTMLInputElement>) {
     if (!e.currentTarget.checkValidity()) {
+      e.currentTarget.reportValidity();
       return;
     }
     type.write(
@@ -70,9 +71,6 @@ const BooleanValueEditor = (
   { type, buffer, offset, onChange }: BooleanValueEditorProps,
 ) => {
   function onInput(e: JSX.TargetedInputEvent<HTMLInputElement>) {
-    if (!e.currentTarget.checkValidity()) {
-      return;
-    }
     type.write(
       new DataView(buffer, offset),
       e.currentTarget.checked,

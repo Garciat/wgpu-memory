@@ -41,10 +41,6 @@ select[name="memory-type"] {
   margin: 0.25rem;
 }
 
-input[type="number"] {
-  width: 3rem;
-}
-
 input.field-name {
   width: 5rem;
 }
