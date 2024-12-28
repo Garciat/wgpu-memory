@@ -1,4 +1,4 @@
-import type { TupIndexN, TupN, TupNM } from "./internal/tuple.ts";
+import type { TupIndexN, TupIndexNM, TupN, TupNM } from "./internal/tuple.ts";
 
 export const GPU_BOOL = "bool";
 export const GPU_I32 = "i32";
@@ -159,6 +159,11 @@ export interface VectorType<
     value: R,
     offset?: number,
   ): void;
+
+  /**
+   * @returns The offset of the given indices from the start of the vector.
+   */
+  offset(indices: [TupIndexN<N>]): number;
 }
 
 export interface MatrixType<
@@ -174,14 +179,19 @@ export interface MatrixType<
 
   get(
     view: DataView,
-    indices: [TupIndexN<Cols>, TupIndexN<Rows>],
+    indices: TupIndexNM<Cols, Rows>,
     offset?: number,
   ): R;
 
   set(
     view: DataView,
-    indices: [TupIndexN<Cols>, TupIndexN<Rows>],
+    indices: TupIndexNM<Cols, Rows>,
     value: R,
     offset?: number,
   ): void;
+
+  /**
+   * @returns The offset of the given indices from the start of the matrix.
+   */
+  offset(indices: TupIndexNM<Cols, Rows>): number;
 }

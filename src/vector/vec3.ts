@@ -200,4 +200,8 @@ export class Vec3<
   set(view: DataView, indices: [0 | 1 | 2], value: R, offset: number = 0) {
     this.#type.write(view, value, offset + indices[0] * this.#type.byteSize);
   }
+
+  offset(indices: [0 | 1 | 2]): number {
+    return indices[0] * this.#type.byteSize;
+  }
 }

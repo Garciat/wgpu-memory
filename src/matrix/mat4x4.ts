@@ -227,6 +227,10 @@ export class Mat4x4<
     this.setAt(view, indices[0], indices[1], value, offset);
   }
 
+  offset(indices: TupIndexNM<typeof NCol, typeof NRow>): number {
+    return this.#offset(indices[0], indices[1]);
+  }
+
   getAt(
     view: DataView,
     column: TupIndexN<typeof NCol>,

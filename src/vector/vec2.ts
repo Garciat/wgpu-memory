@@ -186,4 +186,8 @@ export class Vec2<
   set(view: DataView, indices: [0 | 1], value: R, offset: number = 0) {
     this.#type.write(view, value, offset + indices[0] * this.#type.byteSize);
   }
+
+  offset(indices: [0 | 1]): number {
+    return indices[0] * this.#type.byteSize;
+  }
 }

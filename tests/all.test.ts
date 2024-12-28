@@ -241,6 +241,7 @@ Deno.test("Mat2x2", () => {
   assertEquals(M.type, "mat2x2");
   assertEquals(M.byteSize, 16);
   assertEquals(M.alignment, 8);
+  assertEquals(M.offset([1, 1]), 12);
 
   const buffer = memory.allocate(M, 2);
   assertEquals(buffer.byteLength, 32);
@@ -353,6 +354,7 @@ Deno.test("Mat3x3", () => {
   assertEquals(M.type, "mat3x3");
   assertEquals(M.byteSize, 48);
   assertEquals(M.alignment, 16);
+  assertEquals(M.offset([1, 1]), 20);
 
   const buffer = memory.allocate(M, 2);
   assertEquals(buffer.byteLength, 96);
@@ -485,6 +487,7 @@ Deno.test("Mat4x4", () => {
   assertEquals(M.type, "mat4x4");
   assertEquals(M.byteSize, 64);
   assertEquals(M.alignment, 16);
+  assertEquals(M.offset([1, 1]), 20);
 
   const buffer = memory.allocate(M, 2);
   assertEquals(buffer.byteLength, 128);
@@ -634,6 +637,7 @@ Deno.test("Vec2", () => {
   assertEquals(V.type, "vec2");
   assertEquals(V.byteSize, 8);
   assertEquals(V.alignment, 8);
+  assertEquals(V.offset([1]), 4);
 
   const buffer = memory.allocate(V, 2);
   assertEquals(buffer.byteLength, 16);
@@ -710,6 +714,7 @@ Deno.test("Vec3", () => {
   assertEquals(V.type, "vec3");
   assertEquals(V.byteSize, 12);
   assertEquals(V.alignment, 16);
+  assertEquals(V.offset([1]), 4);
 
   const buffer = memory.allocate(V, 2);
   assertEquals(buffer.byteLength, 32);
@@ -789,6 +794,7 @@ Deno.test("Vec4", () => {
   assertEquals(V.type, "vec4");
   assertEquals(V.byteSize, 16);
   assertEquals(V.alignment, 16);
+  assertEquals(V.offset([1]), 4);
 
   const buffer = memory.allocate(V, 2);
   assertEquals(buffer.byteLength, 32);
