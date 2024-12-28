@@ -26,7 +26,9 @@ main > *:not(.centered) {
   padding: 1rem 1.25rem 0;
 }
 main > .centered {
-  width: max-content;
+  display: flex;
+  overflow-x: scroll;
+  max-width: calc(1rem * var(--width));
   margin: 0 auto;
   padding: 1rem 1.25rem 0;
 }
@@ -36,26 +38,44 @@ main > .centered {
   padding: 0.5rem;
 }
 
-.array-value-editor {
+.object-value-container {
+  max-height: 50vh;
+  overflow-y: scroll;
+}
+
+.table-value-editor {
+  margin: 0 auto 1rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
   border-spacing: 0;
-  border: 1px solid #666;
 }
 
-.array-value-editor th, .array-value-editor td {
-  padding: 0.25rem 0.5rem;
+.table-value-editor .table-value-editor {
+  margin: 0.25rem;
+}
+
+.table-value-editor th {
   font-weight: inherit;
+  padding: 0 0.4rem;
 }
 
-.array-value-editor thead {
+.table-value-editor td {
+  padding: 0.25rem 0.5rem;
+}
+
+.table-value-editor thead {
   background-color: var(--accent-bg);
   color: var(--accent-fg);
 }
 
-.array-value-editor tbody > tr:nth-child(2n+1) {
+.table-value-editor tbody > tr {
+  background-color: #fff;
+}
+
+.table-value-editor tbody > tr:nth-child(2n) {
   background-color: #eee;
 }
 
-.array-value-editor tbody > tr.column-index {
+.table-value-editor tbody .column-index {
   text-align: right;
 }
 
@@ -70,7 +90,9 @@ pre {
 }
 
 .binary-dump-table {
+  margin: 0 auto 1rem;
   border-spacing: 0;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
 }
 
 .binary-dump-table > thead {

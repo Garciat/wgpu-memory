@@ -203,7 +203,7 @@ function makeVectorValueEditor<
   >,
   N extends 2 | 3 | 4,
 >(
-  type: V,
+  vectorType: V,
   componentEditor: ValueEditorComponent,
 ) {
   return ({ view, onChange }: ValueEditorProps) => {
@@ -214,20 +214,33 @@ function makeVectorValueEditor<
     }
 
     return (
-      <div class="vector-value-editor">
-        {Array.from({ length: type.shape[0] }).map((_, i) => (
-          <div>
-            <span>{`${"xyzw"[i]}: `}</span>
-            <ElementValueEditor
-              view={new DataView(
-                view.buffer,
-                view.byteOffset + i * type.componentType.byteSize,
-              )}
-              onChange={onElementChange}
-            />
-          </div>
-        ))}
-      </div>
+      <table class="vector-value-editor table-value-editor">
+        <thead>
+          <tr>
+            <th colspan={2}>
+              <pre>{vectorType.type}</pre>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: vectorType.shape[0] }).map((_, i) => (
+            <tr>
+              <td class="column-index">
+                <pre>{`${"xyzw"[i]}`}</pre>
+              </td>
+              <td>
+                <ElementValueEditor
+                  view={new DataView(
+                    view.buffer,
+                    view.byteOffset + i * vectorType.componentType.byteSize,
+                  )}
+                  onChange={onElementChange}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   };
 }
@@ -307,17 +320,20 @@ const ArrayValueEditor = <N extends number>(
   }
 
   return (
-    <table class="array-value-editor">
+    <table class="array-value-editor table-value-editor">
       <thead>
         <tr>
-          <th>Index</th>
-          <th>Value</th>
+          <th colspan={2}>
+            <pre>{arrayType.type}</pre>
+          </th>
         </tr>
       </thead>
       <tbody>
         {Array.from({ length: arrayType.elementCount }).map((_, i) => (
           <tr>
-            <td class="column-index">{i}</td>
+            <td class="column-index">
+              <pre>{i}</pre>
+            </td>
             <td>
               <ElementValueEditor
                 view={new DataView(

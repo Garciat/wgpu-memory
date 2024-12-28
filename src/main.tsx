@@ -63,15 +63,8 @@ const App = ({}: AppProps) => {
             byteSize: memoryType.byteSize,
             alignment: memoryType.alignment,
             arrayStride: memoryType.arrayStride,
-          }, null, 2)
+          })
         }</pre>
-      </section>
-      <h2>Object Value</h2>
-      <section>
-        <ValueEditor
-          view={new DataView(data.buffer)}
-          onChange={onMemoryValueChange}
-        />
       </section>
       <h2>WGSL (approximate)</h2>
       <section>
@@ -79,7 +72,17 @@ const App = ({}: AppProps) => {
       </section>
       <h2>JavaScript</h2>
       <section>
-        <pre>{memoryType.toCode("memory")}</pre>
+        <pre>
+          {`import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";\n\n`}
+          {`const myType = ${memoryType.toCode("memory")};`}
+        </pre>
+      </section>
+      <h2>Object Value</h2>
+      <section class="object-value-container">
+        <ValueEditor
+          view={new DataView(data.buffer)}
+          onChange={onMemoryValueChange}
+        />
       </section>
       <h2>Memory View</h2>
       <section class="centered">
