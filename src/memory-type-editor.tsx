@@ -432,6 +432,8 @@ class StructTypeEditor
       )
     ) {
       e.currentTarget.setCustomValidity("Field names must be unique.");
+    } else {
+      e.currentTarget.setCustomValidity("");
     }
     if (!e.currentTarget.checkValidity()) {
       e.currentTarget.reportValidity();
