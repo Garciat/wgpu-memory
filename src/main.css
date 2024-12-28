@@ -64,8 +64,10 @@ input.field-name {
 }
 
 .memory-editor-table {
+  overflow: hidden;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
   border-spacing: 0;
+  border-radius: 0.25rem;
 }
 
 .memory-editor-table .memory-editor-table {
