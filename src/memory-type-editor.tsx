@@ -128,14 +128,7 @@ class ArrayTypeEditor
     );
     this.props.onChange?.({
       type,
-      valueEditor: ({ view, onChange }) => (
-        <ArrayValueEditor
-          arrayType={type}
-          elementValueEditor={this.state.elementValueEditor}
-          view={view}
-          onChange={onChange}
-        />
-      ),
+      valueEditor: makeArrayValueEditor(type, this.state.elementValueEditor),
     });
   }
 
@@ -155,6 +148,113 @@ class ArrayTypeEditor
       this.triggerOnChange,
     );
   };
+}
+
+interface StructTypeEditorState {
+  fields: Array<
+    { name: string; type: memory.MemoryType<unknown, unknown, unknown> }
+  >;
+}
+
+class StructTypeEditor
+  extends Component<BaseMemoryTypeEditorProps, StructTypeEditorState> {
+  constructor() {
+    super();
+    this.state = {
+      fields: [
+        { name: "field0", type: memory.Int32 },
+      ],
+    };
+  }
+
+  override componentDidMount(): void {
+    this.triggerOnChange();
+  }
+
+  override render(): ComponentChildren {
+    return (
+      <table class="struct-type-editor">
+        <thead>
+          <tr>
+            <th>{"Field Name"}</th>
+            <th>{"Field Type"}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.fields.map((field, i) => (
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={field.name}
+                  onInput={(e) => this.onFieldNameChange(i, e)}
+                />
+              </td>
+              <td>
+                <MemoryTypeEditor
+                  onChange={(e) => this.onFieldTypeChange(i, e)}
+                />
+              </td>
+            </tr>
+          ))}
+          <tr>
+            <td colspan={2}>
+              <button onClick={this.addField}>{"Add Field"}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  }
+
+  private triggerOnChange() {
+    const fields = {} as Record<
+      string,
+      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
+    >;
+
+    for (const [i, field] of this.state.fields.entries()) {
+      fields[field.name] = { index: i, type: field.type };
+    }
+
+    const type = new memory.Struct(fields);
+
+    this.props.onChange?.({
+      type,
+      valueEditor: makeStructValueEditor(type),
+    });
+  }
+
+  private addField = () => {
+    this.setState(
+      (state) => ({
+        fields: [
+          ...state.fields,
+          { name: `field${state.fields.length}`, type: memory.Int32 },
+        ],
+      }),
+      this.triggerOnChange,
+    );
+  };
+
+  private onFieldNameChange(
+    i: number,
+    e: JSX.TargetedInputEvent<HTMLInputElement>,
+  ) {
+    this.setState((state) => {
+      const fields = [...state.fields];
+      fields[i] = { ...fields[i], name: e.currentTarget.value };
+      return { fields };
+    }, this.triggerOnChange);
+  }
+
+  private onFieldTypeChange(i: number, e: MemoryTypeChangeEvent) {
+    this.setState((state) => {
+      const fields = [...state.fields];
+      fields[i] = { ...fields[i], type: e.type };
+      return { fields };
+    }, this.triggerOnChange);
+  }
 }
 
 interface NumericValueEditorConfig {
@@ -330,7 +430,7 @@ const ArrayValueEditor = <N extends number>(
       </thead>
       <tbody>
         {Array.from({ length: arrayType.elementCount }).map((_, i) => (
-          <tr>
+          <tr key={i}>
             <td class="column-index">
               <pre>{i}</pre>
             </td>
@@ -350,9 +450,163 @@ const ArrayValueEditor = <N extends number>(
   );
 };
 
+function makeArrayValueEditor<N extends number>(
+  arrayType: memory.ArrayType<
+    memory.MemoryType<unknown, unknown, unknown>,
+    N
+  >,
+  elementValueEditor: ValueEditorComponent,
+) {
+  return ({ view, onChange }: ValueEditorProps) => {
+    return (
+      <ArrayValueEditor
+        arrayType={arrayType}
+        elementValueEditor={elementValueEditor}
+        view={view}
+        onChange={onChange}
+      />
+    );
+  };
+}
+
+interface StructValueEditorProps extends ValueEditorProps {
+  structType: memory.Struct<
+    Record<
+      string,
+      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
+    >
+  >;
+}
+
+const StructValueEditor = ({
+  structType,
+  view,
+  onChange,
+}: StructValueEditorProps) => {
+  const editors = {} as Record<string, ValueEditorComponent>;
+
+  for (const [name, field] of Object.entries(structType.fields)) {
+    editors[name] = getValueEditor(field.type);
+  }
+
+  function onFieldValueChange() {
+    onChange?.();
+  }
+
+  return (
+    <table class="struct-value-editor table-value-editor">
+      <thead>
+        <tr>
+          <th colspan={2}>
+            <pre>{structType.type}</pre>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {Object.entries(structType.fields).map(([name]) => {
+          const field = structType.fields[name];
+          const ValueEditor = editors[name];
+          return (
+            <tr key={name}>
+              <td class="column-index">
+                <pre>{name}</pre>
+              </td>
+              <td>
+                <ValueEditor
+                  view={new DataView(
+                    view.buffer,
+                    view.byteOffset + field.offset,
+                  )}
+                  onChange={onFieldValueChange}
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+function makeStructValueEditor(
+  structType: memory.Struct<
+    Record<
+      string,
+      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
+    >
+  >,
+) {
+  return ({ view, onChange }: ValueEditorProps) => {
+    return (
+      <StructValueEditor
+        structType={structType}
+        view={view}
+        onChange={onChange}
+      />
+    );
+  };
+}
+
 export const NullValueEditor = (_props: ValueEditorProps) => {
   return <></>;
 };
+
+function getValueEditor(
+  type: memory.MemoryType<unknown, unknown, unknown>,
+): ValueEditorComponent {
+  switch (type.type) {
+    case "i32":
+      return Int32ValueEditor;
+    case "u32":
+      return Uint32ValueEditor;
+    case "f32":
+      return Float32ValueEditor;
+    case "f16":
+      return Float16ValueEditor;
+
+    case "vec2":
+    case "vec3":
+    case "vec4": {
+      const vectorType = type as memory.VectorType<
+        memory.MemoryType<number, unknown, unknown> & {
+          type: "f16" | "f32" | "i32" | "u32";
+        },
+        2 | 3 | 4,
+        unknown,
+        unknown,
+        unknown
+      >;
+      return makeVectorValueEditor(
+        vectorType,
+        getValueEditor(vectorType.componentType),
+      );
+    }
+
+    case "array": {
+      const arrayType = type as memory.ArrayType<
+        memory.MemoryType<unknown, unknown, unknown>,
+        number
+      >;
+      return makeArrayValueEditor(
+        arrayType,
+        getValueEditor(arrayType.elementType),
+      );
+    }
+
+    case "struct": {
+      const structType = type as memory.Struct<
+        Record<
+          string,
+          { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
+        >
+      >;
+      return makeStructValueEditor(structType);
+    }
+
+    default:
+      return NullValueEditor;
+  }
+}
 
 const MemoryTypeEditors = {
   "i32": makePredefinedTypeEditor(memory.Int32, Int32ValueEditor),
@@ -376,6 +630,8 @@ const MemoryTypeEditors = {
   "vec4h": makePredefinedTypeEditor(memory.Vec4H, Vec4HValueEditor),
 
   "array": ArrayTypeEditor,
+
+  "struct": StructTypeEditor,
 };
 
 function parseMemoryTypeEditorKey(key: string): keyof typeof MemoryTypeEditors {
