@@ -1,16 +1,28 @@
 import { Component, ComponentChildren, JSX } from "npm:preact@10.25.3";
 import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
+import {
+  AnyArrayType,
+  AnyMemoryType,
+  AnyScalarMemoryType,
+  AnyStructDescriptorType,
+  AnyStructType,
+  AnyVectorType,
+  MemoryTypeKey,
+  MemoryTypeKeys,
+  parseMemoryTypeKey,
+  ScalarMemoryTypeKeys,
+} from "./memory-editor-utils.tsx";
 
 export interface MemoryTypeChangeEvent {
-  type: memory.MemoryType<unknown, unknown, unknown>;
+  type: AnyMemoryType;
 }
 
 interface TypeEditorProps {
-  type: memory.MemoryType<unknown, unknown, unknown>;
+  type: AnyMemoryType;
   onChange?: (event: MemoryTypeChangeEvent) => void;
 }
 
-const PredefinedTypes = {
+const PredefinedTypes: Record<MemoryTypeKey, AnyMemoryType> = {
   "i32": memory.Int32,
   "u32": memory.Uint32,
   "f32": memory.Float32,
@@ -20,6 +32,10 @@ const PredefinedTypes = {
   "vec2": new memory.Vec2(memory.Float32),
   "vec3": new memory.Vec3(memory.Float32),
   "vec4": new memory.Vec4(memory.Float32),
+
+  "mat2x2": new memory.Mat2x2(memory.Float32),
+  "mat3x3": new memory.Mat3x3(memory.Float32),
+  "mat4x4": new memory.Mat4x4(memory.Float32),
 
   "array": new memory.ArrayType(memory.Int32, 4),
 
@@ -31,20 +47,15 @@ const PredefinedTypes = {
   }),
 };
 
-const AllTypes = new Set(Object.keys(PredefinedTypes));
-const ScalarTypes = new Set(["i32", "u32", "f32", "f16", "bool"]);
-
 interface MemoryTypeEditorProps extends TypeEditorProps {
-  allowedTypes?: Set<string>;
+  allowedTypes?: ReadonlySet<MemoryTypeKey>;
 }
 
 export const MemoryTypeEditor = (
-  { type, allowedTypes = AllTypes, onChange }: MemoryTypeEditorProps,
+  { type, allowedTypes = MemoryTypeKeys, onChange }: MemoryTypeEditorProps,
 ) => {
   function onMemoryTypeChange(event: JSX.TargetedEvent<HTMLSelectElement>) {
-    const type = PredefinedTypes[
-      event.currentTarget.value as unknown as keyof typeof PredefinedTypes
-    ];
+    const type = PredefinedTypes[parseMemoryTypeKey(event.currentTarget.value)];
     onChange?.({ type });
   }
 
@@ -76,28 +87,15 @@ class ScalarTypeEditor extends Component<TypeEditorProps> {
 }
 
 interface VectorTypeEditorProps extends TypeEditorProps {
-  type: memory.VectorType<
-    memory.MemoryType<number, unknown, unknown> & {
-      type: "f16" | "f32" | "i32" | "u32";
-    },
-    2 | 3 | 4,
-    unknown,
-    unknown,
-    unknown
-  >;
+  type: AnyVectorType;
 }
 
 interface VectorTypeEditorState {
-  componentType: memory.MemoryType<unknown, unknown, unknown> & {
-    type: "f16" | "f32" | "i32" | "u32";
-  };
+  componentType: AnyScalarMemoryType;
 }
 
 interface ArrayTypeEditorProps extends TypeEditorProps {
-  type: memory.ArrayType<
-    memory.MemoryType<unknown, unknown, unknown>,
-    number
-  >;
+  type: AnyArrayType;
 }
 
 class VectorTypeEditor
@@ -120,7 +118,7 @@ class VectorTypeEditor
           <span>{"Component Type: "}</span>
           <MemoryTypeEditor
             type={this.state.componentType}
-            allowedTypes={ScalarTypes}
+            allowedTypes={ScalarMemoryTypeKeys}
             onChange={this.onComponentTypeChange}
           />
         </p>
@@ -128,44 +126,38 @@ class VectorTypeEditor
     );
   }
 
-  // TODO: types
   private triggerOnChange() {
     switch (this.props.type.shape[0]) {
       case 2:
         this.props.onChange?.({
-          type: new memory.Vec2(
-            this.state.componentType as unknown as typeof memory.Int32,
-          ),
+          type: new memory.Vec2(this.state.componentType),
         });
         break;
       case 3:
         this.props.onChange?.({
-          type: new memory.Vec3(
-            this.state.componentType as unknown as typeof memory.Int32,
-          ),
+          type: new memory.Vec3(this.state.componentType),
         });
         break;
       case 4:
         this.props.onChange?.({
-          type: new memory.Vec4(
-            this.state.componentType as unknown as typeof memory.Int32,
-          ),
+          type: new memory.Vec4(this.state.componentType),
         });
         break;
+      default:
+        throw new Error(`Unknown vector shape: ${this.props.type.shape}`);
     }
   }
 
-  // TODO: types
   private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
     this.setState({
-      componentType: event.type as unknown as typeof memory.Int32,
+      componentType: event.type as AnyScalarMemoryType,
     }, this.triggerOnChange);
   };
 }
 
 interface ArrayTypeEditorState {
   arraySize: number;
-  elementType: memory.MemoryType<unknown, unknown, unknown>;
+  elementType: AnyMemoryType;
 }
 
 class ArrayTypeEditor
@@ -234,17 +226,12 @@ class ArrayTypeEditor
 }
 
 interface StructTypeEditorProps extends TypeEditorProps {
-  type: memory.Struct<
-    Record<
-      string,
-      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-    >
-  >;
+  type: AnyStructType;
 }
 
 interface StructTypeEditorState {
   fields: Array<
-    { name: string; type: memory.MemoryType<unknown, unknown, unknown> }
+    { name: string; type: AnyMemoryType }
   >;
 }
 
@@ -302,10 +289,7 @@ class StructTypeEditor
   }
 
   private triggerOnChange() {
-    const fields = {} as Record<
-      string,
-      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-    >;
+    const fields = {} as AnyStructDescriptorType;
 
     for (const [i, field] of this.state.fields.entries()) {
       fields[field.name] = { index: i, type: field.type };
@@ -368,33 +352,17 @@ function getMemoryTypeEditor(
     case "vec2":
     case "vec3":
     case "vec4": {
-      const vectorType = type as memory.VectorType<
-        memory.MemoryType<number, unknown, unknown> & {
-          type: "f16" | "f32" | "i32" | "u32";
-        },
-        2 | 3 | 4,
-        unknown,
-        unknown,
-        unknown
-      >;
+      const vectorType = type as AnyVectorType;
       return <VectorTypeEditor type={vectorType} onChange={onChange} />;
     }
 
     case "array": {
-      const arrayType = type as memory.ArrayType<
-        memory.MemoryType<unknown, unknown, unknown>,
-        number
-      >;
+      const arrayType = type as AnyArrayType;
       return <ArrayTypeEditor type={arrayType} onChange={onChange} />;
     }
 
     case "struct": {
-      const structType = type as memory.Struct<
-        Record<
-          string,
-          { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-        >
-      >;
+      const structType = type as AnyStructType;
       return <StructTypeEditor type={structType} onChange={onChange} />;
     }
 

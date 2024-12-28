@@ -1,8 +1,15 @@
 import { JSX } from "npm:preact@10.25.3";
 import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
+import {
+  AnyArrayType,
+  AnyMemoryType,
+  AnyNumericMemoryType,
+  AnyStructType,
+  AnyVectorType,
+} from "./memory-editor-utils.tsx";
 
 interface ValueEditorProps {
-  type: memory.MemoryType<unknown, unknown, unknown>;
+  type: AnyMemoryType;
   buffer: ArrayBuffer;
   offset: number;
   onChange: () => void;
@@ -14,13 +21,16 @@ export const MemoryValueEditor = (
   return getMemoryValueEditor({ type, buffer, offset, onChange });
 };
 
-interface ScalarValueEditorProps extends ValueEditorProps {
+interface NumericValueEditorProps extends ValueEditorProps {
+  type: AnyNumericMemoryType;
+  isInteger: boolean;
   min?: number;
   max?: number;
 }
 
-const ScalarValueEditor = (
-  { type, min, max, buffer, offset, onChange }: ScalarValueEditorProps,
+const NumericValueEditor = (
+  { type, min, max, isInteger, buffer, offset, onChange }:
+    NumericValueEditorProps,
 ) => {
   function onInput(e: JSX.TargetedInputEvent<HTMLInputElement>) {
     if (!e.currentTarget.checkValidity()) {
@@ -28,7 +38,9 @@ const ScalarValueEditor = (
     }
     type.write(
       new DataView(buffer, offset),
-      parseFloat(e.currentTarget.value),
+      isInteger
+        ? parseInt(e.currentTarget.value)
+        : parseFloat(e.currentTarget.value),
     );
     onChange?.();
   }
@@ -37,9 +49,11 @@ const ScalarValueEditor = (
     <>
       <input
         type="number"
+        required={true}
         defaultValue={String(type.read(new DataView(buffer, offset)))}
         min={min}
         max={max}
+        step={isInteger ? undefined : "any"}
         onInput={onInput}
       />
       <code>{`: ${type.type}`}</code>
@@ -78,15 +92,7 @@ const BooleanValueEditor = (
 };
 
 interface VectorValueEditorProps extends ValueEditorProps {
-  type: memory.VectorType<
-    memory.MemoryType<number, unknown, unknown> & {
-      type: "f16" | "f32" | "i32" | "u32";
-    },
-    2 | 3 | 4,
-    unknown,
-    unknown,
-    unknown
-  >;
+  type: AnyVectorType;
 }
 
 const VectorValueEditor = (
@@ -125,10 +131,7 @@ const VectorValueEditor = (
 };
 
 interface ArrayValueEditorProps<N extends number> extends ValueEditorProps {
-  type: memory.ArrayType<
-    memory.MemoryType<unknown, unknown, unknown>,
-    N
-  >;
+  type: AnyArrayType;
 }
 
 const ArrayValueEditor = <N extends number>(
@@ -174,12 +177,7 @@ const ArrayValueEditor = <N extends number>(
 };
 
 interface StructValueEditorProps extends ValueEditorProps {
-  type: memory.Struct<
-    Record<
-      string,
-      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-    >
-  >;
+  type: AnyStructType;
 }
 
 const StructValueEditor = ({
@@ -227,8 +225,9 @@ function getMemoryValueEditor(
   switch (type.type) {
     case "i32":
       return (
-        <ScalarValueEditor
-          type={type}
+        <NumericValueEditor
+          type={type as typeof memory.Int32}
+          isInteger={true}
           min={-2147483648}
           max={2147483647}
           buffer={buffer}
@@ -238,8 +237,9 @@ function getMemoryValueEditor(
       );
     case "u32":
       return (
-        <ScalarValueEditor
-          type={type}
+        <NumericValueEditor
+          type={type as typeof memory.Uint32}
+          isInteger={true}
           min={0}
           max={4294967295}
           buffer={buffer}
@@ -249,8 +249,9 @@ function getMemoryValueEditor(
       );
     case "f32":
       return (
-        <ScalarValueEditor
-          type={type}
+        <NumericValueEditor
+          type={type as typeof memory.Float32}
+          isInteger={false}
           buffer={buffer}
           offset={offset}
           onChange={onChange}
@@ -258,8 +259,9 @@ function getMemoryValueEditor(
       );
     case "f16":
       return (
-        <ScalarValueEditor
-          type={type}
+        <NumericValueEditor
+          type={type as typeof memory.Float16}
+          isInteger={false}
           buffer={buffer}
           offset={offset}
           onChange={onChange}
@@ -277,57 +279,35 @@ function getMemoryValueEditor(
 
     case "vec2":
     case "vec3":
-    case "vec4": {
-      const vectorType = type as memory.VectorType<
-        memory.MemoryType<number, unknown, unknown> & {
-          type: "f16" | "f32" | "i32" | "u32";
-        },
-        2 | 3 | 4,
-        unknown,
-        unknown,
-        unknown
-      >;
+    case "vec4":
       return (
         <VectorValueEditor
-          type={vectorType}
+          type={type as AnyVectorType}
           buffer={buffer}
           offset={offset}
           onChange={onChange}
         />
       );
-    }
 
-    case "array": {
-      const arrayType = type as memory.ArrayType<
-        memory.MemoryType<unknown, unknown, unknown>,
-        number
-      >;
+    case "array":
       return (
         <ArrayValueEditor
-          type={arrayType}
+          type={type as AnyArrayType}
           buffer={buffer}
           offset={offset}
           onChange={onChange}
         />
       );
-    }
 
-    case "struct": {
-      const structType = type as memory.Struct<
-        Record<
-          string,
-          { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-        >
-      >;
+    case "struct":
       return (
         <StructValueEditor
-          type={structType}
+          type={type as AnyStructType}
           buffer={buffer}
           offset={offset}
           onChange={onChange}
         />
       );
-    }
 
     default:
       throw new Error(`Unknown memory type: ${type.type}`);
