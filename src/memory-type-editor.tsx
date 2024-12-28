@@ -4,11 +4,11 @@ import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
 
 export interface MemoryTypeChangeEvent {
   type: memory.MemoryType<unknown, unknown, unknown>;
-  valueEditor: ValueEditorComponent;
 }
 
 export interface ValueEditorProps {
-  view: DataView;
+  buffer: ArrayBuffer;
+  offset: number;
   onChange?: () => void;
 }
 
@@ -55,7 +55,6 @@ class PredefinedTypeEditor extends Component<PredefinedTypeEditorProps> {
   override componentDidMount(): void {
     this.props.onChange?.({
       type: this.props.type,
-      valueEditor: this.props.valueEditor,
     });
   }
 
@@ -82,7 +81,6 @@ function makePredefinedTypeEditor(
 interface ArrayTypeEditorState {
   arraySize: number;
   elementType: memory.MemoryType<unknown, unknown, unknown>;
-  elementValueEditor: ValueEditorComponent;
 }
 
 class ArrayTypeEditor
@@ -92,7 +90,6 @@ class ArrayTypeEditor
     this.state = {
       elementType: memory.Int32,
       arraySize: 1,
-      elementValueEditor: NullValueEditor,
     };
   }
 
@@ -128,14 +125,12 @@ class ArrayTypeEditor
     );
     this.props.onChange?.({
       type,
-      valueEditor: makeArrayValueEditor(type, this.state.elementValueEditor),
     });
   }
 
   private onElementTypeChange = (event: MemoryTypeChangeEvent) => {
     this.setState({
       elementType: event.type,
-      elementValueEditor: event.valueEditor,
     }, this.triggerOnChange);
   };
 
@@ -221,7 +216,6 @@ class StructTypeEditor
 
     this.props.onChange?.({
       type,
-      valueEditor: makeStructValueEditor(type),
     });
   }
 
@@ -266,9 +260,21 @@ function makeNumericValueEditor(
   type: memory.MemoryType<unknown, unknown, unknown>,
   { min, max }: NumericValueEditorConfig = {},
 ) {
-  return ({ view, onChange }: ValueEditorProps) => {
+  return ({ buffer, offset, onChange }: ValueEditorProps) => {
     function onInput(e: JSX.TargetedInputEvent<HTMLInputElement>) {
-      type.write(view, parseFloat(e.currentTarget.value));
+      if (!e.currentTarget.checkValidity()) {
+        return;
+      }
+      console.log(
+        "onInput",
+        e.currentTarget.value,
+        offset,
+        new DataView(buffer, offset),
+      );
+      type.write(
+        new DataView(buffer, offset),
+        parseFloat(e.currentTarget.value),
+      );
       onChange?.();
     }
 
@@ -276,17 +282,21 @@ function makeNumericValueEditor(
       <>
         <input
           type="number"
-          defaultValue={0}
+          defaultValue={String(type.read(new DataView(buffer, offset)))}
           min={min}
           max={max}
           onInput={onInput}
         />
+        <code>{`: ${type.type}`}</code>
       </>
     );
   };
 }
 
-const Int32ValueEditor = makeNumericValueEditor(memory.Int32);
+const Int32ValueEditor = makeNumericValueEditor(memory.Int32, {
+  min: -2147483648,
+  max: 2147483647,
+});
 const Uint32ValueEditor = makeNumericValueEditor(memory.Uint32, { min: 0 });
 const Float32ValueEditor = makeNumericValueEditor(memory.Float32);
 const Float16ValueEditor = makeNumericValueEditor(memory.Float16);
@@ -306,7 +316,7 @@ function makeVectorValueEditor<
   vectorType: V,
   componentEditor: ValueEditorComponent,
 ) {
-  return ({ view, onChange }: ValueEditorProps) => {
+  return ({ buffer, offset, onChange }: ValueEditorProps) => {
     const ElementValueEditor = componentEditor;
 
     function onElementChange() {
@@ -330,10 +340,8 @@ function makeVectorValueEditor<
               </td>
               <td>
                 <ElementValueEditor
-                  view={new DataView(
-                    view.buffer,
-                    view.byteOffset + i * vectorType.componentType.byteSize,
-                  )}
+                  buffer={buffer}
+                  offset={offset + i * vectorType.componentType.byteSize}
                   onChange={onElementChange}
                 />
               </td>
@@ -409,7 +417,8 @@ const ArrayValueEditor = <N extends number>(
   {
     arrayType,
     elementValueEditor,
-    view,
+    buffer,
+    offset,
     onChange,
   }: ArrayValueEditorProps<N>,
 ) => {
@@ -436,10 +445,8 @@ const ArrayValueEditor = <N extends number>(
             </td>
             <td>
               <ElementValueEditor
-                view={new DataView(
-                  view.buffer,
-                  view.byteOffset + i * arrayType.elementType.arrayStride,
-                )}
+                buffer={buffer}
+                offset={offset + i * arrayType.elementType.arrayStride}
                 onChange={onElementChange}
               />
             </td>
@@ -457,12 +464,13 @@ function makeArrayValueEditor<N extends number>(
   >,
   elementValueEditor: ValueEditorComponent,
 ) {
-  return ({ view, onChange }: ValueEditorProps) => {
+  return ({ buffer, offset, onChange }: ValueEditorProps) => {
     return (
       <ArrayValueEditor
         arrayType={arrayType}
         elementValueEditor={elementValueEditor}
-        view={view}
+        buffer={buffer}
+        offset={offset}
         onChange={onChange}
       />
     );
@@ -480,7 +488,8 @@ interface StructValueEditorProps extends ValueEditorProps {
 
 const StructValueEditor = ({
   structType,
-  view,
+  buffer,
+  offset,
   onChange,
 }: StructValueEditorProps) => {
   const editors = {} as Record<string, ValueEditorComponent>;
@@ -513,10 +522,8 @@ const StructValueEditor = ({
               </td>
               <td>
                 <ValueEditor
-                  view={new DataView(
-                    view.buffer,
-                    view.byteOffset + field.offset,
-                  )}
+                  buffer={buffer}
+                  offset={offset + field.offset}
                   onChange={onFieldValueChange}
                 />
               </td>
@@ -536,11 +543,12 @@ function makeStructValueEditor(
     >
   >,
 ) {
-  return ({ view, onChange }: ValueEditorProps) => {
+  return ({ buffer, offset, onChange }: ValueEditorProps) => {
     return (
       <StructValueEditor
         structType={structType}
-        view={view}
+        buffer={buffer}
+        offset={offset}
         onChange={onChange}
       />
     );
@@ -551,7 +559,7 @@ export const NullValueEditor = (_props: ValueEditorProps) => {
   return <></>;
 };
 
-function getValueEditor(
+export function getValueEditor(
   type: memory.MemoryType<unknown, unknown, unknown>,
 ): ValueEditorComponent {
   switch (type.type) {

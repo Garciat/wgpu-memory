@@ -4,11 +4,25 @@ import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
 
 import { BinaryDumpTable } from "./binary-dump-table.tsx";
 import {
+  getValueEditor,
   type MemoryTypeChangeEvent,
   MemoryTypeEditor,
-  NullValueEditor,
-  type ValueEditorComponent,
 } from "./memory-type-editor.tsx";
+
+const DefaultType = memory.Int32;
+
+const ArrayBufferConstructor = globalThis.ArrayBuffer as unknown as {
+  new (
+    byteLength: number,
+    options?: { maxByteLength: number },
+  ): ArrayBuffer & {
+    resize(byteLength: number): void;
+  };
+};
+
+const buffer = new ArrayBufferConstructor(DefaultType.byteSize, {
+  maxByteLength: 4 * 1024 * 1024,
+});
 
 interface AppProps {
   prop?: never;
@@ -17,25 +31,21 @@ interface AppProps {
 const App = ({}: AppProps) => {
   const [memoryType, setMemoryType] = useState<
     memory.MemoryType<unknown, unknown, unknown>
-  >(memory.Int32);
+  >(DefaultType);
 
-  const [ValueEditor, setValueEditor] = useState<ValueEditorComponent>(
-    () => NullValueEditor,
-  );
+  const ValueEditor = getValueEditor(memoryType);
 
-  const [data, setData] = useState(() =>
-    new Int8Array(memory.allocate(memoryType))
-  );
+  const [bytes, setBytes] = useState(() => new Uint8Array(buffer));
 
   function onMemoryTypeChange(event: MemoryTypeChangeEvent) {
     setMemoryType(event.type);
-    setValueEditor(() => event.valueEditor);
-    setData(new Int8Array(memory.allocate(event.type)));
+    buffer.resize(event.type.byteSize);
+    setBytes(new Uint8Array(buffer));
   }
 
   function onMemoryValueChange() {
     // Force update by creating a new buffer view (does not copy the data).
-    setData(new Int8Array(data.buffer));
+    setBytes(new Uint8Array(buffer));
   }
 
   return (
@@ -71,8 +81,8 @@ const App = ({}: AppProps) => {
         <pre>{String(memoryType)}</pre>
       </section>
       <h2>JavaScript</h2>
-      <section>
-        <pre>
+      <section class="centered">
+        <pre class="syntax-highlight">
           {`import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";\n\n`}
           {`const myType = ${memoryType.toCode("memory")};`}
         </pre>
@@ -80,13 +90,14 @@ const App = ({}: AppProps) => {
       <h2>Object Value</h2>
       <section class="object-value-container">
         <ValueEditor
-          view={new DataView(data.buffer)}
+          buffer={bytes.buffer}
+          offset={0}
           onChange={onMemoryValueChange}
         />
       </section>
       <h2>Memory View</h2>
       <section class="centered">
-        <BinaryDumpTable buffer={data.buffer} />
+        <BinaryDumpTable bytes={bytes} />
       </section>
     </main>
   );

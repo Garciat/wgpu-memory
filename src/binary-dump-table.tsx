@@ -2,7 +2,7 @@ import { JSX } from "npm:preact@10.25.3";
 import { useState } from "npm:preact@10.25.3/hooks";
 
 export interface BinaryDumpTableProps {
-  buffer: ArrayBuffer;
+  bytes: Uint8Array;
   defaultBytesPerRow?: number;
   minBytesPerRow?: number;
   maxBytesPerRow?: number;
@@ -11,7 +11,7 @@ export interface BinaryDumpTableProps {
 
 export const BinaryDumpTable = (
   {
-    buffer,
+    bytes,
     defaultBytesPerRow = 16,
     minBytesPerRow = 4,
     maxBytesPerRow = 32,
@@ -20,13 +20,11 @@ export const BinaryDumpTable = (
 ) => {
   const [bytesPerRow, setBytesPerRow] = useState(defaultBytesPerRow);
 
-  const view = new Uint8Array(buffer);
-
   const rowOffsets = formatHexView(range(0, bytesPerRow), " ");
 
-  const rows = buildArray(Math.ceil(view.length / bytesPerRow), (row) => {
+  const rows = buildArray(Math.ceil(bytes.length / bytesPerRow), (row) => {
     return formatRow(
-      view.slice(row * bytesPerRow, (row + 1) * bytesPerRow),
+      bytes.slice(row * bytesPerRow, (row + 1) * bytesPerRow),
       bytesPerRow,
       row,
     );
