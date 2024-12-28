@@ -4,12 +4,17 @@ import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
 
 import { BinaryDumpTable } from "./binary-dump-table.tsx";
 import {
-  getValueEditor,
   type MemoryTypeChangeEvent,
   MemoryTypeEditor,
 } from "./memory-type-editor.tsx";
+import { MemoryValueEditor } from "./memory-value-editor.tsx";
 
-const DefaultType = memory.Int32;
+const DefaultType = new memory.Struct({
+  u: { index: 0, type: memory.Float32 },
+  v: { index: 1, type: memory.Float32 },
+  w: { index: 2, type: memory.Vec2F },
+  x: { index: 3, type: memory.Float32 },
+});
 
 const ArrayBufferConstructor = globalThis.ArrayBuffer as unknown as {
   new (
@@ -32,8 +37,6 @@ const App = ({}: AppProps) => {
   const [memoryType, setMemoryType] = useState<
     memory.MemoryType<unknown, unknown, unknown>
   >(DefaultType);
-
-  const ValueEditor = getValueEditor(memoryType);
 
   const [bytes, setBytes] = useState(() => new Uint8Array(buffer));
 
@@ -64,7 +67,7 @@ const App = ({}: AppProps) => {
       <p>Below you may use a visual editor for the supported memory types.</p>
       <h2>Memory Type</h2>
       <section>
-        <MemoryTypeEditor onChange={onMemoryTypeChange} />
+        <MemoryTypeEditor type={memoryType} onChange={onMemoryTypeChange} />
       </section>
       <h2>Type Properties</h2>
       <section>
@@ -89,7 +92,8 @@ const App = ({}: AppProps) => {
       </section>
       <h2>Object Value</h2>
       <section class="object-value-container">
-        <ValueEditor
+        <MemoryValueEditor
+          type={memoryType}
           buffer={bytes.buffer}
           offset={0}
           onChange={onMemoryValueChange}

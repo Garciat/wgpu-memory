@@ -1,37 +1,45 @@
 import { Component, ComponentChildren, JSX } from "npm:preact@10.25.3";
-import { useState } from "npm:preact@10.25.3/hooks";
 import * as memory from "jsr:@garciat/wgpu-memory@1.0.13";
 
 export interface MemoryTypeChangeEvent {
   type: memory.MemoryType<unknown, unknown, unknown>;
 }
 
-export interface ValueEditorProps {
-  buffer: ArrayBuffer;
-  offset: number;
-  onChange?: () => void;
-}
-
-export type ValueEditorComponent = (props: ValueEditorProps) => JSX.Element;
-
-interface BaseMemoryTypeEditorProps {
+interface MemoryTypeEditorProps {
+  type: memory.MemoryType<unknown, unknown, unknown>;
   onChange?: (event: MemoryTypeChangeEvent) => void;
 }
 
-export const MemoryTypeEditor = ({ onChange }: BaseMemoryTypeEditorProps) => {
-  const [memoryTypeKey, setMemoryTypeKey] = useState<
-    keyof typeof MemoryTypeEditors
-  >("i32");
+const PredefinedTypes = {
+  "i32": memory.Int32,
+  "u32": memory.Uint32,
+  "f32": memory.Float32,
+  "f16": memory.Float16,
+  "bool": memory.Bool,
 
-  function onMemoryTypeChange(e: JSX.TargetedInputEvent<HTMLSelectElement>) {
-    setMemoryTypeKey(parseMemoryTypeEditorKey(e.currentTarget.value));
+  "vec2": new memory.Vec2(memory.Float32),
+  "vec3": new memory.Vec3(memory.Float32),
+  "vec4": new memory.Vec4(memory.Float32),
+
+  "array": new memory.ArrayType(memory.Int32, 4),
+
+  "struct": new memory.Struct({
+    u: { index: 0, type: memory.Float32 },
+    v: { index: 1, type: memory.Float32 },
+    w: { index: 2, type: memory.Vec2F },
+    x: { index: 3, type: memory.Float32 },
+  }),
+};
+
+export const MemoryTypeEditor = (
+  { type, onChange }: MemoryTypeEditorProps,
+) => {
+  function onMemoryTypeChange(event: JSX.TargetedEvent<HTMLSelectElement>) {
+    const type = PredefinedTypes[
+      event.currentTarget.value as unknown as keyof typeof PredefinedTypes
+    ];
+    onChange?.({ type });
   }
-
-  function onNestedEditorChange(e: MemoryTypeChangeEvent) {
-    onChange?.(e);
-  }
-
-  const DynamicEditor = MemoryTypeEditors[memoryTypeKey];
 
   return (
     <div class="memory-type-editor">
@@ -39,19 +47,16 @@ export const MemoryTypeEditor = ({ onChange }: BaseMemoryTypeEditorProps) => {
         name="memory-type"
         onInput={onMemoryTypeChange}
       >
-        {Object.keys(MemoryTypeEditors).map((key) => <option>{key}</option>)}
+        {Object.keys(PredefinedTypes).map((key) => (
+          <option selected={key === type.type}>{key}</option>
+        ))}
       </select>
-      <DynamicEditor onChange={onNestedEditorChange} />
+      {getMemoryTypeEditor({ type, onChange })}
     </div>
   );
 };
 
-interface PredefinedTypeEditorProps extends BaseMemoryTypeEditorProps {
-  type: memory.MemoryType<unknown, unknown, unknown>;
-  valueEditor: ValueEditorComponent;
-}
-
-class PredefinedTypeEditor extends Component<PredefinedTypeEditorProps> {
+class ScalarTypeEditor extends Component<MemoryTypeEditorProps> {
   override componentDidMount(): void {
     this.props.onChange?.({
       type: this.props.type,
@@ -63,18 +68,90 @@ class PredefinedTypeEditor extends Component<PredefinedTypeEditorProps> {
   }
 }
 
-function makePredefinedTypeEditor(
-  type: memory.MemoryType<unknown, unknown, unknown>,
-  valueEditor: ValueEditorComponent,
-) {
-  return ({ onChange }: BaseMemoryTypeEditorProps) => {
+interface VectorTypeEditorProps extends MemoryTypeEditorProps {
+  type: memory.VectorType<
+    memory.MemoryType<number, unknown, unknown> & {
+      type: "f16" | "f32" | "i32" | "u32";
+    },
+    2 | 3 | 4,
+    unknown,
+    unknown,
+    unknown
+  >;
+}
+
+interface VectorTypeEditorState {
+  componentType: memory.MemoryType<unknown, unknown, unknown> & {
+    type: "f16" | "f32" | "i32" | "u32";
+  };
+}
+
+interface ArrayTypeEditorProps extends MemoryTypeEditorProps {
+  type: memory.ArrayType<
+    memory.MemoryType<unknown, unknown, unknown>,
+    number
+  >;
+}
+
+class VectorTypeEditor
+  extends Component<VectorTypeEditorProps, VectorTypeEditorState> {
+  constructor({ type }: VectorTypeEditorProps) {
+    super();
+    this.state = {
+      componentType: type.componentType,
+    };
+  }
+
+  override componentDidMount(): void {
+    this.triggerOnChange();
+  }
+
+  override render(): ComponentChildren {
     return (
-      <PredefinedTypeEditor
-        type={type}
-        valueEditor={valueEditor}
-        onChange={onChange}
-      />
+      <div class="vector-type-editor">
+        <p>
+          <span>{"Component Type: "}</span>
+          <MemoryTypeEditor
+            type={this.state.componentType}
+            onChange={this.onComponentTypeChange}
+          />
+        </p>
+      </div>
     );
+  }
+
+  // TODO: types
+  private triggerOnChange() {
+    switch (this.props.type.shape[0]) {
+      case 2:
+        this.props.onChange?.({
+          type: new memory.Vec2(
+            this.state.componentType as unknown as typeof memory.Int32,
+          ),
+        });
+        break;
+      case 3:
+        this.props.onChange?.({
+          type: new memory.Vec3(
+            this.state.componentType as unknown as typeof memory.Int32,
+          ),
+        });
+        break;
+      case 4:
+        this.props.onChange?.({
+          type: new memory.Vec4(
+            this.state.componentType as unknown as typeof memory.Int32,
+          ),
+        });
+        break;
+    }
+  }
+
+  // TODO: types
+  private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
+    this.setState({
+      componentType: event.type as unknown as typeof memory.Int32,
+    }, this.triggerOnChange);
   };
 }
 
@@ -84,12 +161,12 @@ interface ArrayTypeEditorState {
 }
 
 class ArrayTypeEditor
-  extends Component<BaseMemoryTypeEditorProps, ArrayTypeEditorState> {
-  constructor() {
+  extends Component<ArrayTypeEditorProps, ArrayTypeEditorState> {
+  constructor({ type }: ArrayTypeEditorProps) {
     super();
     this.state = {
-      elementType: memory.Int32,
-      arraySize: 1,
+      elementType: type.elementType,
+      arraySize: type.elementCount,
     };
   }
 
@@ -112,7 +189,10 @@ class ArrayTypeEditor
         </p>
         <div>
           <span>{"Element Type: "}</span>
-          <MemoryTypeEditor onChange={this.onElementTypeChange} />
+          <MemoryTypeEditor
+            type={this.state.elementType}
+            onChange={this.onElementTypeChange}
+          />
         </div>
       </div>
     );
@@ -145,6 +225,15 @@ class ArrayTypeEditor
   };
 }
 
+interface StructTypeEditorProps extends MemoryTypeEditorProps {
+  type: memory.Struct<
+    Record<
+      string,
+      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
+    >
+  >;
+}
+
 interface StructTypeEditorState {
   fields: Array<
     { name: string; type: memory.MemoryType<unknown, unknown, unknown> }
@@ -152,13 +241,14 @@ interface StructTypeEditorState {
 }
 
 class StructTypeEditor
-  extends Component<BaseMemoryTypeEditorProps, StructTypeEditorState> {
-  constructor() {
+  extends Component<StructTypeEditorProps, StructTypeEditorState> {
+  constructor({ type }: StructTypeEditorProps) {
     super();
     this.state = {
-      fields: [
-        { name: "field0", type: memory.Int32 },
-      ],
+      fields: Object.entries(type.fields).map(([name, field]) => ({
+        name,
+        type: field.type,
+      })),
     };
   }
 
@@ -187,6 +277,7 @@ class StructTypeEditor
               </td>
               <td>
                 <MemoryTypeEditor
+                  type={field.type}
                   onChange={(e) => this.onFieldTypeChange(i, e)}
                 />
               </td>
@@ -251,326 +342,20 @@ class StructTypeEditor
   }
 }
 
-interface NumericValueEditorConfig {
-  min?: number;
-  max?: number;
-}
-
-function makeNumericValueEditor(
-  type: memory.MemoryType<unknown, unknown, unknown>,
-  { min, max }: NumericValueEditorConfig = {},
+function getMemoryTypeEditor(
+  { type, onChange }: MemoryTypeEditorProps,
 ) {
-  return ({ buffer, offset, onChange }: ValueEditorProps) => {
-    function onInput(e: JSX.TargetedInputEvent<HTMLInputElement>) {
-      if (!e.currentTarget.checkValidity()) {
-        return;
-      }
-      console.log(
-        "onInput",
-        e.currentTarget.value,
-        offset,
-        new DataView(buffer, offset),
-      );
-      type.write(
-        new DataView(buffer, offset),
-        parseFloat(e.currentTarget.value),
-      );
-      onChange?.();
-    }
-
-    return (
-      <>
-        <input
-          type="number"
-          defaultValue={String(type.read(new DataView(buffer, offset)))}
-          min={min}
-          max={max}
-          onInput={onInput}
-        />
-        <code>{`: ${type.type}`}</code>
-      </>
-    );
-  };
-}
-
-const Int32ValueEditor = makeNumericValueEditor(memory.Int32, {
-  min: -2147483648,
-  max: 2147483647,
-});
-const Uint32ValueEditor = makeNumericValueEditor(memory.Uint32, { min: 0 });
-const Float32ValueEditor = makeNumericValueEditor(memory.Float32);
-const Float16ValueEditor = makeNumericValueEditor(memory.Float16);
-
-function makeVectorValueEditor<
-  V extends memory.VectorType<
-    memory.MemoryType<number, unknown, unknown> & {
-      type: "f16" | "f32" | "i32" | "u32";
-    },
-    N,
-    unknown,
-    unknown,
-    unknown
-  >,
-  N extends 2 | 3 | 4,
->(
-  vectorType: V,
-  componentEditor: ValueEditorComponent,
-) {
-  return ({ buffer, offset, onChange }: ValueEditorProps) => {
-    const ElementValueEditor = componentEditor;
-
-    function onElementChange() {
-      onChange?.();
-    }
-
-    return (
-      <table class="vector-value-editor table-value-editor">
-        <thead>
-          <tr>
-            <th colspan={2}>
-              <pre>{vectorType.type}</pre>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: vectorType.shape[0] }).map((_, i) => (
-            <tr>
-              <td class="column-index">
-                <pre>{`${"xyzw"[i]}`}</pre>
-              </td>
-              <td>
-                <ElementValueEditor
-                  buffer={buffer}
-                  offset={offset + i * vectorType.componentType.byteSize}
-                  onChange={onElementChange}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
-}
-
-const Vec2IValueEditor = makeVectorValueEditor(
-  memory.Vec2I,
-  Int32ValueEditor,
-);
-const Vec3IValueEditor = makeVectorValueEditor(
-  memory.Vec3I,
-  Int32ValueEditor,
-);
-const Vec4IValueEditor = makeVectorValueEditor(
-  memory.Vec4I,
-  Int32ValueEditor,
-);
-
-const Vec2UValueEditor = makeVectorValueEditor(
-  memory.Vec2U,
-  Uint32ValueEditor,
-);
-const Vec3UValueEditor = makeVectorValueEditor(
-  memory.Vec3U,
-  Uint32ValueEditor,
-);
-const Vec4UValueEditor = makeVectorValueEditor(
-  memory.Vec4U,
-  Uint32ValueEditor,
-);
-
-const Vec2FValueEditor = makeVectorValueEditor(
-  memory.Vec2F,
-  Float32ValueEditor,
-);
-const Vec3FValueEditor = makeVectorValueEditor(
-  memory.Vec3F,
-  Float32ValueEditor,
-);
-const Vec4FValueEditor = makeVectorValueEditor(
-  memory.Vec4F,
-  Float32ValueEditor,
-);
-
-const Vec2HValueEditor = makeVectorValueEditor(
-  memory.Vec2H,
-  Float16ValueEditor,
-);
-const Vec3HValueEditor = makeVectorValueEditor(
-  memory.Vec3H,
-  Float16ValueEditor,
-);
-const Vec4HValueEditor = makeVectorValueEditor(
-  memory.Vec4H,
-  Float16ValueEditor,
-);
-
-interface ArrayValueEditorProps<N extends number> extends ValueEditorProps {
-  arrayType: memory.ArrayType<
-    memory.MemoryType<unknown, unknown, unknown>,
-    N
-  >;
-  elementValueEditor: ValueEditorComponent;
-}
-
-const ArrayValueEditor = <N extends number>(
-  {
-    arrayType,
-    elementValueEditor,
-    buffer,
-    offset,
-    onChange,
-  }: ArrayValueEditorProps<N>,
-) => {
-  const ElementValueEditor = elementValueEditor;
-
-  function onElementChange() {
-    onChange?.();
-  }
-
-  return (
-    <table class="array-value-editor table-value-editor">
-      <thead>
-        <tr>
-          <th colspan={2}>
-            <pre>{arrayType.type}</pre>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {Array.from({ length: arrayType.elementCount }).map((_, i) => (
-          <tr key={i}>
-            <td class="column-index">
-              <pre>{i}</pre>
-            </td>
-            <td>
-              <ElementValueEditor
-                buffer={buffer}
-                offset={offset + i * arrayType.elementType.arrayStride}
-                onChange={onElementChange}
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
-
-function makeArrayValueEditor<N extends number>(
-  arrayType: memory.ArrayType<
-    memory.MemoryType<unknown, unknown, unknown>,
-    N
-  >,
-  elementValueEditor: ValueEditorComponent,
-) {
-  return ({ buffer, offset, onChange }: ValueEditorProps) => {
-    return (
-      <ArrayValueEditor
-        arrayType={arrayType}
-        elementValueEditor={elementValueEditor}
-        buffer={buffer}
-        offset={offset}
-        onChange={onChange}
-      />
-    );
-  };
-}
-
-interface StructValueEditorProps extends ValueEditorProps {
-  structType: memory.Struct<
-    Record<
-      string,
-      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-    >
-  >;
-}
-
-const StructValueEditor = ({
-  structType,
-  buffer,
-  offset,
-  onChange,
-}: StructValueEditorProps) => {
-  const editors = {} as Record<string, ValueEditorComponent>;
-
-  for (const [name, field] of Object.entries(structType.fields)) {
-    editors[name] = getValueEditor(field.type);
-  }
-
-  function onFieldValueChange() {
-    onChange?.();
-  }
-
-  return (
-    <table class="struct-value-editor table-value-editor">
-      <thead>
-        <tr>
-          <th colspan={2}>
-            <pre>{structType.type}</pre>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(structType.fields).map(([name]) => {
-          const field = structType.fields[name];
-          const ValueEditor = editors[name];
-          return (
-            <tr key={name}>
-              <td class="column-index">
-                <pre>{name}</pre>
-              </td>
-              <td>
-                <ValueEditor
-                  buffer={buffer}
-                  offset={offset + field.offset}
-                  onChange={onFieldValueChange}
-                />
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
-};
-
-function makeStructValueEditor(
-  structType: memory.Struct<
-    Record<
-      string,
-      { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
-    >
-  >,
-) {
-  return ({ buffer, offset, onChange }: ValueEditorProps) => {
-    return (
-      <StructValueEditor
-        structType={structType}
-        buffer={buffer}
-        offset={offset}
-        onChange={onChange}
-      />
-    );
-  };
-}
-
-export const NullValueEditor = (_props: ValueEditorProps) => {
-  return <></>;
-};
-
-export function getValueEditor(
-  type: memory.MemoryType<unknown, unknown, unknown>,
-): ValueEditorComponent {
   switch (type.type) {
     case "i32":
-      return Int32ValueEditor;
+      return <ScalarTypeEditor type={type} onChange={onChange} />;
     case "u32":
-      return Uint32ValueEditor;
+      return <ScalarTypeEditor type={type} onChange={onChange} />;
     case "f32":
-      return Float32ValueEditor;
+      return <ScalarTypeEditor type={type} onChange={onChange} />;
     case "f16":
-      return Float16ValueEditor;
+      return <ScalarTypeEditor type={type} onChange={onChange} />;
+    case "bool":
+      return <ScalarTypeEditor type={type} onChange={onChange} />;
 
     case "vec2":
     case "vec3":
@@ -584,10 +369,7 @@ export function getValueEditor(
         unknown,
         unknown
       >;
-      return makeVectorValueEditor(
-        vectorType,
-        getValueEditor(vectorType.componentType),
-      );
+      return <VectorTypeEditor type={vectorType} onChange={onChange} />;
     }
 
     case "array": {
@@ -595,10 +377,7 @@ export function getValueEditor(
         memory.MemoryType<unknown, unknown, unknown>,
         number
       >;
-      return makeArrayValueEditor(
-        arrayType,
-        getValueEditor(arrayType.elementType),
-      );
+      return <ArrayTypeEditor type={arrayType} onChange={onChange} />;
     }
 
     case "struct": {
@@ -608,44 +387,10 @@ export function getValueEditor(
           { index: number; type: memory.MemoryType<unknown, unknown, unknown> }
         >
       >;
-      return makeStructValueEditor(structType);
+      return <StructTypeEditor type={structType} onChange={onChange} />;
     }
 
     default:
-      return NullValueEditor;
-  }
-}
-
-const MemoryTypeEditors = {
-  "i32": makePredefinedTypeEditor(memory.Int32, Int32ValueEditor),
-  "vec2i": makePredefinedTypeEditor(memory.Vec2I, Vec2IValueEditor),
-  "vec3i": makePredefinedTypeEditor(memory.Vec3I, Vec3IValueEditor),
-  "vec4i": makePredefinedTypeEditor(memory.Vec4I, Vec4IValueEditor),
-
-  "u32": makePredefinedTypeEditor(memory.Uint32, Uint32ValueEditor),
-  "vec2u": makePredefinedTypeEditor(memory.Vec2U, Vec2UValueEditor),
-  "vec3u": makePredefinedTypeEditor(memory.Vec3U, Vec3UValueEditor),
-  "vec4u": makePredefinedTypeEditor(memory.Vec4U, Vec4UValueEditor),
-
-  "f32": makePredefinedTypeEditor(memory.Float32, Float32ValueEditor),
-  "vec2f": makePredefinedTypeEditor(memory.Vec2F, Vec2FValueEditor),
-  "vec3f": makePredefinedTypeEditor(memory.Vec3F, Vec3FValueEditor),
-  "vec4f": makePredefinedTypeEditor(memory.Vec4F, Vec4FValueEditor),
-
-  "f16": makePredefinedTypeEditor(memory.Float16, Float16ValueEditor),
-  "vec2h": makePredefinedTypeEditor(memory.Vec2H, Vec2HValueEditor),
-  "vec3h": makePredefinedTypeEditor(memory.Vec3H, Vec3HValueEditor),
-  "vec4h": makePredefinedTypeEditor(memory.Vec4H, Vec4HValueEditor),
-
-  "array": ArrayTypeEditor,
-
-  "struct": StructTypeEditor,
-};
-
-function parseMemoryTypeEditorKey(key: string): keyof typeof MemoryTypeEditors {
-  if (key in MemoryTypeEditors) {
-    return key as keyof typeof MemoryTypeEditors;
-  } else {
-    throw new Error(`Unknown memory type editor key: ${key}`);
+      throw new Error(`Unknown memory type: ${type.type}`);
   }
 }
