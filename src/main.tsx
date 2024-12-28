@@ -55,6 +55,26 @@ const App = ({}: AppProps) => {
     <main>
       <h1>wgpu-memory</h1>
       <p>
+        <a href="https://github.com/Garciat/wgpu-memory">
+          <img
+            alt="Static Badge"
+            src="https://img.shields.io/badge/GitHub-source-blue?logo=github"
+          />
+        </a>{" "}
+        <a href="https://jsr.io/@garciat/wgpu-memory">
+          <img src="https://jsr.io/badges/@garciat/wgpu-memory" />
+        </a>{" "}
+        <a href="https://jsr.io/@garciat/wgpu-memory">
+          <img src="https://jsr.io/badges/@garciat/wgpu-memory/score" />
+        </a>{" "}
+        <a href="https://github.com/garciat/wgpu-memory">
+          <img src="https://github.com/garciat/wgpu-memory/workflows/ci/badge.svg" />
+        </a>{" "}
+        <a href="https://codecov.io/gh/garciat/wgpu-memory">
+          <img src="https://codecov.io/gh/garciat/wgpu-memory/branch/main/graph/badge.svg?token=KEKZ52NXGP" />
+        </a>
+      </p>
+      <p>
         A utility library for WebGPU that provides strongly-typed{" "}
         <code>ArrayBuffer</code> memory access that is compatible with{" "}
         <a href="https://gpuweb.github.io/gpuweb/wgsl/">
