@@ -324,6 +324,8 @@ interface StructTypeEditorState {
 
 class StructTypeEditor
   extends Component<StructTypeEditorProps, StructTypeEditorState> {
+  #counter: number;
+
   constructor({ type }: StructTypeEditorProps) {
     super();
     this.state = {
@@ -332,6 +334,7 @@ class StructTypeEditor
         type: field.type,
       })),
     };
+    this.#counter = 0;
   }
 
   override componentDidMount(): void {
@@ -347,9 +350,11 @@ class StructTypeEditor
               <button onClick={() => this.removeField(i)}>{"✖️"}</button>
               &nbsp;
               <input
-                type="text"
                 class="field-name"
+                type="text"
+                required={true}
                 defaultValue={field.name}
+                pattern={"^[a-zA-Z_][a-zA-Z0-9_]*$"}
                 onInput={(e) => this.onFieldNameChange(i, e)}
               />
             </td>
@@ -385,11 +390,19 @@ class StructTypeEditor
   }
 
   private addField(): void {
+    while (
+      this.state.fields.some((field) => field.name === `field${this.#counter}`)
+    ) {
+      this.#counter++;
+    }
     this.setState(
       (state) => ({
         fields: [
           ...state.fields,
-          { name: `field${state.fields.length}`, type: memory.Int32 },
+          {
+            name: `field${this.#counter}`,
+            type: memory.Float32,
+          },
         ],
       }),
       this.triggerOnChange,
@@ -412,6 +425,17 @@ class StructTypeEditor
     i: number,
     e: JSX.TargetedInputEvent<HTMLInputElement>,
   ) {
+    if (
+      this.state.fields.some((field, j) =>
+        i !== j && field.name === e.currentTarget.value
+      )
+    ) {
+      e.currentTarget.setCustomValidity("Field names must be unique.");
+    }
+    if (!e.currentTarget.checkValidity()) {
+      e.currentTarget.reportValidity();
+      return;
+    }
     this.setState((state) => {
       const fields = [...state.fields];
       fields[i] = { ...fields[i], name: e.currentTarget.value };
