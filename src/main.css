@@ -13,8 +13,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+a, a:visited {
+  color: darkorange;
+}
+
 h1, h2, h3 {
   font-weight: 300;
+}
+
+h1 sub {
+  vertical-align: middle;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.5em;
 }
 
 input:user-invalid {
@@ -28,10 +38,7 @@ p.warning {
   background-color: rgb(255, 237, 184);
 }
 
-main {
-  margin-bottom: 5rem;
-}
-main > *:not(.centered) {
+main > *:not(.centered), footer > *:not(.centered) {
   max-width: calc(1rem * var(--width));
   margin: 0 auto;
   padding: 1rem 1.25rem 0;
@@ -48,6 +55,11 @@ main > .centered + .centered {
 }
 main > .centered > * {
   margin: 0 auto 1rem;
+}
+
+footer {
+  margin: 2rem 0 5rem;
+  text-align: center;
 }
 
 select[name="memory-type"] {
