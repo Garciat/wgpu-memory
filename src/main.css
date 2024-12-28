@@ -37,9 +37,12 @@ main > .centered {
   padding: 1rem 1.25rem 0;
 }
 
-.memory-type-editor {
-  border: 1px solid #666;
-  padding: 0.5rem;
+select[name="memory-type"] {
+  margin: 0.25rem;
+}
+
+input[type="number"] {
+  width: 3rem;
 }
 
 .object-value-container {
@@ -47,39 +50,39 @@ main > .centered {
   overflow-y: scroll;
 }
 
-.table-value-editor {
+.memory-editor-table {
   margin: 0 auto 1rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
   border-spacing: 0;
 }
 
-.table-value-editor .table-value-editor {
+.memory-editor-table .memory-editor-table {
   margin: 0.25rem;
 }
 
-.table-value-editor th {
+.memory-editor-table th {
   font-weight: inherit;
   padding: 0 0.4rem;
 }
 
-.table-value-editor td {
+.memory-editor-table td {
   padding: 0.25rem 0.5rem;
 }
 
-.table-value-editor thead {
+.memory-editor-table thead {
   background-color: var(--accent-bg);
   color: var(--accent-fg);
 }
 
-.table-value-editor tbody > tr {
+.memory-editor-table tbody > tr {
   background-color: #fff;
 }
 
-.table-value-editor tbody > tr:nth-child(2n) {
+.memory-editor-table tbody > tr:nth-child(2n) {
   background-color: #eee;
 }
 
-.table-value-editor tbody .column-index {
+.memory-editor-table tbody .column-index {
   text-align: right;
 }
 

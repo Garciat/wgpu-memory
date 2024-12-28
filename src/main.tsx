@@ -66,7 +66,7 @@ const App = ({}: AppProps) => {
       </p>
       <p>Below you may use a visual editor for the supported memory types.</p>
       <h2>Memory Type</h2>
-      <section>
+      <section class="centered">
         <MemoryTypeEditor type={memoryType} onChange={onMemoryTypeChange} />
       </section>
       <h2>Type Properties</h2>

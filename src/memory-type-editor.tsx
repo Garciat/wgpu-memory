@@ -43,10 +43,7 @@ const PredefinedTypes: Record<MemoryTypeKey, AnyMemoryType> = {
   "array": new memory.ArrayType(memory.Int32, 4),
 
   "struct": new memory.Struct({
-    u: { index: 0, type: memory.Float32 },
-    v: { index: 1, type: memory.Float32 },
-    w: { index: 2, type: memory.Vec2F },
-    x: { index: 3, type: memory.Float32 },
+    field0: { index: 0, type: memory.Float32 },
   }),
 };
 
@@ -63,17 +60,23 @@ export const MemoryTypeEditor = (
   }
 
   return (
-    <div class="memory-type-editor">
-      <select
-        name="memory-type"
-        onInput={onMemoryTypeChange}
-      >
-        {Array.from(allowedTypes).map((key) => (
-          <option selected={key === type.type}>{key}</option>
-        ))}
-      </select>
+    <table class="memory-type-editor memory-editor-table">
+      <thead>
+        <tr>
+          <th colSpan={2}>
+            <select
+              name="memory-type"
+              onInput={onMemoryTypeChange}
+            >
+              {Array.from(allowedTypes).map((key) => (
+                <option selected={key === type.type}>{key}</option>
+              ))}
+            </select>
+          </th>
+        </tr>
+      </thead>
       {getMemoryTypeEditor({ type, onChange })}
-    </div>
+    </table>
   );
 };
 
@@ -85,7 +88,7 @@ class ScalarTypeEditor extends Component<TypeEditorProps> {
   }
 
   override render(): ComponentChildren {
-    return <></>;
+    return <tbody></tbody>;
   }
 }
 
@@ -116,16 +119,20 @@ class VectorTypeEditor
 
   override render(): ComponentChildren {
     return (
-      <div class="vector-type-editor">
-        <p>
-          <span>{"Component Type: "}</span>
-          <MemoryTypeEditor
-            type={this.state.componentType}
-            allowedTypes={ScalarMemoryTypeKeys}
-            onChange={this.onComponentTypeChange}
-          />
-        </p>
-      </div>
+      <tbody>
+        <tr>
+          <td>
+            <pre>Component Type</pre>
+          </td>
+          <td>
+            <MemoryTypeEditor
+              type={this.state.componentType}
+              allowedTypes={ScalarMemoryTypeKeys}
+              onChange={this.onComponentTypeChange}
+            />
+          </td>
+        </tr>
+      </tbody>
     );
   }
 
@@ -181,16 +188,20 @@ class MatrixTypeEditor
 
   override render(): ComponentChildren {
     return (
-      <div class="matrix-type-editor">
-        <p>
-          <span>{"Component Type: "}</span>
-          <MemoryTypeEditor
-            type={this.state.componentType}
-            allowedTypes={FloatingPointMemoryTypeKeys}
-            onChange={this.onComponentTypeChange}
-          />
-        </p>
-      </div>
+      <tbody>
+        <tr>
+          <td>
+            <pre>Component Type</pre>
+          </td>
+          <td>
+            <MemoryTypeEditor
+              type={this.state.componentType}
+              allowedTypes={FloatingPointMemoryTypeKeys}
+              onChange={this.onComponentTypeChange}
+            />
+          </td>
+        </tr>
+      </tbody>
     );
   }
 
@@ -244,25 +255,33 @@ class ArrayTypeEditor
 
   override render(): ComponentChildren {
     return (
-      <div class="array-type-editor">
-        <p>
-          <span>{"Element Count: "}</span>
-          <input
-            type="number"
-            required={true}
-            min={1}
-            defaultValue={1}
-            onInput={this.onArraySizeChange}
-          />
-        </p>
-        <div>
-          <span>{"Element Type: "}</span>
-          <MemoryTypeEditor
-            type={this.state.elementType}
-            onChange={this.onElementTypeChange}
-          />
-        </div>
-      </div>
+      <tbody>
+        <tr>
+          <td>
+            <pre>{"Element Count"}</pre>
+          </td>
+          <td>
+            <input
+              type="number"
+              required={true}
+              min={1}
+              defaultValue={1}
+              onInput={this.onArraySizeChange}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <pre>{"Element Type"}</pre>
+          </td>
+          <td>
+            <MemoryTypeEditor
+              type={this.state.elementType}
+              onChange={this.onElementTypeChange}
+            />
+          </td>
+        </tr>
+      </tbody>
     );
   }
 
@@ -321,38 +340,30 @@ class StructTypeEditor
 
   override render(): ComponentChildren {
     return (
-      <table class="struct-type-editor">
-        <thead>
+      <tbody>
+        {this.state.fields.map((field, i) => (
           <tr>
-            <th>{"Field Name"}</th>
-            <th>{"Field Type"}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.state.fields.map((field, i) => (
-            <tr>
-              <td>
-                <input
-                  type="text"
-                  defaultValue={field.name}
-                  onInput={(e) => this.onFieldNameChange(i, e)}
-                />
-              </td>
-              <td>
-                <MemoryTypeEditor
-                  type={field.type}
-                  onChange={(e) => this.onFieldTypeChange(i, e)}
-                />
-              </td>
-            </tr>
-          ))}
-          <tr>
-            <td colspan={2}>
-              <button onClick={this.addField}>{"Add Field"}</button>
+            <td>
+              <input
+                type="text"
+                defaultValue={field.name}
+                onInput={(e) => this.onFieldNameChange(i, e)}
+              />
+            </td>
+            <td>
+              <MemoryTypeEditor
+                type={field.type}
+                onChange={(e) => this.onFieldTypeChange(i, e)}
+              />
             </td>
           </tr>
-        </tbody>
-      </table>
+        ))}
+        <tr>
+          <td colspan={2}>
+            <button onClick={this.addField}>{"Add Field"}</button>
+          </td>
+        </tr>
+      </tbody>
     );
   }
 

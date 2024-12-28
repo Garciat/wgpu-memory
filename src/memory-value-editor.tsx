@@ -100,7 +100,7 @@ const VectorValueEditor = (
   { type, buffer, offset, onChange }: VectorValueEditorProps,
 ) => {
   return (
-    <table class="vector-value-editor table-value-editor">
+    <table class="vector-value-editor memory-editor-table">
       <thead>
         <tr>
           <th colspan={2}>
@@ -139,10 +139,10 @@ const MatrixValueEditor = (
   { type, buffer, offset, onChange }: MatrixValueEditorProps,
 ) => {
   return (
-    <table class="matrix-value-editor table-value-editor">
+    <table class="matrix-value-editor memory-editor-table">
       <thead>
         <tr>
-          <th colspan={2}>
+          <th colspan={type.shape[0]}>
             <pre>{type.type}</pre>
           </th>
         </tr>
@@ -191,7 +191,7 @@ const ArrayValueEditor = <N extends number>(
   }
 
   return (
-    <table class="array-value-editor table-value-editor">
+    <table class="array-value-editor memory-editor-table">
       <thead>
         <tr>
           <th colspan={2}>
@@ -231,7 +231,7 @@ const StructValueEditor = ({
   onChange,
 }: StructValueEditorProps) => {
   return (
-    <table class="struct-value-editor table-value-editor">
+    <table class="struct-value-editor memory-editor-table">
       <thead>
         <tr>
           <th colspan={2}>
