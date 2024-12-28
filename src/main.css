@@ -45,6 +45,10 @@ input[type="number"] {
   width: 3rem;
 }
 
+input.field-name {
+  width: 5rem;
+}
+
 .object-value-container {
   max-height: 50vh;
   overflow-y: scroll;

@@ -344,8 +344,11 @@ class StructTypeEditor
         {this.state.fields.map((field, i) => (
           <tr>
             <td>
+              <button onClick={() => this.removeField(i)}>{"✖️"}</button>
+              &nbsp;
               <input
                 type="text"
+                class="field-name"
                 defaultValue={field.name}
                 onInput={(e) => this.onFieldNameChange(i, e)}
               />
@@ -360,7 +363,7 @@ class StructTypeEditor
         ))}
         <tr>
           <td colspan={2}>
-            <button onClick={this.addField}>{"Add Field"}</button>
+            <button onClick={() => this.addField()}>{"Add Field"}</button>
           </td>
         </tr>
       </tbody>
@@ -381,7 +384,7 @@ class StructTypeEditor
     });
   }
 
-  private addField = () => {
+  private addField(): void {
     this.setState(
       (state) => ({
         fields: [
@@ -391,7 +394,19 @@ class StructTypeEditor
       }),
       this.triggerOnChange,
     );
-  };
+  }
+
+  private removeField(i: number) {
+    if (this.state.fields.length === 1) {
+      return;
+    }
+    this.setState(
+      (state) => ({
+        fields: state.fields.filter((_, j) => j !== i),
+      }),
+      this.triggerOnChange,
+    );
+  }
 
   private onFieldNameChange(
     i: number,
