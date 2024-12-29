@@ -1,3 +1,4 @@
+import { invariant } from "../internal/assert.ts";
 import type { NonEmpty } from "../internal/constraints.ts";
 import type {
   MemoryType,
@@ -15,48 +16,70 @@ import type { IStruct, IStructField, StructDescriptor } from "./types.ts";
 export function compile<S extends NonEmpty<StructDescriptor<S>>>(
   struct: Struct<S>,
 ): IStruct<S> {
-  const toCodeImplParam = "param_toCodeImpl";
+  const inputs = {
+    utils: {
+      toCodeImpl: {
+        name: "param_toCodeImpl",
+        value: toCodeImpl,
+      },
+    },
+    fieldTypes: struct.fieldList.map((field) => ({
+      name: `param_fieldType_${String(field.name)}`,
+      value: field.type,
+    })),
+  };
 
-  const typeParams = struct.fieldList.map((field) =>
-    `param_fieldType_${String(field.name)}`
+  const classDefinition = generateStructClass(
+    struct,
+    inputs,
   );
-  const typeArgs = struct.fieldList.map((field) => field.type);
 
-  const source = generateStructClass(struct, toCodeImplParam, typeParams);
+  const classObject = CodeGen.evaluate(
+    [
+      ...Object.values(inputs.utils),
+      ...inputs.fieldTypes,
+    ],
+    classDefinition,
+  );
 
-  const clazz = Function(
-    toCodeImplParam,
-    ...typeParams,
-    `return ${source};`,
-  )(toCodeImpl, ...typeArgs) as IStruct<S>;
-
-  Object.defineProperty(clazz, "__source", {
-    value: source,
+  Object.defineProperty(classObject, "__source", {
+    value: classDefinition,
     writable: false,
     enumerable: false,
     configurable: false,
   });
 
-  return clazz;
+  return classObject as IStruct<S>;
 }
+
+type StructCodeGenParams = {
+  utils: {
+    toCodeImpl: { name: string };
+  };
+  fieldTypes: Array<{ name: string }>;
+};
 
 function generateStructClass<S extends NonEmpty<StructDescriptor<S>>>(
   struct: Struct<S>,
-  toCodeImplParam: string,
-  fieldTypeParams: Array<string>,
+  params: StructCodeGenParams,
 ): string {
+  const nameOf = <K>(field: { name: K }) => String(field.name);
+
+  const typeOf = (field: { index: number }) =>
+    params.fieldTypes[field.index].name;
+
   return `
 class GeneratedStruct {
   static fields = Object.freeze(${
     CodeGen.objectLiteral(
-      struct.fieldList.map((field) => [
-        String(field.name),
+      struct.fieldList,
+      (field) => nameOf(field),
+      (field) =>
         generateFieldAccessorClass(
           struct,
           field,
-          fieldTypeParams[field.index],
+          typeOf(field),
         ),
-      ]),
     )
   });
 
@@ -65,7 +88,7 @@ class GeneratedStruct {
   }
 
   static toCode(namespace, indentation=0) {
-    return ${toCodeImplParam}(this, namespace, indentation);
+    return ${params.utils.toCodeImpl.name}(this, namespace, indentation);
   }
 
   static get type() {
@@ -87,24 +110,23 @@ class GeneratedStruct {
   static read(view, offset = 0) {
     return ${
     CodeGen.objectLiteral(
-      struct.fieldList.map((field) => [
-        String(field.name),
-        `${fieldTypeParams[field.index]}.read(view, ${field.offset} + offset)`,
-      ]),
+      struct.fieldList,
+      (field) => nameOf(field),
+      (field) => `${typeOf(field)}.read(view, ${field.offset} + offset)`,
     )
   };
   }
 
   static write(view, values, offset = 0) {
     ${
-    struct.fieldList
-      .map(
-        (field) =>
-          `${fieldTypeParams[field.index]}.write(view, values.${
-            String(field.name)
-          }, ${field.offset} + offset);`,
-      )
-      .join("\n")
+    CodeGen.statements(
+      struct.fieldList,
+      (field) => {
+        const t = typeOf(field);
+        const k = nameOf(field);
+        return `${t}.write(view, values.${k}, ${field.offset} + offset);`;
+      },
+    )
   }
   }
 
@@ -120,12 +142,10 @@ class GeneratedStruct {
     const effectiveOffset = index * ${struct.arrayStride} + offset;
     return ${
     CodeGen.objectLiteral(
-      struct.fieldList.map((field) => [
-        String(field.name),
-        `${
-          fieldTypeParams[field.index]
-        }.viewAt(buffer, 0, ${field.offset} + effectiveOffset)`,
-      ]),
+      struct.fieldList,
+      (field) => nameOf(field),
+      (field) =>
+        `${typeOf(field)}.viewAt(buffer, 0, ${field.offset} + effectiveOffset)`,
     )
   };
   }
@@ -195,12 +215,33 @@ class GeneratedFieldAccessor {
 }
 
 class CodeGen {
-  static objectLiteral(
-    fields: Array<[string, string]>,
+  static evaluate(
+    args: Array<{ name: string; value: unknown }>,
+    expression: string,
+  ): unknown {
+    const argNames = args.map((arg) => arg.name);
+    const argValues = args.map((arg) => arg.value);
+
+    invariant(
+      argNames.length === new Set(argNames).size,
+      `Duplicate arg names: ${argNames}`,
+    );
+
+    return Function(...argNames, `return ${expression};`)(...argValues);
+  }
+
+  static statements<T>(input: Array<T>, f: (value: T) => string): string {
+    return input.map((item) => f(item)).join("\n");
+  }
+
+  static objectLiteral<T>(
+    input: Array<T>,
+    keyF: (value: T) => string,
+    valueF: (value: T) => string,
   ): string {
     return [
       "{",
-      ...fields.map(([name, value]) => `${name}: ${value},`),
+      ...input.map((item) => `${keyF(item)}: ${valueF(item)},`),
       `}`,
     ].join("\n");
   }

@@ -14,3 +14,9 @@ export function assertPositive(value: number) {
     throw RangeError("Value must be positive");
   }
 }
+
+export function invariant(condition: boolean, message: string) {
+  if (!condition) {
+    throw Error(message);
+  }
+}
