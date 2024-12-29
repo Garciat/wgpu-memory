@@ -15,9 +15,10 @@
     ]
   },
   "tasks": {
+    "bench": "deno bench --json ./benchmarks",
     "coverage": "deno coverage --lcov ./cov",
-    "test": "deno test --parallel --ignore=npm",
-    "test:coverage": "deno test --coverage=./cov --parallel --ignore=npm",
+    "test": "deno test --parallel --ignore=benchmarks",
+    "test:coverage": "deno test --coverage=./cov --parallel --ignore=benchmarks",
     "devcheck": "deno fmt --check && deno lint && deno task test:coverage && deno coverage --html ./cov && open cov/html/index.html"
   },
   "fmt": {

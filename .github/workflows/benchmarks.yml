@@ -1,0 +1,41 @@
+name: benchmarks
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  # deployments permission to deploy GitHub pages website
+  deployments: write
+  # contents permission to update benchmark contents in gh-pages branch
+  contents: write
+
+jobs:
+  wgpu-memory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone repository
+        uses: actions/checkout@v4
+
+      - name: install deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: benchmark
+        run: deno task bench > bench.json
+
+      # gh-pages branch is updated and pushed automatically with extracted benchmark data
+      - name: Store benchmark result
+        uses: garciat/github-action-benchmark@deno-benchmark-v1
+        with:
+          name: wgpu-memory benchmarks
+          tool: "deno"
+          output-file-path: bench.json
+          # Access token to deploy GitHub Pages branch
+          github-token: ${{ secrets.GH_PAT_COMMIT }}
+          # Push and deploy GitHub pages branch automatically
+          gh-pages-branch: github-pages
+          benchmark-data-dir-path: src/benchmarks
+          auto-push: true
