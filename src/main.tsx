@@ -1,5 +1,14 @@
 import { render } from "npm:preact@10.25.3";
 import { useState } from "npm:preact@10.25.3/hooks";
+import hljs from "npm:highlight.js@11.11.1/lib/core";
+import hljsLangJSON from "npm:highlight.js@11.11.1/lib/languages/javascript";
+import hljsLangJS from "npm:highlight.js@11.11.1/lib/languages/javascript";
+import hljsLangWGSL from "./vendored/highlightjs-wgsl.js";
+
+hljs.registerLanguage("json", hljsLangJSON);
+hljs.registerLanguage("javascript", hljsLangJS);
+hljs.registerLanguage("wgsl", hljsLangWGSL);
+
 import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
 
 import "./float16-polyfill.ts";
@@ -68,24 +77,47 @@ const App = ({}: AppProps) => {
         <MemoryTypeEditor type={memoryType} onChange={onMemoryTypeChange} />
       </section>
       <section class="centered">
-        <pre class="syntax-highlight">{
-          JSON.stringify({
-            byteSize: memoryType.byteSize,
-            alignment: memoryType.alignment,
-            arrayStride: memoryType.arrayStride,
-          })
-        }</pre>
+        <pre
+          class="syntax-highlight"
+          dangerouslySetInnerHTML={{
+            __html: hljs.highlight(
+              JSON.stringify({
+                byteSize: memoryType.byteSize,
+                alignment: memoryType.alignment,
+                arrayStride: memoryType.arrayStride,
+              }),
+              { language: "json" },
+            ).value,
+          }}
+        />
       </section>
       <h2>WGSL (approximate)</h2>
       <section class="centered">
-        <pre class="syntax-highlight">{String(memoryType)}</pre>
+        <pre
+          class="syntax-highlight"
+          dangerouslySetInnerHTML={{
+            __html: hljs.highlight(
+              String(memoryType),
+              { language: "wgsl" },
+            ).value,
+          }}
+        />
       </section>
       <h2>JavaScript</h2>
       <section class="centered">
-        <pre class="syntax-highlight">
-          {`import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";\n\n`}
-          {`const myType = ${memoryType.toCode("memory")};`}
-        </pre>
+        <pre
+          class="syntax-highlight"
+          dangerouslySetInnerHTML={{
+            __html: hljs.highlight(
+              [
+                `import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";`,
+                ``,
+                `const myType = ${memoryType.toCode("memory")};`,
+              ].join("\n"),
+              { language: "javascript" },
+            ).value,
+          }}
+        />
       </section>
       <h2>Object Value</h2>
       <section class="centered object-value-container">

@@ -1,7 +1,57 @@
 :root {
   --width: 34.5;
-  --accent-bg: #696;
-  --accent-fg: #fff;
+}
+
+[data-theme="light"] {
+  --color-background: #fff;
+  --color-background-fg: #111;
+  --color-background-fg-disabled: #ccc;
+  --color-background-alt: #eee;
+  --color-background-alt-fg-disabled: #888;
+  --color-background-contrast: #333;
+  --color-background-contrast-fg: #fff;
+  --color-background-contrast-alt: #666;
+  --color-background-contrast-alt-fg: #fff;
+  --color-accent: #696;
+  --color-accent-fg: #fff;
+  --color-accent-alt: darkorange;
+  --color-warning-bg: rgb(255, 237, 184);
+  --color-warning-fg: #000;
+  --color-shadow: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] {
+  --color-background: #000;
+  --color-background-fg: #eee;
+  --color-background-fg-disabled: #888;
+  --color-background-alt: #222;
+  --color-background-alt-fg-disabled: #666;
+  --color-background-contrast: #111;
+  --color-background-contrast-fg: #fff;
+  --color-background-contrast-alt: #222;
+  --color-background-contrast-alt-fg: #fff;
+  --color-accent: rgb(37, 82, 60);
+  --color-accent-fg: #fff;
+  --color-accent-alt: rgb(198, 133, 55);
+  --color-warning-bg: rgb(73, 58, 16);
+  --color-warning-fg: #fff;
+  --color-shadow: rgba(0, 0, 0, 0);
+}
+
+[data-theme="dark"] pre.syntax-highlight {
+  border: 1px solid var(--color-background-alt);
+}
+
+[data-theme="dark"] .memory-editor-table {
+  border: 1px solid var(--color-background-alt);
+}
+
+[data-theme="dark"] .binary-dump-table {
+  border: 1px solid var(--color-background-alt);
+}
+
+#ThemeToggle {
+  float: right;
 }
 
 html {
@@ -11,10 +61,12 @@ html {
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-background-fg);
 }
 
 a, a:visited {
-  color: darkorange;
+  color: var(--color-accent-alt);
 }
 
 h1, h2, h3 {
@@ -25,6 +77,7 @@ h1 sub {
   vertical-align: middle;
   padding: 0.25rem 0.5rem;
   font-size: 0.5em;
+  font-weight: normal;
 }
 
 input:user-invalid {
@@ -35,14 +88,21 @@ p.warning {
   margin-top: 1rem !important;
   padding: 0.75rem !important;
   border-radius: 0.25rem;
-  background-color: rgb(255, 237, 184);
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-fg);
+}
+
+body > header > h1 {
+  margin: 2rem auto;
+  font-weight: bold;
 }
 
 header > *:not(.centered),
 main > *:not(.centered),
 footer > *:not(.centered) {
   max-width: calc(1rem * var(--width));
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   padding: 1rem 1.25rem 0;
 }
 main > .centered {
@@ -79,7 +139,7 @@ input.field-name {
 
 .memory-editor-table {
   overflow: hidden;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0.5rem var(--color-shadow);
   border-spacing: 0;
   border-radius: 0.25rem;
 }
@@ -98,16 +158,16 @@ input.field-name {
 }
 
 .memory-editor-table thead {
-  background-color: var(--accent-bg);
-  color: var(--accent-fg);
+  background-color: var(--color-accent);
+  color: var(--color-accent-fg);
 }
 
 .memory-editor-table tbody > tr {
-  background-color: #fff;
+  background-color: var(--color-background);
 }
 
 .memory-editor-table tbody > tr:nth-child(2n) {
-  background-color: #eee;
+  background-color: var(--color-background-alt);
 }
 
 .memory-editor-table tbody .column-index {
@@ -127,20 +187,21 @@ pre {
 pre.syntax-highlight {
   margin: 0 auto;
   padding: 0.5rem;
-  background-color: #333;
+  background-color: var(--color-background-contrast);
   border-radius: 0.25rem;
   overflow-x: auto;
-  color: #fff;
+  color: var(--color-background-contrast-fg);
 }
 
 .binary-dump-table {
+  border-radius: 0.25rem;
   border-spacing: 0;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0.5rem var(--color-shadow);
 }
 
 .binary-dump-table > thead {
-  background-color: var(--accent-bg);
-  color: var(--accent-fg);
+  background-color: var(--color-accent);
+  color: var(--color-accent-fg);
   font: 0.8rem/1.2rem "Consolas", Menlo, monospace;
   -webkit-user-select: none;
   user-select: none;
@@ -158,12 +219,13 @@ pre.syntax-highlight {
 }
 
 .binary-dump-table > thead .row-offset {
-  background-color: #666;
+  background-color: var(--color-background-contrast-alt);
+  color: var(--color-background-contrast-alt-fg);
 }
 
 .binary-dump-table > tbody .column-offset {
-  background: #eee;
-  color: #888;
+  background: var(--color-background-alt);
+  color: var(--color-background-alt-fg-disabled);
 }
 
 .binary-dump-table > tbody .column-hex {
@@ -182,7 +244,7 @@ pre.syntax-highlight {
 }
 
 .binary-dump-table > tbody .column-ascii .non-printable {
-  color: #aaa;
+  color: var(--color-background-fg-disabled);
 }
 
 .binary-dump-table .column-hex .space:nth-of-type(8n) {
@@ -190,5 +252,5 @@ pre.syntax-highlight {
 }
 .binary-dump-table .column-hex .space:nth-of-type(8n)::before {
   content: " ";
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--color-background-fg-disabled);
 }

@@ -8,7 +8,13 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <link rel="stylesheet" href={url("./main.css")} />
+        <link rel="stylesheet" href={url("./highlight.css")} />
         <script type="module" src={url("./main.js")} defer />
+        <script
+          type="module"
+          src={url("./theme-toggle.js") + "?target=ThemeToggle"}
+          defer
+        />
       </head>
 
       <body>
@@ -18,6 +24,7 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
             <sub>
               by&nbsp;<a href="https://github.com/Garciat">@garciat</a>
             </sub>
+            <div id="ThemeToggle" />
           </h1>
           <p>
             <a href="https://github.com/Garciat/wgpu-memory">
