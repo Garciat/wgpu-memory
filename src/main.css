@@ -38,7 +38,9 @@ p.warning {
   background-color: rgb(255, 237, 184);
 }
 
-main > *:not(.centered), footer > *:not(.centered) {
+header > *:not(.centered),
+main > *:not(.centered),
+footer > *:not(.centered) {
   max-width: calc(1rem * var(--width));
   margin: 0 auto;
   padding: 1rem 1.25rem 0;

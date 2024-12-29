@@ -2,6 +2,8 @@ import lume from "lume/mod.ts";
 import jsx from "lume/plugins/jsx_preact.ts";
 import esbuild from "lume/plugins/esbuild.ts";
 
+import beautify from "npm:js-beautify@1.15.1";
+
 const site = lume({
   src: "./src",
 });
@@ -28,5 +30,14 @@ site.use(esbuild({
 }));
 
 site.copy([".wgsl", ".css", ".jpg", ".png"]);
+
+site.process([".html"], (files) => {
+  for (const file of files) {
+    file.content = beautify.html(file.content, {
+      indent_size: 2,
+      wrap_line_length: 120,
+    });
+  }
+});
 
 export default site;
