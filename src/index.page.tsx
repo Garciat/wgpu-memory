@@ -18,7 +18,7 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
       </head>
 
       <body>
-        <header>
+        <header class="container">
           <h1>
             wgpu-memory{" "}
             <sub>
@@ -56,9 +56,19 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
               alignment and size specifications
             </a>.
           </p>
+          <p>
+            Useful links:
+          </p>
+          <ul>
+            <li>
+              <a href="https://garciat.com/wgpu-memory/benchmarks/">
+                Benchmarks
+              </a>
+            </li>
+          </ul>
         </header>
-        <main id="PreactMain" />
-        <footer>
+        <main id="PreactMain" class="container" />
+        <footer class="container">
           <p>
             Built with <a href="https://www.typescriptlang.org/">TypeScript</a>,
             {" "}
