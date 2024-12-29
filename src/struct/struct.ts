@@ -84,14 +84,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
    * @inheritdoc
    */
   toCode(namespace: string, indentation: number = 0): string {
-    const fields = this.#fields.map((field) =>
-      field.toCode(namespace, indentation + 2)
-    );
-    return [
-      `new ${namespace}.Struct({`,
-      ...fields.map((field) => `${" ".repeat(indentation + 2)}${field},`),
-      `${" ".repeat(indentation)}})`,
-    ].join("\n");
+    return toCodeImpl(this, namespace, indentation);
   }
 
   /**
@@ -404,108 +397,113 @@ export interface IStructField<
   viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
 }
 
+function toCodeImpl<S extends NonEmpty<StructDescriptor<S>>>(
+  struct: IStruct<S>,
+  namespace: string,
+  indentation: number = 0,
+): string {
+  const fields = typedObjectKeys(struct.fields).map((key) => {
+    const field = struct.fields[key];
+    const fieldType = field.type as MemoryType<unknown, unknown, unknown>;
+    return `${String(field.name)}: { index: ${field.index}, type: ${
+      fieldType.toCode(namespace, indentation + 2)
+    } }`;
+  });
+  return [
+    `new ${namespace}.Struct({`,
+    ...fields.map((field) => `${" ".repeat(indentation + 2)}${field},`),
+    `${" ".repeat(indentation)}})`,
+  ].join("\n");
+}
+
 /**
  * Uses code generation to create a specialized structure class.
  */
 export function compile<S extends NonEmpty<StructDescriptor<S>>>(
   struct: Struct<S>,
 ): IStruct<S> {
-  const params = struct.fieldList.map((field) =>
-    `fieldType_${String(field.name)}`
+  const toCodeImplParam = "param_toCodeImpl";
+
+  const typeParams = struct.fieldList.map((field) =>
+    `param_fieldType_${String(field.name)}`
   );
-  const args = struct.fieldList.map((field) => field.type);
+  const typeArgs = struct.fieldList.map((field) => field.type);
 
-  const source = generateStructClass(struct, params);
+  const source = generateStructClass(struct, toCodeImplParam, typeParams);
 
-  return Function(
-    ...params,
-    `let c = ${source}; return c;`,
-  )(...args) as IStruct<S>;
+  const clazz = Function(
+    toCodeImplParam,
+    ...typeParams,
+    `return ${source};`,
+  )(toCodeImpl, ...typeArgs) as IStruct<S>;
+
+  Object.defineProperty(clazz, "__source", {
+    value: source,
+    writable: false,
+    enumerable: false,
+    configurable: false,
+  });
+
+  return clazz;
 }
 
-/**
- * Generates the code for a structure class.
- *
- * @param struct The structure to generate the class for.
- * @returns The generated class code as a string.
- */
 function generateStructClass<S extends NonEmpty<StructDescriptor<S>>>(
   struct: Struct<S>,
+  toCodeImplParam: string,
   fieldTypeParams: Array<string>,
 ): string {
   return `
-    class GeneratedStruct {
-      static fields = {
-        ${
-    struct.fieldList
-      .map(
-        (field) =>
-          `${String(field.name)}: ${
-            generateFieldAccessorClass(
-              struct,
-              field,
-              fieldTypeParams[field.index],
-            )
-          },`,
-      )
-      .join("\n")
+class GeneratedStruct {
+  static fields = Object.freeze(${
+    CodeGen.objectLiteral(
+      struct.fieldList.map((field) => [
+        String(field.name),
+        generateFieldAccessorClass(
+          struct,
+          field,
+          fieldTypeParams[field.index],
+        ),
+      ]),
+    )
+  });
+
+  static toString() {
+    return "${struct.toString()}";
   }
-      };
 
-      static toString() {
-        return "${struct.toString()}";
-      }
-
-      static toCode(namespace, indentation=0) {
-        return [
-          "new " + namespace + ".Struct({",
-                  ${
-    struct.fieldList
-      .map(
-        (field) =>
-          `" ".repeat(indentation + 2) + this.fields.${
-            String(field.name)
-          }.toCode(namespace, indentation + 2) + ",",`,
-      )
-      .join("\n")
+  static toCode(namespace, indentation=0) {
+    return ${toCodeImplParam}(this, namespace, indentation);
   }
-          "})",
-        ].join("\\n");
-      }
 
-      static get type() {
-        return "${struct.type}";
-      }
-
-      static get byteSize() {
-        return ${struct.byteSize};
-      }
-
-      static get alignment() {
-        return ${struct.alignment};
-      }
-
-      static get arrayStride() {
-        return ${struct.arrayStride};
-      }
-
-      static read(view, offset = 0) {
-        return {
-               ${
-    struct.fieldList
-      .map(
-        (field) =>
-          `${String(field.name)}: ${
-            fieldTypeParams[field.index]
-          }.read(view, ${field.offset} + offset),`,
-      )
-      .join("\n")
+  static get type() {
+    return "${struct.type}";
   }
-        };
-      }
 
-      static write(view, values, offset = 0) {
-        ${
+  static get byteSize() {
+    return ${struct.byteSize};
+  }
+
+  static get alignment() {
+    return ${struct.alignment};
+  }
+
+  static get arrayStride() {
+    return ${struct.arrayStride};
+  }
+
+  static read(view, offset = 0) {
+    return ${
+    CodeGen.objectLiteral(
+      struct.fieldList.map((field) => [
+        String(field.name),
+        `${fieldTypeParams[field.index]}.read(view, ${field.offset} + offset)`,
+      ]),
+    )
+  };
+  }
+
+  static write(view, values, offset = 0) {
+    ${
     struct.fieldList
       .map(
         (field) =>
@@ -515,33 +513,31 @@ function generateStructClass<S extends NonEmpty<StructDescriptor<S>>>(
       )
       .join("\n")
   }
-      }
-
-      static readAt(view, index, offset = 0) {
-        return this.read(view, index * this.arrayStride + offset);
-      }
-
-      static writeAt(view, index, value, offset = 0) {
-        this.write(view, value, index * this.arrayStride + offset);
-      }
-
-      static viewAt(buffer, index, offset = 0) {
-        const effectiveOffset = index * this.arrayStride + offset;
-        return {
-        ${
-    struct.fieldList
-      .map(
-        (field) =>
-          `${String(field.name)}: ${
-            fieldTypeParams[field.index]
-          }.viewAt(buffer, 0, ${field.offset} + effectiveOffset),`,
-      )
-      .join("\n")
   }
-        };
-      }
-    }
-  `;
+
+  static readAt(view, index, offset = 0) {
+    return this.read(view, index * ${struct.arrayStride} + offset);
+  }
+
+  static writeAt(view, index, value, offset = 0) {
+    this.write(view, value, index * ${struct.arrayStride} + offset);
+  }
+
+  static viewAt(buffer, index, offset = 0) {
+    const effectiveOffset = index * ${struct.arrayStride} + offset;
+    return ${
+    CodeGen.objectLiteral(
+      struct.fieldList.map((field) => [
+        String(field.name),
+        `${
+          fieldTypeParams[field.index]
+        }.viewAt(buffer, 0, ${field.offset} + effectiveOffset)`,
+      ]),
+    )
+  };
+  }
+}
+  `.trim();
 }
 
 function generateFieldAccessorClass<
@@ -557,60 +553,66 @@ function generateFieldAccessorClass<
   fieldTypeParam: string,
 ): string {
   return `
-    class GeneratedFieldAccessor {
-      static toString() {
-        return "${String(field.name)}: " + this.type.toString();
-      }
+class GeneratedFieldAccessor {
+  static toString() {
+    return "${String(field.name)}: " + ${fieldTypeParam}.toString();
+  }
 
-      static toCode(namespace, indentation) {
-        return "${
-    String(field.name)
-  }: { index: ${field.index}, type: " + this.type.toCode(namespace, indentation) + " }";
-      }
+  static get index() {
+    return ${field.index};
+  }
 
-      static get index() {
-        return ${field.index};
-      }
+  static get name() {
+    return "${String(field.name)}";
+  }
 
-      static get name() {
-        return "${String(field.name)}";
-    }
+  static get type() {
+    return ${fieldTypeParam};
+  }
 
-      static get type() {
-        return ${fieldTypeParam};
-      }
+  static get byteSize() {
+    return ${field.byteSize};
+  }
 
-      static get byteSize() {
-        return ${field.byteSize};
-      }
+  static get alignment() {
+    return ${field.alignment};
+  }
 
-      static get alignment() {
-        return ${field.alignment};
-      }
+  static get offset() {
+    return ${field.offset};
+  }
 
-      static get offset() {
-        return ${field.offset};
-      }
+  static read(view, offset = 0) {
+    return ${fieldTypeParam}.read(view, ${field.offset} + offset);
+  }
 
-      static read(view, offset = 0) {
-        return this.type.read(view, this.offset + offset);
-      }
+  static write(view, value, offset = 0) {
+    ${fieldTypeParam}.write(view, value, ${field.offset} + offset);
+  }
 
-      static write(view, value, offset = 0) {
-        this.type.write(view, value, this.offset + offset);
-      }
+  static readAt(view, index, offset = 0) {
+    return ${fieldTypeParam}.read(view, index * ${struct.arrayStride} + ${field.offset} + offset);
+  }
 
-      static readAt(view, index, offset = 0) {
-        return this.type.read(view, index * ${struct.arrayStride} + this.offset + offset);
-      }
+  static writeAt(view, index, value, offset = 0) {
+    ${fieldTypeParam}.write(view, value, index * ${struct.arrayStride} + ${field.offset} + offset);
+  }
 
-      static writeAt(view, index, value, offset = 0) {
-        this.type.write(view, value, index * ${struct.arrayStride} + this.offset + offset);
-      }
+  static viewAt(buffer, index, offset = 0) {
+    return ${fieldTypeParam}.viewAt(buffer, 0, index * ${struct.arrayStride} + ${field.offset} + offset);
+  }
+}
+  `.trim();
+}
 
-      static viewAt(buffer, index, offset = 0) {
-        return this.type.viewAt(buffer, 0, index * ${struct.arrayStride} + this.offset + offset);
-      }
-    }
-  `;
+class CodeGen {
+  static objectLiteral(
+    fields: Array<[string, string]>,
+  ): string {
+    return [
+      "{",
+      ...fields.map(([name, value]) => `${name}: ${value},`),
+      `}`,
+    ].join("\n");
+  }
 }

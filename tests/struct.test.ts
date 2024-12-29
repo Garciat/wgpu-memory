@@ -135,6 +135,9 @@ Deno.test("compile", () => {
 
   const StructB = memory.compileStruct(StructA);
 
+  const source = (StructB as unknown as { __source: string }).__source;
+  assertEquals(source, CompiledStructSource1);
+
   assertEquals(String(StructB), String(StructA));
   assertEquals(StructB.toCode("memory"), StructA.toCode("memory"));
 
@@ -251,3 +254,264 @@ Deno.test("compile", () => {
     StructA.fields.x.viewAt(buffer, 1),
   );
 });
+
+const CompiledStructSource1 = `
+class GeneratedStruct {
+  static fields = Object.freeze({
+u: class GeneratedFieldAccessor {
+  static toString() {
+    return "u: " + param_fieldType_u.toString();
+  }
+
+  static get index() {
+    return 0;
+  }
+
+  static get name() {
+    return "u";
+  }
+
+  static get type() {
+    return param_fieldType_u;
+  }
+
+  static get byteSize() {
+    return 4;
+  }
+
+  static get alignment() {
+    return 4;
+  }
+
+  static get offset() {
+    return 0;
+  }
+
+  static read(view, offset = 0) {
+    return param_fieldType_u.read(view, 0 + offset);
+  }
+
+  static write(view, value, offset = 0) {
+    param_fieldType_u.write(view, value, 0 + offset);
+  }
+
+  static readAt(view, index, offset = 0) {
+    return param_fieldType_u.read(view, index * 24 + 0 + offset);
+  }
+
+  static writeAt(view, index, value, offset = 0) {
+    param_fieldType_u.write(view, value, index * 24 + 0 + offset);
+  }
+
+  static viewAt(buffer, index, offset = 0) {
+    return param_fieldType_u.viewAt(buffer, 0, index * 24 + 0 + offset);
+  }
+},
+v: class GeneratedFieldAccessor {
+  static toString() {
+    return "v: " + param_fieldType_v.toString();
+  }
+
+  static get index() {
+    return 1;
+  }
+
+  static get name() {
+    return "v";
+  }
+
+  static get type() {
+    return param_fieldType_v;
+  }
+
+  static get byteSize() {
+    return 4;
+  }
+
+  static get alignment() {
+    return 4;
+  }
+
+  static get offset() {
+    return 4;
+  }
+
+  static read(view, offset = 0) {
+    return param_fieldType_v.read(view, 4 + offset);
+  }
+
+  static write(view, value, offset = 0) {
+    param_fieldType_v.write(view, value, 4 + offset);
+  }
+
+  static readAt(view, index, offset = 0) {
+    return param_fieldType_v.read(view, index * 24 + 4 + offset);
+  }
+
+  static writeAt(view, index, value, offset = 0) {
+    param_fieldType_v.write(view, value, index * 24 + 4 + offset);
+  }
+
+  static viewAt(buffer, index, offset = 0) {
+    return param_fieldType_v.viewAt(buffer, 0, index * 24 + 4 + offset);
+  }
+},
+w: class GeneratedFieldAccessor {
+  static toString() {
+    return "w: " + param_fieldType_w.toString();
+  }
+
+  static get index() {
+    return 2;
+  }
+
+  static get name() {
+    return "w";
+  }
+
+  static get type() {
+    return param_fieldType_w;
+  }
+
+  static get byteSize() {
+    return 8;
+  }
+
+  static get alignment() {
+    return 8;
+  }
+
+  static get offset() {
+    return 8;
+  }
+
+  static read(view, offset = 0) {
+    return param_fieldType_w.read(view, 8 + offset);
+  }
+
+  static write(view, value, offset = 0) {
+    param_fieldType_w.write(view, value, 8 + offset);
+  }
+
+  static readAt(view, index, offset = 0) {
+    return param_fieldType_w.read(view, index * 24 + 8 + offset);
+  }
+
+  static writeAt(view, index, value, offset = 0) {
+    param_fieldType_w.write(view, value, index * 24 + 8 + offset);
+  }
+
+  static viewAt(buffer, index, offset = 0) {
+    return param_fieldType_w.viewAt(buffer, 0, index * 24 + 8 + offset);
+  }
+},
+x: class GeneratedFieldAccessor {
+  static toString() {
+    return "x: " + param_fieldType_x.toString();
+  }
+
+  static get index() {
+    return 3;
+  }
+
+  static get name() {
+    return "x";
+  }
+
+  static get type() {
+    return param_fieldType_x;
+  }
+
+  static get byteSize() {
+    return 4;
+  }
+
+  static get alignment() {
+    return 4;
+  }
+
+  static get offset() {
+    return 16;
+  }
+
+  static read(view, offset = 0) {
+    return param_fieldType_x.read(view, 16 + offset);
+  }
+
+  static write(view, value, offset = 0) {
+    param_fieldType_x.write(view, value, 16 + offset);
+  }
+
+  static readAt(view, index, offset = 0) {
+    return param_fieldType_x.read(view, index * 24 + 16 + offset);
+  }
+
+  static writeAt(view, index, value, offset = 0) {
+    param_fieldType_x.write(view, value, index * 24 + 16 + offset);
+  }
+
+  static viewAt(buffer, index, offset = 0) {
+    return param_fieldType_x.viewAt(buffer, 0, index * 24 + 16 + offset);
+  }
+},
+});
+
+  static toString() {
+    return "struct { u: f32, v: f32, w: vec2<f32>, x: f32 }";
+  }
+
+  static toCode(namespace, indentation=0) {
+    return param_toCodeImpl(this, namespace, indentation);
+  }
+
+  static get type() {
+    return "struct";
+  }
+
+  static get byteSize() {
+    return 24;
+  }
+
+  static get alignment() {
+    return 8;
+  }
+
+  static get arrayStride() {
+    return 24;
+  }
+
+  static read(view, offset = 0) {
+    return {
+u: param_fieldType_u.read(view, 0 + offset),
+v: param_fieldType_v.read(view, 4 + offset),
+w: param_fieldType_w.read(view, 8 + offset),
+x: param_fieldType_x.read(view, 16 + offset),
+};
+  }
+
+  static write(view, values, offset = 0) {
+    param_fieldType_u.write(view, values.u, 0 + offset);
+param_fieldType_v.write(view, values.v, 4 + offset);
+param_fieldType_w.write(view, values.w, 8 + offset);
+param_fieldType_x.write(view, values.x, 16 + offset);
+  }
+
+  static readAt(view, index, offset = 0) {
+    return this.read(view, index * 24 + offset);
+  }
+
+  static writeAt(view, index, value, offset = 0) {
+    this.write(view, value, index * 24 + offset);
+  }
+
+  static viewAt(buffer, index, offset = 0) {
+    const effectiveOffset = index * 24 + offset;
+    return {
+u: param_fieldType_u.viewAt(buffer, 0, 0 + effectiveOffset),
+v: param_fieldType_v.viewAt(buffer, 0, 4 + effectiveOffset),
+w: param_fieldType_w.viewAt(buffer, 0, 8 + effectiveOffset),
+x: param_fieldType_x.viewAt(buffer, 0, 16 + effectiveOffset),
+};
+  }
+}
+`.trim();
