@@ -61,7 +61,7 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
           </p>
           <ul>
             <li>
-              <a href="https://garciat.com/wgpu-memory/benchmarks/">
+              <a href={url("./benchmarks/")}>
                 Benchmarks
               </a>
             </li>
