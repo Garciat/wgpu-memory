@@ -29,7 +29,7 @@ site.use(esbuild({
   },
 }));
 
-site.copy([".wgsl", ".css", ".jpg", ".png"]);
+site.copy([".wgsl", ".css", ".jpg", ".png", ".html"]);
 
 site.process([".html"], (files) => {
   for (const file of files) {
