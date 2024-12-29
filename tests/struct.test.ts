@@ -259,10 +259,6 @@ const CompiledStructSource1 = `
 class GeneratedStruct {
   static fields = Object.freeze({
 u: class GeneratedFieldAccessor {
-  static toString() {
-    return "u: " + param_fieldType_u.toString();
-  }
-
   static get index() {
     return 0;
   }
@@ -308,10 +304,6 @@ u: class GeneratedFieldAccessor {
   }
 },
 v: class GeneratedFieldAccessor {
-  static toString() {
-    return "v: " + param_fieldType_v.toString();
-  }
-
   static get index() {
     return 1;
   }
@@ -357,10 +349,6 @@ v: class GeneratedFieldAccessor {
   }
 },
 w: class GeneratedFieldAccessor {
-  static toString() {
-    return "w: " + param_fieldType_w.toString();
-  }
-
   static get index() {
     return 2;
   }
@@ -406,10 +394,6 @@ w: class GeneratedFieldAccessor {
   }
 },
 x: class GeneratedFieldAccessor {
-  static toString() {
-    return "x: " + param_fieldType_x.toString();
-  }
-
   static get index() {
     return 3;
   }

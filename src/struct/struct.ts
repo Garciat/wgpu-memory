@@ -77,7 +77,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
    * @inheritdoc
    */
   toString(): string {
-    return `struct { ${this.#fields.map(String).join(", ")} }`;
+    return toWgslImpl(this);
   }
 
   /**
@@ -211,22 +211,6 @@ export class StructField<
     this.#type = fieldDescriptor.type;
     this.#name = name;
     this.#offset = offset;
-  }
-
-  /**
-   * @returns The name and type of the field in WGSL-like syntax.
-   */
-  toString(): string {
-    return `${String(this.#name)}: ${String(this.#type)}`;
-  }
-
-  /**
-   * @returns The field in JavaScript syntax.
-   */
-  toCode(namespace: string, indentation?: number): string {
-    return `${String(this.#name)}: { index: ${this.#index}, type: ${
-      this.#type.toCode(namespace, indentation)
-    } }`;
   }
 
   /**
@@ -416,6 +400,16 @@ function toCodeImpl<S extends NonEmpty<StructDescriptor<S>>>(
   ].join("\n");
 }
 
+function toWgslImpl<S extends NonEmpty<StructDescriptor<S>>>(
+  struct: IStruct<S>,
+): string {
+  const fields = typedObjectKeys(struct.fields).map((key) => {
+    const field = struct.fields[key];
+    return `${String(field.name)}: ${String(field.type)}`;
+  });
+  return `struct { ${fields.join(", ")} }`;
+}
+
 /**
  * Uses code generation to create a specialized structure class.
  */
@@ -554,10 +548,6 @@ function generateFieldAccessorClass<
 ): string {
   return `
 class GeneratedFieldAccessor {
-  static toString() {
-    return "${String(field.name)}: " + ${fieldTypeParam}.toString();
-  }
-
   static get index() {
     return ${field.index};
   }
