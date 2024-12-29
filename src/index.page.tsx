@@ -64,8 +64,39 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
               source
             </a>.
           </p>
+          <p>
+            {shieldGitHubWorkflowLastRun(
+              "Garciat/wgpu-memory",
+              "github-pages",
+              "build.yml",
+            )}
+          </p>
         </footer>
       </body>
     </html>
   );
 };
+
+function shieldGitHubWorkflowLastRun(
+  repo: string,
+  branch: string,
+  workflow: string,
+  status: string = "completed",
+) {
+  const apiUrl =
+    `https://api.github.com/repos/${repo}/actions/workflows/${workflow}/runs?status=${status}&per_page=1&branch=${branch}`;
+  const query = `$.workflow_runs[0].run_started_at`;
+  return shieldDynamicJSON(apiUrl, query, "Last Build");
+}
+
+function shieldDynamicJSON(url: string, query: string, label: string) {
+  const encodedUrl = encodeURIComponent(url);
+  const encodedQuery = encodeURIComponent(query);
+  const encodedLabel = encodeURIComponent(label);
+  return (
+    <img
+      alt={label}
+      src={`https://img.shields.io/badge/dynamic/json?url=${encodedUrl}&query=${encodedQuery}&label=${encodedLabel}`}
+    />
+  );
+}
