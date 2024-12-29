@@ -9,6 +9,15 @@ import type { NonEmpty } from "../internal/constraints.ts";
 import { wgslRoundUp } from "../internal/math.ts";
 import { typedObjectKeys } from "../internal/utils.ts";
 import { strideOf } from "../internal/alignment.ts";
+import type {
+  IStruct,
+  IStructField,
+  IStructFieldsOf,
+  StructDescriptor,
+  StructR,
+  StructV,
+} from "./types.ts";
+import { toCodeImpl, toWgslImpl } from "./string.ts";
 
 /**
  * A constructor for structure types.
@@ -18,7 +27,7 @@ import { strideOf } from "../internal/alignment.ts";
 export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   implements IStruct<S> {
   #fields: Array<StructField<S, keyof S>>;
-  #fieldsByName: StructFieldsOf<S>;
+  #fieldsByName: IStructFieldsOf<S>;
   #alignment: number;
   #byteSize: number;
   #arrayStride: number;
@@ -31,7 +40,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     let alignment = 0;
 
     this.#fields = Array(Object.keys(descriptor).length);
-    this.#fieldsByName = {} as StructFieldsOf<S>;
+    this.#fieldsByName = {} as IStructFieldsOf<S>;
 
     for (const name of typedObjectKeys(descriptor)) {
       const fieldDescriptor = descriptor[name];
@@ -62,7 +71,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   /**
    * @returns Field accessors for the structure.
    */
-  get fields(): StructFieldsOf<S> {
+  get fields(): IStructFieldsOf<S> {
     return this.#fieldsByName;
   }
 
@@ -312,297 +321,5 @@ export class StructField<
       0,
       index * this.#parent.byteSize + this.#offset + offset,
     );
-  }
-}
-
-/**
- * A user-defined object that describes the fields of a structure.
- *
- * @example
- * { field1: { index: 0, type: Int32 }, field2: { index: 1, type: Vec2F } }
- */
-export type StructDescriptor<S> = {
-  [K in keyof S]: S[K] extends { type: infer T } ? {
-      index: number;
-      type: T extends MemoryType<infer R, infer V, infer VF> ? T : never;
-    }
-    : never;
-};
-
-/**
- * Maps the fields of a structure to their respective field accessors.
- */
-export type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
-  [K in keyof S]: StructField<S, K>;
-};
-
-/**
- * A structure's object representation.
- */
-export type StructR<S extends StructDescriptor<S>> = {
-  [K in keyof S]: MemoryTypeR<S[K]["type"]>;
-};
-
-/**
- * A structure's view representation.
- */
-export type StructV<S extends StructDescriptor<S>> = {
-  [K in keyof S]: MemoryTypeV<S[K]["type"]>;
-};
-
-export interface IStruct<S extends NonEmpty<StructDescriptor<S>>>
-  extends MemoryType<StructR<S>, StructV<S>, never> {
-  readonly fields: IStructFieldsOf<S>;
-}
-
-export type IStructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
-  [K in keyof S]: IStructField<S, K>;
-};
-
-export interface IStructField<
-  S extends NonEmpty<StructDescriptor<S>>,
-  Key extends keyof S,
-  T extends MemoryType<R, V, VF> = S[Key]["type"],
-  R = MemoryTypeR<T>,
-  V = MemoryTypeV<T>,
-  VF = MemoryTypeVF<T>,
-> {
-  readonly index: number;
-  readonly name: Key;
-  readonly type: T;
-  readonly byteSize: number;
-  readonly alignment: number;
-  readonly offset: number;
-
-  read(view: DataView, offset?: number): R;
-  write(view: DataView, value: R, offset?: number): void;
-  readAt(view: DataView, index: number, offset?: number): R;
-  writeAt(view: DataView, index: number, value: R, offset?: number): void;
-  viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
-}
-
-function toCodeImpl<S extends NonEmpty<StructDescriptor<S>>>(
-  struct: IStruct<S>,
-  namespace: string,
-  indentation: number = 0,
-): string {
-  const fields = typedObjectKeys(struct.fields).map((key) => {
-    const field = struct.fields[key];
-    const fieldType = field.type as MemoryType<unknown, unknown, unknown>;
-    return `${String(field.name)}: { index: ${field.index}, type: ${
-      fieldType.toCode(namespace, indentation + 2)
-    } }`;
-  });
-  return [
-    `new ${namespace}.Struct({`,
-    ...fields.map((field) => `${" ".repeat(indentation + 2)}${field},`),
-    `${" ".repeat(indentation)}})`,
-  ].join("\n");
-}
-
-function toWgslImpl<S extends NonEmpty<StructDescriptor<S>>>(
-  struct: IStruct<S>,
-): string {
-  const fields = typedObjectKeys(struct.fields).map((key) => {
-    const field = struct.fields[key];
-    return `${String(field.name)}: ${String(field.type)}`;
-  });
-  return `struct { ${fields.join(", ")} }`;
-}
-
-/**
- * Uses code generation to create a specialized structure class.
- */
-export function compile<S extends NonEmpty<StructDescriptor<S>>>(
-  struct: Struct<S>,
-): IStruct<S> {
-  const toCodeImplParam = "param_toCodeImpl";
-
-  const typeParams = struct.fieldList.map((field) =>
-    `param_fieldType_${String(field.name)}`
-  );
-  const typeArgs = struct.fieldList.map((field) => field.type);
-
-  const source = generateStructClass(struct, toCodeImplParam, typeParams);
-
-  const clazz = Function(
-    toCodeImplParam,
-    ...typeParams,
-    `return ${source};`,
-  )(toCodeImpl, ...typeArgs) as IStruct<S>;
-
-  Object.defineProperty(clazz, "__source", {
-    value: source,
-    writable: false,
-    enumerable: false,
-    configurable: false,
-  });
-
-  return clazz;
-}
-
-function generateStructClass<S extends NonEmpty<StructDescriptor<S>>>(
-  struct: Struct<S>,
-  toCodeImplParam: string,
-  fieldTypeParams: Array<string>,
-): string {
-  return `
-class GeneratedStruct {
-  static fields = Object.freeze(${
-    CodeGen.objectLiteral(
-      struct.fieldList.map((field) => [
-        String(field.name),
-        generateFieldAccessorClass(
-          struct,
-          field,
-          fieldTypeParams[field.index],
-        ),
-      ]),
-    )
-  });
-
-  static toString() {
-    return "${struct.toString()}";
-  }
-
-  static toCode(namespace, indentation=0) {
-    return ${toCodeImplParam}(this, namespace, indentation);
-  }
-
-  static get type() {
-    return "${struct.type}";
-  }
-
-  static get byteSize() {
-    return ${struct.byteSize};
-  }
-
-  static get alignment() {
-    return ${struct.alignment};
-  }
-
-  static get arrayStride() {
-    return ${struct.arrayStride};
-  }
-
-  static read(view, offset = 0) {
-    return ${
-    CodeGen.objectLiteral(
-      struct.fieldList.map((field) => [
-        String(field.name),
-        `${fieldTypeParams[field.index]}.read(view, ${field.offset} + offset)`,
-      ]),
-    )
-  };
-  }
-
-  static write(view, values, offset = 0) {
-    ${
-    struct.fieldList
-      .map(
-        (field) =>
-          `${fieldTypeParams[field.index]}.write(view, values.${
-            String(field.name)
-          }, ${field.offset} + offset);`,
-      )
-      .join("\n")
-  }
-  }
-
-  static readAt(view, index, offset = 0) {
-    return this.read(view, index * ${struct.arrayStride} + offset);
-  }
-
-  static writeAt(view, index, value, offset = 0) {
-    this.write(view, value, index * ${struct.arrayStride} + offset);
-  }
-
-  static viewAt(buffer, index, offset = 0) {
-    const effectiveOffset = index * ${struct.arrayStride} + offset;
-    return ${
-    CodeGen.objectLiteral(
-      struct.fieldList.map((field) => [
-        String(field.name),
-        `${
-          fieldTypeParams[field.index]
-        }.viewAt(buffer, 0, ${field.offset} + effectiveOffset)`,
-      ]),
-    )
-  };
-  }
-}
-  `.trim();
-}
-
-function generateFieldAccessorClass<
-  S extends NonEmpty<StructDescriptor<S>>,
-  Key extends keyof S,
-  T extends MemoryType<R, V, VF> = S[Key]["type"],
-  R = MemoryTypeR<T>,
-  V = MemoryTypeV<T>,
-  VF = MemoryTypeVF<T>,
->(
-  struct: Struct<S>,
-  field: IStructField<S, Key, T, R, V, VF>,
-  fieldTypeParam: string,
-): string {
-  return `
-class GeneratedFieldAccessor {
-  static get index() {
-    return ${field.index};
-  }
-
-  static get name() {
-    return "${String(field.name)}";
-  }
-
-  static get type() {
-    return ${fieldTypeParam};
-  }
-
-  static get byteSize() {
-    return ${field.byteSize};
-  }
-
-  static get alignment() {
-    return ${field.alignment};
-  }
-
-  static get offset() {
-    return ${field.offset};
-  }
-
-  static read(view, offset = 0) {
-    return ${fieldTypeParam}.read(view, ${field.offset} + offset);
-  }
-
-  static write(view, value, offset = 0) {
-    ${fieldTypeParam}.write(view, value, ${field.offset} + offset);
-  }
-
-  static readAt(view, index, offset = 0) {
-    return ${fieldTypeParam}.read(view, index * ${struct.arrayStride} + ${field.offset} + offset);
-  }
-
-  static writeAt(view, index, value, offset = 0) {
-    ${fieldTypeParam}.write(view, value, index * ${struct.arrayStride} + ${field.offset} + offset);
-  }
-
-  static viewAt(buffer, index, offset = 0) {
-    return ${fieldTypeParam}.viewAt(buffer, 0, index * ${struct.arrayStride} + ${field.offset} + offset);
-  }
-}
-  `.trim();
-}
-
-class CodeGen {
-  static objectLiteral(
-    fields: Array<[string, string]>,
-  ): string {
-    return [
-      "{",
-      ...fields.map(([name, value]) => `${name}: ${value},`),
-      `}`,
-    ].join("\n");
   }
 }

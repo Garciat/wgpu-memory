@@ -2,18 +2,16 @@ export type { MatrixType, MemoryType, VectorType } from "./types.ts";
 
 export { ArrayType } from "./array/array.ts";
 
-export {
-  compile as compileStruct,
-  type IStruct,
-  type IStructField,
-  type IStructFieldsOf,
-  Struct,
-  type StructDescriptor,
-  type StructField,
-  type StructFieldsOf,
-  type StructR,
-  type StructV,
-} from "./struct/struct.ts";
+export type {
+  IStruct,
+  IStructField,
+  IStructFieldsOf,
+  StructDescriptor,
+  StructR,
+  StructV,
+} from "./struct/types.ts";
+export { Struct } from "./struct/struct.ts";
+export { compile as compileStruct } from "./struct/compile.ts";
 
 export { Mat2x2 } from "./matrix/mat2x2.ts";
 export { Mat3x3 } from "./matrix/mat3x3.ts";
