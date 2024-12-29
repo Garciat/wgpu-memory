@@ -4,7 +4,7 @@
 
 [data-theme="light"] {
   --color-background: #fff;
-  --color-background-fg: #111;
+  --color-background-fg: #000;
   --color-background-fg-disabled: #ccc;
   --color-background-alt: #eee;
   --color-background-alt-fg-disabled: #888;
@@ -22,7 +22,7 @@
 
 [data-theme="dark"] {
   --color-background: #000;
-  --color-background-fg: #eee;
+  --color-background-fg: #fff;
   --color-background-fg-disabled: #888;
   --color-background-alt: #222;
   --color-background-alt-fg-disabled: #666;
