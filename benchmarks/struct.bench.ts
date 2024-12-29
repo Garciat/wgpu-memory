@@ -1,5 +1,7 @@
 import * as memory from "../src/mod.ts";
 
+const length = 10_000;
+
 const TestStruct = new memory.Struct({
   u: { index: 0, type: memory.Float32 },
   v: { index: 1, type: memory.Float32 },
@@ -8,7 +10,6 @@ const TestStruct = new memory.Struct({
 });
 
 Deno.bench("wgpu-memory", { group: "Struct writeAt" }, (b) => {
-  const length = 10_000;
   const buffer = memory.allocate(TestStruct, length);
   const view = new DataView(buffer);
 
@@ -27,7 +28,6 @@ Deno.bench("wgpu-memory", { group: "Struct writeAt" }, (b) => {
 });
 
 Deno.bench("wgpu-memory field", { group: "Struct writeAt" }, (b) => {
-  const length = 10_000;
   const buffer = memory.allocate(TestStruct, length);
   const view = new DataView(buffer);
 
@@ -43,8 +43,24 @@ Deno.bench("wgpu-memory field", { group: "Struct writeAt" }, (b) => {
   b.end();
 });
 
+Deno.bench("wgpu-memory field views", { group: "Struct writeAt" }, (b) => {
+  const buffer = memory.allocate(TestStruct, length);
+
+  b.start();
+
+  for (let i = 0; i < length; i++) {
+    const fields = TestStruct.viewAt(buffer, i);
+    fields.u[0] = i;
+    fields.v[0] = i;
+    fields.w[0] = i;
+    fields.w[1] = i;
+    fields.x[0] = i;
+  }
+
+  b.end();
+});
+
 Deno.bench("DataView", { group: "Struct writeAt" }, (b) => {
-  const length = 10_000;
   const buffer = memory.allocate(TestStruct, length);
   const view = new DataView(buffer);
 
@@ -62,7 +78,6 @@ Deno.bench("DataView", { group: "Struct writeAt" }, (b) => {
 });
 
 Deno.bench("TypedArray", { group: "Struct writeAt", baseline: true }, (b) => {
-  const length = 10_000;
   const buffer = memory.allocate(TestStruct, length);
   const viewF = new Float32Array(buffer);
   const viewI = new Int32Array(buffer);

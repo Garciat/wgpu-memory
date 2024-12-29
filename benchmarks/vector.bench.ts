@@ -1,7 +1,8 @@
 import * as memory from "../src/mod.ts";
 
+const length = 100_000;
+
 Deno.bench("wgpu-memory", { group: "Vec4F writeAt" }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Vec4F, length);
   const view = new DataView(buffer);
 
@@ -15,7 +16,6 @@ Deno.bench("wgpu-memory", { group: "Vec4F writeAt" }, (b) => {
 });
 
 Deno.bench("DataView", { group: "Vec4F writeAt" }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Vec4F, length);
   const view = new DataView(buffer);
 
@@ -32,7 +32,6 @@ Deno.bench("DataView", { group: "Vec4F writeAt" }, (b) => {
 });
 
 Deno.bench("TypedArray", { group: "Vec4F writeAt", baseline: true }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Vec4F, length);
   const view = new Float32Array(buffer);
 

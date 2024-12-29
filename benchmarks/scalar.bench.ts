@@ -7,8 +7,9 @@ const ENDIANNESS = [
 
 console.error("System Endianness:", ENDIANNESS);
 
+const length = 100_000;
+
 Deno.bench("wgpu-memory", { group: "Float32 writeAt" }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Float32, length);
   const view = new DataView(buffer);
 
@@ -22,7 +23,6 @@ Deno.bench("wgpu-memory", { group: "Float32 writeAt" }, (b) => {
 });
 
 Deno.bench("DataView", { group: "Float32 writeAt" }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Float32, length);
   const view = new DataView(buffer);
 
@@ -36,7 +36,6 @@ Deno.bench("DataView", { group: "Float32 writeAt" }, (b) => {
 });
 
 Deno.bench("TypedArray", { group: "Float32 writeAt", baseline: true }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Float32, length);
   const view = new Float32Array(buffer);
 
@@ -50,7 +49,6 @@ Deno.bench("TypedArray", { group: "Float32 writeAt", baseline: true }, (b) => {
 });
 
 Deno.bench("wgpu-memory", { group: "Int32 writeAt" }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Int32, length);
   const view = new DataView(buffer);
 
@@ -64,7 +62,6 @@ Deno.bench("wgpu-memory", { group: "Int32 writeAt" }, (b) => {
 });
 
 Deno.bench("DataView", { group: "Int32 writeAt" }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Int32, length);
   const view = new DataView(buffer);
 
@@ -78,7 +75,6 @@ Deno.bench("DataView", { group: "Int32 writeAt" }, (b) => {
 });
 
 Deno.bench("TypedArray", { group: "Int32 writeAt", baseline: true }, (b) => {
-  const length = 100_000;
   const buffer = memory.allocate(memory.Int32, length);
   const view = new Int32Array(buffer);
 
