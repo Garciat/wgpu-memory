@@ -147,22 +147,17 @@ export class Mat4x4<
     value: TupNM<R, typeof NCol, typeof NRow>,
     offset: number = 0,
   ) {
-    this.setAt(view, 0, 0, value[0][0], offset);
-    this.setAt(view, 0, 1, value[0][1], offset);
-    this.setAt(view, 0, 2, value[0][2], offset);
-    this.setAt(view, 0, 3, value[0][3], offset);
-    this.setAt(view, 1, 0, value[1][0], offset);
-    this.setAt(view, 1, 1, value[1][1], offset);
-    this.setAt(view, 1, 2, value[1][2], offset);
-    this.setAt(view, 1, 3, value[1][3], offset);
-    this.setAt(view, 2, 0, value[2][0], offset);
-    this.setAt(view, 2, 1, value[2][1], offset);
-    this.setAt(view, 2, 2, value[2][2], offset);
-    this.setAt(view, 2, 3, value[2][3], offset);
-    this.setAt(view, 3, 0, value[3][0], offset);
-    this.setAt(view, 3, 1, value[3][1], offset);
-    this.setAt(view, 3, 2, value[3][2], offset);
-    this.setAt(view, 3, 3, value[3][3], offset);
+    const dim1 = this.#alignment;
+    const dim2 = this.#type.byteSize;
+    for (let i = 0; i < NCol; i++) {
+      for (let j = 0; j < NRow; j++) {
+        this.#type.write(
+          view,
+          value[i][j],
+          i * dim1 + j * dim2 + offset,
+        );
+      }
+    }
   }
 
   /**

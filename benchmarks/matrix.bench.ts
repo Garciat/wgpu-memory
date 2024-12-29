@@ -22,6 +22,23 @@ Deno.bench("wgpu-memory", { group: "Matrix writeAt" }, (b) => {
   b.end();
 });
 
+Deno.bench("wgpu-memory view", { group: "Matrix writeAt" }, (b) => {
+  const buffer = memory.allocate(TestType, length);
+
+  b.start();
+
+  for (let i = 0; i < length; i++) {
+    const view = TestType.viewAt(buffer, i);
+    for (let j = 0; j < 4; j++) {
+      for (let k = 0; k < 4; k++) {
+        view[j * 4 + k] = i;
+      }
+    }
+  }
+
+  b.end();
+});
+
 Deno.bench("DataView", { group: "Matrix writeAt" }, (b) => {
   const buffer = memory.allocate(TestType, length);
   const view = new DataView(buffer);
