@@ -3,6 +3,10 @@ export type { MatrixType, MemoryType, VectorType } from "./types.ts";
 export { ArrayType } from "./array/array.ts";
 
 export {
+  compile as compileStruct,
+  type IStruct,
+  type IStructField,
+  type IStructFieldsOf,
   Struct,
   type StructDescriptor,
   type StructField,

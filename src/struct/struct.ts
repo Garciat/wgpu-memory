@@ -16,7 +16,7 @@ import { strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#struct-types
  */
 export class Struct<S extends NonEmpty<StructDescriptor<S>>>
-  implements MemoryType<StructR<S>, StructV<S>, never> {
+  implements IStruct<S> {
   #fields: Array<StructField<S, keyof S>>;
   #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
@@ -64,6 +64,13 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
    */
   get fields(): StructFieldsOf<S> {
     return this.#fieldsByName;
+  }
+
+  /**
+   * @private
+   */
+  get fieldList(): Array<StructField<S, keyof S>> {
+    return this.#fields;
   }
 
   /**
@@ -193,7 +200,7 @@ export class StructField<
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF = MemoryTypeVF<T>,
-> {
+> implements IStructField<S, Key, T, R, V, VF> {
   #parent: Struct<S>;
   #index: number;
   #name: Key;
@@ -365,3 +372,245 @@ export type StructR<S extends StructDescriptor<S>> = {
 export type StructV<S extends StructDescriptor<S>> = {
   [K in keyof S]: MemoryTypeV<S[K]["type"]>;
 };
+
+export interface IStruct<S extends NonEmpty<StructDescriptor<S>>>
+  extends MemoryType<StructR<S>, StructV<S>, never> {
+  readonly fields: IStructFieldsOf<S>;
+}
+
+export type IStructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
+  [K in keyof S]: IStructField<S, K>;
+};
+
+export interface IStructField<
+  S extends NonEmpty<StructDescriptor<S>>,
+  Key extends keyof S,
+  T extends MemoryType<R, V, VF> = S[Key]["type"],
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF = MemoryTypeVF<T>,
+> {
+  readonly index: number;
+  readonly name: Key;
+  readonly type: T;
+  readonly byteSize: number;
+  readonly alignment: number;
+  readonly offset: number;
+
+  read(view: DataView, offset?: number): R;
+  write(view: DataView, value: R, offset?: number): void;
+  readAt(view: DataView, index: number, offset?: number): R;
+  writeAt(view: DataView, index: number, value: R, offset?: number): void;
+  viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
+}
+
+/**
+ * Uses code generation to create a specialized structure class.
+ */
+export function compile<S extends NonEmpty<StructDescriptor<S>>>(
+  struct: Struct<S>,
+): IStruct<S> {
+  const params = struct.fieldList.map((field) =>
+    `fieldType_${String(field.name)}`
+  );
+  const args = struct.fieldList.map((field) => field.type);
+
+  const source = generateStructClass(struct, params);
+
+  return Function(
+    ...params,
+    `let c = ${source}; return c;`,
+  )(...args) as IStruct<S>;
+}
+
+/**
+ * Generates the code for a structure class.
+ *
+ * @param struct The structure to generate the class for.
+ * @returns The generated class code as a string.
+ */
+function generateStructClass<S extends NonEmpty<StructDescriptor<S>>>(
+  struct: Struct<S>,
+  fieldTypeParams: Array<string>,
+): string {
+  return `
+    class GeneratedStruct {
+      static fields = {
+        ${
+    struct.fieldList
+      .map(
+        (field) =>
+          `${String(field.name)}: ${
+            generateFieldAccessorClass(
+              struct,
+              field,
+              fieldTypeParams[field.index],
+            )
+          },`,
+      )
+      .join("\n")
+  }
+      };
+
+      static toString() {
+        return "${struct.toString()}";
+      }
+
+      static toCode(namespace, indentation=0) {
+        return [
+          "new " + namespace + ".Struct({",
+                  ${
+    struct.fieldList
+      .map(
+        (field) =>
+          `" ".repeat(indentation + 2) + this.fields.${
+            String(field.name)
+          }.toCode(namespace, indentation + 2) + ",",`,
+      )
+      .join("\n")
+  }
+          "})",
+        ].join("\\n");
+      }
+
+      static get type() {
+        return "${struct.type}";
+      }
+
+      static get byteSize() {
+        return ${struct.byteSize};
+      }
+
+      static get alignment() {
+        return ${struct.alignment};
+      }
+
+      static get arrayStride() {
+        return ${struct.arrayStride};
+      }
+
+      static read(view, offset = 0) {
+        return {
+               ${
+    struct.fieldList
+      .map(
+        (field) =>
+          `${String(field.name)}: ${
+            fieldTypeParams[field.index]
+          }.read(view, ${field.offset} + offset),`,
+      )
+      .join("\n")
+  }
+        };
+      }
+
+      static write(view, values, offset = 0) {
+        ${
+    struct.fieldList
+      .map(
+        (field) =>
+          `${fieldTypeParams[field.index]}.write(view, values.${
+            String(field.name)
+          }, ${field.offset} + offset);`,
+      )
+      .join("\n")
+  }
+      }
+
+      static readAt(view, index, offset = 0) {
+        return this.read(view, index * this.arrayStride + offset);
+      }
+
+      static writeAt(view, index, value, offset = 0) {
+        this.write(view, value, index * this.arrayStride + offset);
+      }
+
+      static viewAt(buffer, index, offset = 0) {
+        const effectiveOffset = index * this.arrayStride + offset;
+        return {
+        ${
+    struct.fieldList
+      .map(
+        (field) =>
+          `${String(field.name)}: ${
+            fieldTypeParams[field.index]
+          }.viewAt(buffer, 0, ${field.offset} + effectiveOffset),`,
+      )
+      .join("\n")
+  }
+        };
+      }
+    }
+  `;
+}
+
+function generateFieldAccessorClass<
+  S extends NonEmpty<StructDescriptor<S>>,
+  Key extends keyof S,
+  T extends MemoryType<R, V, VF> = S[Key]["type"],
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF = MemoryTypeVF<T>,
+>(
+  struct: Struct<S>,
+  field: IStructField<S, Key, T, R, V, VF>,
+  fieldTypeParam: string,
+): string {
+  return `
+    class GeneratedFieldAccessor {
+      static toString() {
+        return "${String(field.name)}: " + this.type.toString();
+      }
+
+      static toCode(namespace, indentation) {
+        return "${
+    String(field.name)
+  }: { index: ${field.index}, type: " + this.type.toCode(namespace, indentation) + " }";
+      }
+
+      static get index() {
+        return ${field.index};
+      }
+
+      static get name() {
+        return "${String(field.name)}";
+    }
+
+      static get type() {
+        return ${fieldTypeParam};
+      }
+
+      static get byteSize() {
+        return ${field.byteSize};
+      }
+
+      static get alignment() {
+        return ${field.alignment};
+      }
+
+      static get offset() {
+        return ${field.offset};
+      }
+
+      static read(view, offset = 0) {
+        return this.type.read(view, this.offset + offset);
+      }
+
+      static write(view, value, offset = 0) {
+        this.type.write(view, value, this.offset + offset);
+      }
+
+      static readAt(view, index, offset = 0) {
+        return this.type.read(view, index * ${struct.arrayStride} + this.offset + offset);
+      }
+
+      static writeAt(view, index, value, offset = 0) {
+        this.type.write(view, value, index * ${struct.arrayStride} + this.offset + offset);
+      }
+
+      static viewAt(buffer, index, offset = 0) {
+        return this.type.viewAt(buffer, 0, index * ${struct.arrayStride} + this.offset + offset);
+      }
+    }
+  `;
+}

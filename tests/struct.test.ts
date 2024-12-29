@@ -124,3 +124,130 @@ Deno.test("Struct", () => {
 
   assertThrows(() => StructA.view(buffer), TypeError);
 });
+
+Deno.test("compile", () => {
+  const StructA = new memory.Struct({
+    u: { index: 0, type: memory.Float32 },
+    v: { index: 1, type: memory.Float32 },
+    w: { index: 2, type: memory.Vec2F },
+    x: { index: 3, type: memory.Float32 },
+  });
+
+  const StructB = memory.compileStruct(StructA);
+
+  assertEquals(String(StructB), String(StructA));
+  assertEquals(StructB.toCode("memory"), StructA.toCode("memory"));
+
+  assertEquals(StructB.type, StructA.type);
+  assertEquals(StructB.byteSize, StructA.byteSize);
+  assertEquals(StructB.alignment, StructA.alignment);
+  assertEquals(StructB.arrayStride, StructA.arrayStride);
+
+  assertEquals(StructB.fields.u.name, StructA.fields.u.name);
+  assertEquals(StructB.fields.u.index, StructA.fields.u.index);
+  assertEquals(StructB.fields.u.type, StructA.fields.u.type);
+  assertEquals(StructB.fields.u.offset, StructA.fields.u.offset);
+  assertEquals(StructB.fields.u.alignment, StructA.fields.u.alignment);
+  assertEquals(StructB.fields.u.byteSize, StructA.fields.u.byteSize);
+
+  assertEquals(StructB.fields.v.name, StructA.fields.v.name);
+  assertEquals(StructB.fields.v.index, StructA.fields.v.index);
+  assertEquals(StructB.fields.v.type, StructA.fields.v.type);
+  assertEquals(StructB.fields.v.offset, StructA.fields.v.offset);
+  assertEquals(StructB.fields.v.alignment, StructA.fields.v.alignment);
+  assertEquals(StructB.fields.v.byteSize, StructA.fields.v.byteSize);
+
+  assertEquals(StructB.fields.w.name, StructA.fields.w.name);
+  assertEquals(StructB.fields.w.index, StructA.fields.w.index);
+  assertEquals(StructB.fields.w.type, StructA.fields.w.type);
+  assertEquals(StructB.fields.w.offset, StructA.fields.w.offset);
+  assertEquals(StructB.fields.w.alignment, StructA.fields.w.alignment);
+  assertEquals(StructB.fields.w.byteSize, StructA.fields.w.byteSize);
+
+  assertEquals(StructB.fields.x.name, StructA.fields.x.name);
+  assertEquals(StructB.fields.x.index, StructA.fields.x.index);
+  assertEquals(StructB.fields.x.type, StructA.fields.x.type);
+  assertEquals(StructB.fields.x.offset, StructA.fields.x.offset);
+  assertEquals(StructB.fields.x.alignment, StructA.fields.x.alignment);
+  assertEquals(StructB.fields.x.byteSize, StructA.fields.x.byteSize);
+
+  const buffer = memory.allocate(StructB, 2);
+  const view = new DataView(buffer);
+
+  StructA.writeAt(view, 0, { u: 1, v: 2, w: [3, 4], x: 5 });
+  StructA.writeAt(view, 1, { u: 6, v: 7, w: [8, 9], x: 10 });
+
+  assertEquals(StructB.readAt(view, 0), StructA.readAt(view, 0));
+  assertEquals(StructB.readAt(view, 1), StructA.readAt(view, 1));
+
+  assertEquals(StructB.viewAt(buffer, 0), StructA.viewAt(buffer, 0));
+  assertEquals(StructB.viewAt(buffer, 1), StructA.viewAt(buffer, 1));
+
+  assertEquals(
+    StructB.fields.u.readAt(view, 0),
+    StructA.fields.u.readAt(view, 0),
+  );
+  assertEquals(
+    StructB.fields.v.readAt(view, 0),
+    StructA.fields.v.readAt(view, 0),
+  );
+  assertEquals(
+    StructB.fields.w.readAt(view, 0),
+    StructA.fields.w.readAt(view, 0),
+  );
+  assertEquals(
+    StructB.fields.x.readAt(view, 0),
+    StructA.fields.x.readAt(view, 0),
+  );
+
+  assertEquals(
+    StructB.fields.u.viewAt(buffer, 0),
+    StructA.fields.u.viewAt(buffer, 0),
+  );
+  assertEquals(
+    StructB.fields.v.viewAt(buffer, 0),
+    StructA.fields.v.viewAt(buffer, 0),
+  );
+  assertEquals(
+    StructB.fields.w.viewAt(buffer, 0),
+    StructA.fields.w.viewAt(buffer, 0),
+  );
+  assertEquals(
+    StructB.fields.x.viewAt(buffer, 0),
+    StructA.fields.x.viewAt(buffer, 0),
+  );
+
+  assertEquals(
+    StructB.fields.u.readAt(view, 1),
+    StructA.fields.u.readAt(view, 1),
+  );
+  assertEquals(
+    StructB.fields.v.readAt(view, 1),
+    StructA.fields.v.readAt(view, 1),
+  );
+  assertEquals(
+    StructB.fields.w.readAt(view, 1),
+    StructA.fields.w.readAt(view, 1),
+  );
+  assertEquals(
+    StructB.fields.x.readAt(view, 1),
+    StructA.fields.x.readAt(view, 1),
+  );
+
+  assertEquals(
+    StructB.fields.u.viewAt(buffer, 1),
+    StructA.fields.u.viewAt(buffer, 1),
+  );
+  assertEquals(
+    StructB.fields.v.viewAt(buffer, 1),
+    StructA.fields.v.viewAt(buffer, 1),
+  );
+  assertEquals(
+    StructB.fields.w.viewAt(buffer, 1),
+    StructA.fields.w.viewAt(buffer, 1),
+  );
+  assertEquals(
+    StructB.fields.x.viewAt(buffer, 1),
+    StructA.fields.x.viewAt(buffer, 1),
+  );
+});
