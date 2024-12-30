@@ -81,12 +81,6 @@ export const MemoryTypeEditor = (
 };
 
 class ScalarTypeEditor extends Component<TypeEditorProps> {
-  override componentDidMount(): void {
-    this.props.onChange?.({
-      type: this.props.type,
-    });
-  }
-
   override render(): ComponentChildren {
     return <tbody></tbody>;
   }
@@ -96,27 +90,7 @@ interface VectorTypeEditorProps extends TypeEditorProps {
   type: AnyVectorType;
 }
 
-interface VectorTypeEditorState {
-  componentType: AnyScalarMemoryType;
-}
-
-interface ArrayTypeEditorProps extends TypeEditorProps {
-  type: AnyArrayType;
-}
-
-class VectorTypeEditor
-  extends Component<VectorTypeEditorProps, VectorTypeEditorState> {
-  constructor({ type }: VectorTypeEditorProps) {
-    super();
-    this.state = {
-      componentType: type.componentType,
-    };
-  }
-
-  override componentDidMount(): void {
-    this.triggerOnChange();
-  }
-
+class VectorTypeEditor extends Component<VectorTypeEditorProps> {
   override render(): ComponentChildren {
     return (
       <tbody>
@@ -126,9 +100,9 @@ class VectorTypeEditor
           </td>
           <td>
             <MemoryTypeEditor
-              type={this.state.componentType}
+              type={this.props.type.componentType}
               allowedTypes={ScalarMemoryTypeKeys}
-              onChange={this.onComponentTypeChange}
+              onChange={(ev) => this.onComponentTypeChange(ev)}
             />
           </td>
         </tr>
@@ -136,32 +110,27 @@ class VectorTypeEditor
     );
   }
 
-  private triggerOnChange() {
+  private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
+    const componentType = event.type as AnyScalarMemoryType;
+
+    let vectorType: AnyVectorType;
     switch (this.props.type.shape[0]) {
       case 2:
-        this.props.onChange?.({
-          type: new memory.Vec2(this.state.componentType),
-        });
+        vectorType = new memory.Vec2(componentType);
         break;
       case 3:
-        this.props.onChange?.({
-          type: new memory.Vec3(this.state.componentType),
-        });
+        vectorType = new memory.Vec3(componentType);
         break;
       case 4:
-        this.props.onChange?.({
-          type: new memory.Vec4(this.state.componentType),
-        });
+        vectorType = new memory.Vec4(componentType);
         break;
       default:
         throw new Error(`Unknown vector shape: ${this.props.type.shape}`);
     }
-  }
 
-  private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
-    this.setState({
-      componentType: event.type as AnyScalarMemoryType,
-    }, this.triggerOnChange);
+    this.props.onChange?.({
+      type: vectorType,
+    });
   };
 }
 
@@ -169,23 +138,7 @@ interface MatrixTypeEditorProps extends TypeEditorProps {
   type: AnyMatrixType;
 }
 
-interface MatrixTypeEditorState {
-  componentType: AnyFloatingPointMemoryType;
-}
-
-class MatrixTypeEditor
-  extends Component<MatrixTypeEditorProps, MatrixTypeEditorState> {
-  constructor({ type }: MatrixTypeEditorProps) {
-    super();
-    this.state = {
-      componentType: type.componentType,
-    };
-  }
-
-  override componentDidMount(): void {
-    this.triggerOnChange();
-  }
-
+class MatrixTypeEditor extends Component<MatrixTypeEditorProps> {
   override render(): ComponentChildren {
     return (
       <tbody>
@@ -195,9 +148,9 @@ class MatrixTypeEditor
           </td>
           <td>
             <MemoryTypeEditor
-              type={this.state.componentType}
+              type={this.props.type.componentType}
               allowedTypes={FloatingPointMemoryTypeKeys}
-              onChange={this.onComponentTypeChange}
+              onChange={(ev) => this.onComponentTypeChange(ev)}
             />
           </td>
         </tr>
@@ -205,11 +158,13 @@ class MatrixTypeEditor
     );
   }
 
-  private triggerOnChange() {
+  private onComponentTypeChange(event: MemoryTypeChangeEvent) {
+    const componentType = event.type as AnyFloatingPointMemoryType;
+
     let matrixType: AnyMatrixType;
     switch (this.props.type.type) {
       case "mat2x2":
-        switch (this.state.componentType.type) {
+        switch (componentType.type) {
           case "f32":
             matrixType = memory.Mat2x2F;
             break;
@@ -219,7 +174,7 @@ class MatrixTypeEditor
         }
         break;
       case "mat3x3":
-        switch (this.state.componentType.type) {
+        switch (componentType.type) {
           case "f32":
             matrixType = memory.Mat3x3F;
             break;
@@ -229,7 +184,7 @@ class MatrixTypeEditor
         }
         break;
       case "mat4x4":
-        switch (this.state.componentType.type) {
+        switch (componentType.type) {
           case "f32":
             matrixType = memory.Mat4x4F;
             break;
@@ -241,37 +196,18 @@ class MatrixTypeEditor
       default:
         throw new Error(`Unknown matrix type: ${this.props.type.type}`);
     }
+
     this.props.onChange?.({
       type: matrixType,
     });
   }
-
-  private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
-    this.setState({
-      componentType: event.type as AnyFloatingPointMemoryType,
-    }, this.triggerOnChange);
-  };
 }
 
-interface ArrayTypeEditorState {
-  arraySize: number;
-  elementType: AnyMemoryType;
+interface ArrayTypeEditorProps extends TypeEditorProps {
+  type: AnyArrayType;
 }
 
-class ArrayTypeEditor
-  extends Component<ArrayTypeEditorProps, ArrayTypeEditorState> {
-  constructor({ type }: ArrayTypeEditorProps) {
-    super();
-    this.state = {
-      elementType: type.elementType,
-      arraySize: type.elementCount,
-    };
-  }
-
-  override componentDidMount(): void {
-    this.triggerOnChange();
-  }
-
+class ArrayTypeEditor extends Component<ArrayTypeEditorProps> {
   override render(): ComponentChildren {
     return (
       <tbody>
@@ -285,7 +221,7 @@ class ArrayTypeEditor
               required={true}
               min={1}
               defaultValue={1}
-              onInput={this.onArraySizeChange}
+              onInput={(ev) => this.onArraySizeChange(ev)}
             />
           </td>
         </tr>
@@ -295,8 +231,8 @@ class ArrayTypeEditor
           </td>
           <td>
             <MemoryTypeEditor
-              type={this.state.elementType}
-              onChange={this.onElementTypeChange}
+              type={this.props.type.elementType}
+              onChange={(ev) => this.onElementTypeChange(ev)}
             />
           </td>
         </tr>
@@ -304,20 +240,17 @@ class ArrayTypeEditor
     );
   }
 
-  private triggerOnChange() {
-    const type = new memory.ArrayType(
-      this.state.elementType,
-      this.state.arraySize,
-    );
-    this.props.onChange?.({
-      type,
-    });
-  }
-
   private onElementTypeChange = (event: MemoryTypeChangeEvent) => {
-    this.setState({
-      elementType: event.type,
-    }, this.triggerOnChange);
+    const elementType = event.type as AnyMemoryType;
+
+    const arrayType = new memory.ArrayType(
+      elementType,
+      this.props.type.elementCount,
+    );
+
+    this.props.onChange?.({
+      type: arrayType,
+    });
   };
 
   private onArraySizeChange = (e: JSX.TargetedInputEvent<HTMLInputElement>) => {
@@ -325,10 +258,17 @@ class ArrayTypeEditor
       e.currentTarget.reportValidity();
       return;
     }
-    this.setState(
-      { arraySize: parseInt(e.currentTarget.value) },
-      this.triggerOnChange,
+
+    const elementCount = parseInt(e.currentTarget.value);
+
+    const arrayType = new memory.ArrayType(
+      this.props.type.elementType,
+      elementCount,
     );
+
+    this.props.onChange?.({
+      type: arrayType,
+    });
   };
 }
 
@@ -355,10 +295,6 @@ class StructTypeEditor
       })),
     };
     this.#counter = 0;
-  }
-
-  override componentDidMount(): void {
-    this.triggerOnChange();
   }
 
   override render(): ComponentChildren {
