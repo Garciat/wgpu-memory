@@ -1,5 +1,5 @@
 import { Component, ComponentChildren, JSX } from "npm:preact@10.25.3";
-import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
+import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";
 import {
   AnyArrayType,
   AnyFloatingPointMemoryType,
@@ -32,13 +32,13 @@ const PredefinedTypes: Record<MemoryTypeKey, AnyMemoryType> = {
   "f16": memory.Float16,
   "bool": memory.Bool,
 
-  "vec2": new memory.Vec2(memory.Float32),
-  "vec3": new memory.Vec3(memory.Float32),
-  "vec4": new memory.Vec4(memory.Float32),
+  "vec2": memory.Vec2F,
+  "vec3": memory.Vec3F,
+  "vec4": memory.Vec4F,
 
-  "mat2x2": new memory.Mat2x2(memory.Float32),
-  "mat3x3": new memory.Mat3x3(memory.Float32),
-  "mat4x4": new memory.Mat4x4(memory.Float32),
+  "mat2x2": memory.Mat2x2F,
+  "mat3x3": memory.Mat3x3F,
+  "mat4x4": memory.Mat4x4F,
 
   "array": new memory.ArrayType(memory.Int32, 4),
 
@@ -206,25 +206,44 @@ class MatrixTypeEditor
   }
 
   private triggerOnChange() {
+    let matrixType: AnyMatrixType;
     switch (this.props.type.type) {
       case "mat2x2":
-        this.props.onChange?.({
-          type: new memory.Mat2x2(this.state.componentType),
-        });
+        switch (this.state.componentType.type) {
+          case "f32":
+            matrixType = memory.Mat2x2F;
+            break;
+          case "f16":
+            matrixType = memory.Mat2x2H;
+            break;
+        }
         break;
       case "mat3x3":
-        this.props.onChange?.({
-          type: new memory.Mat3x3(this.state.componentType),
-        });
+        switch (this.state.componentType.type) {
+          case "f32":
+            matrixType = memory.Mat3x3F;
+            break;
+          case "f16":
+            matrixType = memory.Mat3x3H;
+            break;
+        }
         break;
       case "mat4x4":
-        this.props.onChange?.({
-          type: new memory.Mat4x4(this.state.componentType),
-        });
+        switch (this.state.componentType.type) {
+          case "f32":
+            matrixType = memory.Mat4x4F;
+            break;
+          case "f16":
+            matrixType = memory.Mat4x4H;
+            break;
+        }
         break;
       default:
         throw new Error(`Unknown matrix type: ${this.props.type.type}`);
     }
+    this.props.onChange?.({
+      type: matrixType,
+    });
   }
 
   private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {

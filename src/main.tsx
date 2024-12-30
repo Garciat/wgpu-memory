@@ -9,7 +9,7 @@ hljs.registerLanguage("json", hljsLangJSON);
 hljs.registerLanguage("javascript", hljsLangJS);
 hljs.registerLanguage("wgsl", hljsLangWGSL);
 
-import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";
+import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";
 
 import "./float16-polyfill.ts";
 
@@ -110,7 +110,7 @@ const App = ({}: AppProps) => {
           dangerouslySetInnerHTML={{
             __html: hljs.highlight(
               [
-                `import * as memory from "jsr:@garciat/wgpu-memory@1.0.14";`,
+                `import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";`,
                 ``,
                 `const myType = ${memoryType.toCode("memory")};`,
               ].join("\n"),
