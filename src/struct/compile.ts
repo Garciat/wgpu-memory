@@ -1,4 +1,4 @@
-import { invariant } from "../internal/assert.ts";
+import { CodeGen } from "../internal/codegen.ts";
 import type { NonEmpty } from "../internal/constraints.ts";
 import type {
   MemoryType,
@@ -212,37 +212,4 @@ class GeneratedFieldAccessor {
   }
 }
   `.trim();
-}
-
-class CodeGen {
-  static evaluate(
-    args: Array<{ name: string; value: unknown }>,
-    expression: string,
-  ): unknown {
-    const argNames = args.map((arg) => arg.name);
-    const argValues = args.map((arg) => arg.value);
-
-    invariant(
-      argNames.length === new Set(argNames).size,
-      `Duplicate arg names: ${argNames}`,
-    );
-
-    return Function(...argNames, `return ${expression};`)(...argValues);
-  }
-
-  static statements<T>(input: Array<T>, f: (value: T) => string): string {
-    return input.map((item) => f(item)).join("\n");
-  }
-
-  static objectLiteral<T>(
-    input: Array<T>,
-    keyF: (value: T) => string,
-    valueF: (value: T) => string,
-  ): string {
-    return [
-      "{",
-      ...input.map((item) => `${keyF(item)}: ${valueF(item)},`),
-      `}`,
-    ].join("\n");
-  }
 }

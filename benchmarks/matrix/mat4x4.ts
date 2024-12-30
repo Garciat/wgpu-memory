@@ -1,33 +1,38 @@
 import {
   GPU_FLOATING_POINT_TYPES,
-  GPU_MAT3X3,
+  GPU_MAT4X4,
   type MatrixType,
   type MemoryType,
   type MemoryTypeBoundedVF,
   type MemoryTypeR,
   type MemoryTypeV,
-} from "../types.ts";
+} from "../../src/types.ts";
 
-import type { FloatingPointType } from "../scalar/mod.ts";
+import type { FloatingPointType } from "../../src/scalar/mod.ts";
 
-import { assertTypeOneOf } from "../internal/assert.ts";
+import { assertTypeOneOf } from "../../src/internal/assert.ts";
 
-import type { TupIndexN, TupIndexNM, TupNM } from "../internal/tuple.ts";
+import type {
+  TupCxR,
+  TupIndexN,
+  TupIndexNM,
+  TupNM,
+} from "../../src/internal/tuple.ts";
 import {
   alignOfMatCxR,
   sizeOfMatCxR,
   strideOf,
-} from "../internal/alignment.ts";
+} from "../../src/internal/alignment.ts";
 
-const NCol: 3 = 3 as const;
-const NRow: 3 = 3 as const;
+const NCol: 4 = 4 as const;
+const NRow: 4 = 4 as const;
 
 /**
- * A 3x3 matrix type. The components are stored in column-major order per WGSL.
+ * A 4x4 matrix type. The components are stored in column-major order per WGSL.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
-export class Mat3x3<
+export class Mat4x4<
   T extends MemoryType<R, V, VF> & FloatingPointType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
@@ -49,8 +54,8 @@ export class Mat3x3<
   /**
    * The shape of the matrix.
    */
-  get shape(): [3, 3] {
-    return [3, 3];
+  get shape(): [4, 4] {
+    return [4, 4];
   }
 
   /**
@@ -82,8 +87,8 @@ export class Mat3x3<
   /**
    * @inheritdoc
    */
-  get type(): typeof GPU_MAT3X3 {
-    return GPU_MAT3X3;
+  get type(): typeof GPU_MAT4X4 {
+    return GPU_MAT4X4;
   }
 
   /**
@@ -116,16 +121,25 @@ export class Mat3x3<
         this.getAt(view, 0, 0, offset),
         this.getAt(view, 0, 1, offset),
         this.getAt(view, 0, 2, offset),
+        this.getAt(view, 0, 3, offset),
       ],
       [
         this.getAt(view, 1, 0, offset),
         this.getAt(view, 1, 1, offset),
         this.getAt(view, 1, 2, offset),
+        this.getAt(view, 1, 3, offset),
       ],
       [
         this.getAt(view, 2, 0, offset),
         this.getAt(view, 2, 1, offset),
         this.getAt(view, 2, 2, offset),
+        this.getAt(view, 2, 3, offset),
+      ],
+      [
+        this.getAt(view, 3, 0, offset),
+        this.getAt(view, 3, 1, offset),
+        this.getAt(view, 3, 2, offset),
+        this.getAt(view, 3, 3, offset),
       ],
     ];
   }
@@ -172,6 +186,31 @@ export class Mat3x3<
     offset: number = 0,
   ) {
     this.write(view, value, index * this.arrayStride + offset);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  writeAtFlat(
+    view: DataView,
+    index: number,
+    value: TupCxR<R, typeof NCol, typeof NRow>,
+    offset: number = 0,
+  ) {
+    const nc = NCol;
+    const nr = NRow;
+    const base = index * this.arrayStride + offset;
+    const step1 = this.#step1;
+    const step2 = this.#step2;
+    for (let i = 0; i < nc; i++) {
+      for (let j = 0; j < nr; j++) {
+        this.#type.write(
+          view,
+          value[i * nr + j],
+          i * step1 + j * step2 + base,
+        );
+      }
+    }
   }
 
   /**
@@ -236,12 +275,36 @@ export class Mat3x3<
     this.#type.write(view, value, this.#offset(column, row) + offset);
   }
 
+  setAtIndexed(
+    view: DataView,
+    index: number,
+    column: TupIndexN<typeof NCol>,
+    row: TupIndexN<typeof NRow>,
+    value: R,
+    offset: number = 0,
+  ) {
+    this.#type.write(
+      view,
+      value,
+      index * this.#arrayStride +
+        column * this.#step1 +
+        row * this.#step2 +
+        offset,
+    );
+  }
+
   #offset(
     column: TupIndexN<typeof NCol>,
     row: TupIndexN<typeof NRow>,
   ): number {
-    const columnVectorOffset = column * this.#alignment;
-    const rowComponentOffset = row * this.#type.byteSize;
-    return columnVectorOffset + rowComponentOffset;
+    return this.#step1 * column + this.#step2 * row;
+  }
+
+  get #step1() {
+    return this.#alignment;
+  }
+
+  get #step2() {
+    return this.#type.byteSize;
   }
 }

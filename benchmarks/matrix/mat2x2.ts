@@ -1,33 +1,33 @@
 import {
   GPU_FLOATING_POINT_TYPES,
-  GPU_MAT4X4,
+  GPU_MAT2X2,
   type MatrixType,
   type MemoryType,
   type MemoryTypeBoundedVF,
   type MemoryTypeR,
   type MemoryTypeV,
-} from "../types.ts";
+} from "../../src/types.ts";
 
-import type { FloatingPointType } from "../scalar/mod.ts";
+import type { FloatingPointType } from "../../src/scalar/mod.ts";
 
-import { assertTypeOneOf } from "../internal/assert.ts";
+import { assertTypeOneOf } from "../../src/internal/assert.ts";
 
-import type { TupIndexN, TupIndexNM, TupNM } from "../internal/tuple.ts";
+import type { TupIndexN, TupIndexNM, TupNM } from "../../src/internal/tuple.ts";
 import {
   alignOfMatCxR,
   sizeOfMatCxR,
   strideOf,
-} from "../internal/alignment.ts";
+} from "../../src/internal/alignment.ts";
 
-const NCol: 4 = 4 as const;
-const NRow: 4 = 4 as const;
+const NCol: 2 = 2 as const;
+const NRow: 2 = 2 as const;
 
 /**
- * A 4x4 matrix type. The components are stored in column-major order per WGSL.
+ * A 2x2 matrix type. The components are stored in column-major order per WGSL.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
-export class Mat4x4<
+export class Mat2x2<
   T extends MemoryType<R, V, VF> & FloatingPointType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
@@ -49,8 +49,8 @@ export class Mat4x4<
   /**
    * The shape of the matrix.
    */
-  get shape(): [4, 4] {
-    return [4, 4];
+  get shape(): [2, 2] {
+    return [2, 2];
   }
 
   /**
@@ -82,8 +82,8 @@ export class Mat4x4<
   /**
    * @inheritdoc
    */
-  get type(): typeof GPU_MAT4X4 {
-    return GPU_MAT4X4;
+  get type(): typeof GPU_MAT2X2 {
+    return GPU_MAT2X2;
   }
 
   /**
@@ -115,26 +115,10 @@ export class Mat4x4<
       [
         this.getAt(view, 0, 0, offset),
         this.getAt(view, 0, 1, offset),
-        this.getAt(view, 0, 2, offset),
-        this.getAt(view, 0, 3, offset),
       ],
       [
         this.getAt(view, 1, 0, offset),
         this.getAt(view, 1, 1, offset),
-        this.getAt(view, 1, 2, offset),
-        this.getAt(view, 1, 3, offset),
-      ],
-      [
-        this.getAt(view, 2, 0, offset),
-        this.getAt(view, 2, 1, offset),
-        this.getAt(view, 2, 2, offset),
-        this.getAt(view, 2, 3, offset),
-      ],
-      [
-        this.getAt(view, 3, 0, offset),
-        this.getAt(view, 3, 1, offset),
-        this.getAt(view, 3, 2, offset),
-        this.getAt(view, 3, 3, offset),
       ],
     ];
   }

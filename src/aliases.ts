@@ -8,9 +8,12 @@ import { Vec2 } from "./vector/vec2.ts";
 import { Vec3 } from "./vector/vec3.ts";
 import { Vec4 } from "./vector/vec4.ts";
 
-import { Mat2x2 } from "./matrix/mat2x2.ts";
-import { Mat3x3 } from "./matrix/mat3x3.ts";
-import { Mat4x4 } from "./matrix/mat4x4.ts";
+import { Mat2x2F as Mat2x2FImpl } from "./matrix/mat2x2f.ts";
+import { Mat2x2H as Mat2x2HImpl } from "./matrix/mat2x2h.ts";
+import { Mat3x3F as Mat3x3FImpl } from "./matrix/mat3x3f.ts";
+import { Mat3x3H as Mat3x3HImpl } from "./matrix/mat3x3h.ts";
+import { Mat4x4F as Mat4x4FImpl } from "./matrix/mat4x4f.ts";
+import { Mat4x4H as Mat4x4HImpl } from "./matrix/mat4x4h.ts";
 
 /**
  * The boolean type.
@@ -62,15 +65,15 @@ export const Vec4H: Vec4<Float16Type> = new Vec4(Float16);
 /**
  * A 2x2 matrix of 16-bit floating point values.
  */
-export const Mat2x2H: Mat2x2<Float16Type> = new Mat2x2(Float16);
+export const Mat2x2H: Mat2x2HImpl = new Mat2x2HImpl();
 /**
  * A 3x3 matrix of 16-bit floating point values.
  */
-export const Mat3x3H: Mat3x3<Float16Type> = new Mat3x3(Float16);
+export const Mat3x3H: Mat3x3HImpl = new Mat3x3HImpl();
 /**
  * A 4x4 matrix of 16-bit floating point values.
  */
-export const Mat4x4H: Mat4x4<Float16Type> = new Mat4x4(Float16);
+export const Mat4x4H: Mat4x4HImpl = new Mat4x4HImpl();
 
 /**
  * A 2-dimensional vector of 32-bit floating point values.
@@ -87,15 +90,15 @@ export const Vec4F: Vec4<Float32Type> = new Vec4(Float32);
 /**
  * A 2x2 matrix of 32-bit floating point values.
  */
-export const Mat2x2F: Mat2x2<Float32Type> = new Mat2x2(Float32);
+export const Mat2x2F: Mat2x2FImpl = new Mat2x2FImpl();
 /**
  * A 3x3 matrix of 32-bit floating point values.
  */
-export const Mat3x3F: Mat3x3<Float32Type> = new Mat3x3(Float32);
+export const Mat3x3F: Mat3x3FImpl = new Mat3x3FImpl();
 /**
  * A 4x4 matrix of 32-bit floating point values.
  */
-export const Mat4x4F: Mat4x4<Float32Type> = new Mat4x4(Float32);
+export const Mat4x4F: Mat4x4FImpl = new Mat4x4FImpl();
 
 /**
  * A 2-dimensional vector of 32-bit unsigned integer values.

@@ -13,10 +13,6 @@ export type {
 export { Struct } from "./struct/struct.ts";
 export { compile as compileStruct } from "./struct/compile.ts";
 
-export { Mat2x2 } from "./matrix/mat2x2.ts";
-export { Mat3x3 } from "./matrix/mat3x3.ts";
-export { Mat4x4 } from "./matrix/mat4x4.ts";
-
 export { Vec2 } from "./vector/vec2.ts";
 export { Vec3 } from "./vector/vec3.ts";
 export { Vec4 } from "./vector/vec4.ts";
