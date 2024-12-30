@@ -191,31 +191,6 @@ export class Mat4x4<
   /**
    * @inheritdoc
    */
-  writeAtFlat(
-    view: DataView,
-    index: number,
-    value: TupCxR<R, typeof NCol, typeof NRow>,
-    offset: number = 0,
-  ) {
-    const nc = NCol;
-    const nr = NRow;
-    const base = index * this.arrayStride + offset;
-    const step1 = this.#step1;
-    const step2 = this.#step2;
-    for (let i = 0; i < nc; i++) {
-      for (let j = 0; j < nr; j++) {
-        this.#type.write(
-          view,
-          value[i * nr + j],
-          i * step1 + j * step2 + base,
-        );
-      }
-    }
-  }
-
-  /**
-   * @inheritdoc
-   */
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
     return this.#type.view(
       buffer,
@@ -275,6 +250,69 @@ export class Mat4x4<
     this.#type.write(view, value, this.#offset(column, row) + offset);
   }
 
+  /**
+   * @inheritdoc
+   */
+  readAtFlat(
+    view: DataView,
+    index: number,
+    offset?: number,
+  ): TupCxR<R, typeof NCol, typeof NRow> {
+    return [
+      this.getAtIndexed(view, index, 0, 0, offset),
+      this.getAtIndexed(view, index, 0, 1, offset),
+      this.getAtIndexed(view, index, 0, 2, offset),
+      this.getAtIndexed(view, index, 0, 3, offset),
+      this.getAtIndexed(view, index, 1, 0, offset),
+      this.getAtIndexed(view, index, 1, 1, offset),
+      this.getAtIndexed(view, index, 1, 2, offset),
+      this.getAtIndexed(view, index, 1, 3, offset),
+      this.getAtIndexed(view, index, 2, 0, offset),
+      this.getAtIndexed(view, index, 2, 1, offset),
+      this.getAtIndexed(view, index, 2, 2, offset),
+      this.getAtIndexed(view, index, 2, 3, offset),
+      this.getAtIndexed(view, index, 3, 0, offset),
+      this.getAtIndexed(view, index, 3, 1, offset),
+      this.getAtIndexed(view, index, 3, 2, offset),
+      this.getAtIndexed(view, index, 3, 3, offset),
+    ];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  writeAtFlat(
+    view: DataView,
+    index: number,
+    value: TupCxR<R, typeof NCol, typeof NRow>,
+    offset: number = 0,
+  ) {
+    const dim1 = this.#alignment;
+    const dim2 = this.#type.byteSize;
+    for (let i = 0; i < NCol; i++) {
+      for (let j = 0; j < NRow; j++) {
+        this.#type.write(
+          view,
+          value[i * NRow + j],
+          index * this.arrayStride + i * dim1 + j * dim2 + offset,
+        );
+      }
+    }
+  }
+
+  getAtIndexed(
+    view: DataView,
+    index: number,
+    column: TupIndexN<typeof NCol>,
+    row: TupIndexN<typeof NRow>,
+    offset: number = 0,
+  ): R {
+    return this.#type.read(
+      view,
+      index * this.#arrayStride + this.#offset(column, row) + offset,
+    );
+  }
+
   setAtIndexed(
     view: DataView,
     index: number,
@@ -286,10 +324,7 @@ export class Mat4x4<
     this.#type.write(
       view,
       value,
-      index * this.#arrayStride +
-        column * this.#step1 +
-        row * this.#step2 +
-        offset,
+      index * this.#arrayStride + this.#offset(column, row) + offset,
     );
   }
 

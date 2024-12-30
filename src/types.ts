@@ -1,4 +1,10 @@
-import type { TupIndexN, TupIndexNM, TupN, TupNM } from "./internal/tuple.ts";
+import type {
+  TupCxR,
+  TupIndexN,
+  TupIndexNM,
+  TupN,
+  TupNM,
+} from "./internal/tuple.ts";
 
 export const GPU_BOOL = "bool";
 export const GPU_I32 = "i32";
@@ -177,6 +183,19 @@ export interface MatrixType<
   readonly shape: [Cols, Rows];
   readonly componentType: T;
 
+  readAtFlat(
+    view: DataView,
+    index: number,
+    offset?: number,
+  ): TupCxR<R, Cols, Rows>;
+
+  writeAtFlat(
+    view: DataView,
+    index: number,
+    value: TupCxR<R, Cols, Rows>,
+    offset?: number,
+  ): void;
+
   get(
     view: DataView,
     indices: TupIndexNM<Cols, Rows>,
@@ -186,6 +205,38 @@ export interface MatrixType<
   set(
     view: DataView,
     indices: TupIndexNM<Cols, Rows>,
+    value: R,
+    offset?: number,
+  ): void;
+
+  getAt(
+    view: DataView,
+    column: TupIndexN<Cols>,
+    row: TupIndexN<Rows>,
+    offset?: number,
+  ): R;
+
+  setAt(
+    view: DataView,
+    column: TupIndexN<Cols>,
+    row: TupIndexN<Rows>,
+    value: R,
+    offset?: number,
+  ): void;
+
+  getAtIndexed(
+    view: DataView,
+    index: number,
+    column: TupIndexN<Cols>,
+    row: TupIndexN<Rows>,
+    offset?: number,
+  ): R;
+
+  setAtIndexed(
+    view: DataView,
+    index: number,
+    column: TupIndexN<Cols>,
+    row: TupIndexN<Rows>,
     value: R,
     offset?: number,
   ): void;

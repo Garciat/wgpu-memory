@@ -12,7 +12,12 @@ import type { FloatingPointType } from "../../src/scalar/mod.ts";
 
 import { assertTypeOneOf } from "../../src/internal/assert.ts";
 
-import type { TupIndexN, TupIndexNM, TupNM } from "../../src/internal/tuple.ts";
+import type {
+  TupCxR,
+  TupIndexN,
+  TupIndexNM,
+  TupNM,
+} from "../../src/internal/tuple.ts";
 import {
   alignOfMatCxR,
   sizeOfMatCxR,
@@ -234,6 +239,77 @@ export class Mat3x3<
     offset: number = 0,
   ) {
     this.#type.write(view, value, this.#offset(column, row) + offset);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  readAtFlat(
+    view: DataView,
+    index: number,
+    offset?: number,
+  ): TupCxR<R, typeof NCol, typeof NRow> {
+    return [
+      this.getAtIndexed(view, index, 0, 0, offset),
+      this.getAtIndexed(view, index, 0, 1, offset),
+      this.getAtIndexed(view, index, 0, 2, offset),
+      this.getAtIndexed(view, index, 1, 0, offset),
+      this.getAtIndexed(view, index, 1, 1, offset),
+      this.getAtIndexed(view, index, 1, 2, offset),
+      this.getAtIndexed(view, index, 2, 0, offset),
+      this.getAtIndexed(view, index, 2, 1, offset),
+      this.getAtIndexed(view, index, 2, 2, offset),
+    ];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  writeAtFlat(
+    view: DataView,
+    index: number,
+    value: TupCxR<R, typeof NCol, typeof NRow>,
+    offset: number = 0,
+  ) {
+    const dim1 = this.#alignment;
+    const dim2 = this.#type.byteSize;
+    for (let i = 0; i < NCol; i++) {
+      for (let j = 0; j < NRow; j++) {
+        this.#type.write(
+          view,
+          value[i * NRow + j],
+          index * this.arrayStride + i * dim1 + j * dim2 + offset,
+        );
+      }
+    }
+  }
+
+  getAtIndexed(
+    view: DataView,
+    index: number,
+    column: TupIndexN<typeof NCol>,
+    row: TupIndexN<typeof NRow>,
+    offset: number = 0,
+  ): R {
+    return this.#type.read(
+      view,
+      index * this.#arrayStride + this.#offset(column, row) + offset,
+    );
+  }
+
+  setAtIndexed(
+    view: DataView,
+    index: number,
+    column: TupIndexN<typeof NCol>,
+    row: TupIndexN<typeof NRow>,
+    value: R,
+    offset: number = 0,
+  ) {
+    this.#type.write(
+      view,
+      value,
+      index * this.#arrayStride + this.#offset(column, row) + offset,
+    );
   }
 
   #offset(
