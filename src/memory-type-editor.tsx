@@ -1,5 +1,5 @@
 import { Component, ComponentChildren, JSX } from "npm:preact@10.25.3";
-import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";
+import * as memory from "jsr:@garciat/wgpu-memory@1.2.1";
 import {
   AnyArrayType,
   AnyFloatingPointMemoryType,
@@ -40,9 +40,9 @@ const PredefinedTypes: Record<MemoryTypeKey, AnyMemoryType> = {
   "mat3x3": memory.Mat3x3F,
   "mat4x4": memory.Mat4x4F,
 
-  "array": new memory.ArrayType(memory.Int32, 4),
+  "array": memory.ArrayOf(memory.Int32, 4),
 
-  "struct": new memory.Struct({
+  "struct": memory.StructOf({
     field0: { index: 0, type: memory.Float32 },
   }),
 };
@@ -113,20 +113,10 @@ class VectorTypeEditor extends Component<VectorTypeEditorProps> {
   private onComponentTypeChange = (event: MemoryTypeChangeEvent) => {
     const componentType = event.type as AnyScalarMemoryType;
 
-    let vectorType: AnyVectorType;
-    switch (this.props.type.shape[0]) {
-      case 2:
-        vectorType = new memory.Vec2(componentType);
-        break;
-      case 3:
-        vectorType = new memory.Vec3(componentType);
-        break;
-      case 4:
-        vectorType = new memory.Vec4(componentType);
-        break;
-      default:
-        throw new Error(`Unknown vector shape: ${this.props.type.shape}`);
-    }
+    const vectorType = memory.VectorOf(
+      componentType,
+      this.props.type.shape[0],
+    );
 
     this.props.onChange?.({
       type: vectorType,
@@ -161,41 +151,10 @@ class MatrixTypeEditor extends Component<MatrixTypeEditorProps> {
   private onComponentTypeChange(event: MemoryTypeChangeEvent) {
     const componentType = event.type as AnyFloatingPointMemoryType;
 
-    let matrixType: AnyMatrixType;
-    switch (this.props.type.type) {
-      case "mat2x2":
-        switch (componentType.type) {
-          case "f32":
-            matrixType = memory.Mat2x2F;
-            break;
-          case "f16":
-            matrixType = memory.Mat2x2H;
-            break;
-        }
-        break;
-      case "mat3x3":
-        switch (componentType.type) {
-          case "f32":
-            matrixType = memory.Mat3x3F;
-            break;
-          case "f16":
-            matrixType = memory.Mat3x3H;
-            break;
-        }
-        break;
-      case "mat4x4":
-        switch (componentType.type) {
-          case "f32":
-            matrixType = memory.Mat4x4F;
-            break;
-          case "f16":
-            matrixType = memory.Mat4x4H;
-            break;
-        }
-        break;
-      default:
-        throw new Error(`Unknown matrix type: ${this.props.type.type}`);
-    }
+    const matrixType: AnyMatrixType = memory.MatrixOf(
+      componentType,
+      this.props.type.shape,
+    );
 
     this.props.onChange?.({
       type: matrixType,
@@ -243,7 +202,7 @@ class ArrayTypeEditor extends Component<ArrayTypeEditorProps> {
   private onElementTypeChange = (event: MemoryTypeChangeEvent) => {
     const elementType = event.type as AnyMemoryType;
 
-    const arrayType = new memory.ArrayType(
+    const arrayType = memory.ArrayOf(
       elementType,
       this.props.type.elementCount,
     );
@@ -261,7 +220,7 @@ class ArrayTypeEditor extends Component<ArrayTypeEditorProps> {
 
     const elementCount = parseInt(e.currentTarget.value);
 
-    const arrayType = new memory.ArrayType(
+    const arrayType = memory.ArrayOf(
       this.props.type.elementType,
       elementCount,
     );
@@ -338,7 +297,7 @@ class StructTypeEditor
       fields[field.name] = { index: i, type: field.type };
     }
 
-    const type = new memory.Struct(fields);
+    const type = memory.StructOf(fields);
 
     this.props.onChange?.({
       type,

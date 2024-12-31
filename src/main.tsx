@@ -9,7 +9,7 @@ hljs.registerLanguage("json", hljsLangJSON);
 hljs.registerLanguage("javascript", hljsLangJS);
 hljs.registerLanguage("wgsl", hljsLangWGSL);
 
-import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";
+import * as memory from "jsr:@garciat/wgpu-memory@1.2.1";
 
 import "./float16-polyfill.ts";
 
@@ -20,7 +20,7 @@ import {
 } from "./memory-type-editor.tsx";
 import { MemoryValueEditor } from "./memory-value-editor.tsx";
 
-const DefaultType = new memory.Struct({
+const DefaultType = memory.StructOf({
   u: { index: 0, type: memory.Float32 },
   v: { index: 1, type: memory.Float32 },
   w: { index: 2, type: memory.Vec2F },
@@ -110,7 +110,7 @@ const App = ({}: AppProps) => {
           dangerouslySetInnerHTML={{
             __html: hljs.highlight(
               [
-                `import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";`,
+                `import * as memory from "jsr:@garciat/wgpu-memory@1.2.1";`,
                 ``,
                 `const myType = ${memoryType.toCode("memory")};`,
               ].join("\n"),

@@ -1,5 +1,5 @@
 import { JSX } from "npm:preact@10.25.3";
-import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";
+import * as memory from "jsr:@garciat/wgpu-memory@1.2.1";
 import {
   AnyArrayType,
   AnyMatrixType,

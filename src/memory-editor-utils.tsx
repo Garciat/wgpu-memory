@@ -1,4 +1,4 @@
-import * as memory from "jsr:@garciat/wgpu-memory@1.1.0";
+import * as memory from "jsr:@garciat/wgpu-memory@1.2.1";
 
 export type AnyMemoryType = memory.MemoryType<unknown, unknown, unknown>;
 
@@ -25,7 +25,7 @@ export type AnyMatrixType = memory.MatrixType<
 
 export type AnyArrayType = memory.ArrayType<AnyMemoryType, number>;
 
-export type AnyStructType = memory.Struct<AnyStructDescriptorType>;
+export type AnyStructType = memory.StructType<AnyStructDescriptorType>;
 
 export type AnyStructDescriptorType = Record<
   string,
