@@ -11,6 +11,7 @@ import { Vec3 } from "./vector/vec3.ts";
 import { Vec4 } from "./vector/vec4.ts";
 import type {
   ArrayType,
+  GPUFloatingPointType,
   MatrixType,
   MemoryType,
   MemoryTypeBoundedVF,
@@ -53,6 +54,14 @@ export function VectorOf<
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 4): Vector4Type<T, R, V, VF>;
+
+export function VectorOf<
+  T extends MemoryType<R, V, VF> & ScalarType,
+  N extends 2 | 3 | 4,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+>(componentType: T, shape: N): VectorType<T, N, R, V, VF>;
 
 export function VectorOf(
   componentType: ScalarType,
@@ -100,6 +109,15 @@ export function MatrixOf(
   componentType: Float16Type,
   shape: [4, 4],
 ): MatrixType<Float16Type, 4, 4>;
+
+export function MatrixOf<
+  T extends MemoryType<R, V, VF> & { type: GPUFloatingPointType },
+  Cols extends 2 | 3 | 4,
+  Rows extends 2 | 3 | 4,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+>(componentType: T, shape: [Cols, Rows]): MatrixType<T, Cols, Rows, R, V, VF>;
 
 export function MatrixOf(
   componentType: FloatingPointType,
