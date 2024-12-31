@@ -13,7 +13,7 @@ import type {
 
 import { Float32TypeImpl } from "../scalar/f32.ts";
 
-import { GPU_MAT3X3, type MatrixType } from "../types.ts";
+import { type Float32Type, GPU_MAT3X3, type MatrixType } from "../types.ts";
 import { matrixToCode, matrixToString } from "./common.ts";
 
 const ComponentType: Float32TypeImpl = new Float32TypeImpl();
@@ -42,7 +42,7 @@ const Step2 = ComponentSize;
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
 export class Mat3x3F
-  implements MatrixType<typeof ComponentType, typeof NCol, typeof NRow> {
+  implements MatrixType<Float32Type, typeof NCol, typeof NRow> {
   /**
    * The shape of the matrix.
    */
@@ -53,7 +53,7 @@ export class Mat3x3F
   /**
    * The component type of the matrix.
    */
-  get componentType(): typeof ComponentType {
+  get componentType(): Float32Type {
     return ComponentType;
   }
 

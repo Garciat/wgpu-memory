@@ -13,7 +13,7 @@ import type {
 
 import { Float16TypeImpl } from "../scalar/f16.ts";
 
-import { GPU_MAT3X3, type MatrixType } from "../types.ts";
+import { type Float16Type, GPU_MAT3X3, type MatrixType } from "../types.ts";
 import { matrixToCode, matrixToString } from "./common.ts";
 
 const ComponentType: Float16TypeImpl = new Float16TypeImpl();
@@ -42,7 +42,7 @@ const Step2 = ComponentSize;
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
 export class Mat3x3H
-  implements MatrixType<typeof ComponentType, typeof NCol, typeof NRow> {
+  implements MatrixType<Float16Type, typeof NCol, typeof NRow> {
   /**
    * The shape of the matrix.
    */
@@ -53,7 +53,7 @@ export class Mat3x3H
   /**
    * The component type of the matrix.
    */
-  get componentType(): typeof ComponentType {
+  get componentType(): Float16Type {
     return ComponentType;
   }
 

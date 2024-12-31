@@ -3,8 +3,6 @@ import type { NonEmpty, Positive } from "./internal/constraints.ts";
 import { ArrayTypeImpl } from "./array/array.ts";
 import { StructTypeImpl } from "./struct/struct.ts";
 import { compile as compileStruct } from "./struct/compile.ts";
-import type { Float32TypeImpl } from "./scalar/f32.ts";
-import type { Float16TypeImpl } from "./scalar/f16.ts";
 import { Vec2 } from "./vector/vec2.ts";
 import { Vec3 } from "./vector/vec3.ts";
 import { Vec4 } from "./vector/vec4.ts";
@@ -12,6 +10,8 @@ import type {
   AnyFloatingPointType,
   AnyScalarType,
   ArrayType,
+  Float16Type,
+  Float32Type,
   MatrixType,
   MemoryType,
   MemoryTypeBoundedVF,
@@ -81,34 +81,34 @@ export function VectorOf(
 }
 
 export function MatrixOf(
-  componentType: Float32TypeImpl,
+  componentType: Float32Type,
   shape: [2, 2],
-): MatrixType<Float32TypeImpl, 2, 2>;
+): MatrixType<Float32Type, 2, 2>;
 
 export function MatrixOf(
-  componentType: Float32TypeImpl,
+  componentType: Float32Type,
   shape: [3, 3],
-): MatrixType<Float32TypeImpl, 3, 3>;
+): MatrixType<Float32Type, 3, 3>;
 
 export function MatrixOf(
-  componentType: Float32TypeImpl,
+  componentType: Float32Type,
   shape: [4, 4],
-): MatrixType<Float32TypeImpl, 4, 4>;
+): MatrixType<Float32Type, 4, 4>;
 
 export function MatrixOf(
-  componentType: Float16TypeImpl,
+  componentType: Float16Type,
   shape: [2, 2],
-): MatrixType<Float16TypeImpl, 2, 2>;
+): MatrixType<Float16Type, 2, 2>;
 
 export function MatrixOf(
-  componentType: Float16TypeImpl,
+  componentType: Float16Type,
   shape: [3, 3],
-): MatrixType<Float16TypeImpl, 3, 3>;
+): MatrixType<Float16Type, 3, 3>;
 
 export function MatrixOf(
-  componentType: Float16TypeImpl,
+  componentType: Float16Type,
   shape: [4, 4],
-): MatrixType<Float16TypeImpl, 4, 4>;
+): MatrixType<Float16Type, 4, 4>;
 
 export function MatrixOf<
   T extends MemoryType<R, V, VF> & AnyFloatingPointType,
