@@ -1,4 +1,4 @@
-import * as memory from "jsr:@garciat/wgpu-memory@1.2.1";
+import * as memory from "jsr:@garciat/wgpu-memory@1.2.2";
 
 export type AnyMemoryType = memory.MemoryType<unknown, unknown, unknown>;
 
