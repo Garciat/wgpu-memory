@@ -50,6 +50,8 @@ export type GPUType =
   | typeof GPU_STRUCT;
 
 /**
+ * The base type for all memory types.
+ *
  * @template R The read/write type.
  * @template V The view type.
  * @template VF The flat view type.

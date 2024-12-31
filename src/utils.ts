@@ -34,6 +34,11 @@ import {
   Mat4x4H,
 } from "./aliases.ts";
 
+/**
+ * Create a new 2-vector type from the given type.
+ *
+ * @param componentType The component type.
+ */
 export function VectorOf<
   T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
@@ -41,6 +46,11 @@ export function VectorOf<
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 2): Vector2Type<T, R, V, VF>;
 
+/**
+ * Create a new 3-vector type from the given type.
+ *
+ * @param componentType The component type.
+ */
 export function VectorOf<
   T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
@@ -48,6 +58,11 @@ export function VectorOf<
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 3): Vector3Type<T, R, V, VF>;
 
+/**
+ * Create a new 4-vector type from the given type.
+ *
+ * @param componentType The component type.
+ */
 export function VectorOf<
   T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
@@ -55,6 +70,12 @@ export function VectorOf<
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 4): Vector4Type<T, R, V, VF>;
 
+/**
+ * Create a new vector type from the given type and shape.
+ *
+ * @param componentType The component type.
+ * @param shape The vector shape.
+ */
 export function VectorOf<
   T extends MemoryType<R, V, VF> & AnyScalarType,
   N extends 2 | 3 | 4,
@@ -80,36 +101,60 @@ export function VectorOf(
   }
 }
 
+/**
+ * Create a new 2x2 matrix type of Float32 components.
+ */
 export function MatrixOf(
   componentType: Float32Type,
   shape: [2, 2],
 ): MatrixType<Float32Type, 2, 2>;
 
+/**
+ * Create a new 3x3 matrix type of Float32 components.
+ */
 export function MatrixOf(
   componentType: Float32Type,
   shape: [3, 3],
 ): MatrixType<Float32Type, 3, 3>;
 
+/**
+ * Create a new 4x4 matrix type of Float32 components.
+ */
 export function MatrixOf(
   componentType: Float32Type,
   shape: [4, 4],
 ): MatrixType<Float32Type, 4, 4>;
 
+/**
+ * Create a new 2x2 matrix type of Float16 components.
+ */
 export function MatrixOf(
   componentType: Float16Type,
   shape: [2, 2],
 ): MatrixType<Float16Type, 2, 2>;
 
+/**
+ * Create a new 3x3 matrix type of Float16 components.
+ */
 export function MatrixOf(
   componentType: Float16Type,
   shape: [3, 3],
 ): MatrixType<Float16Type, 3, 3>;
 
+/**
+ * Create a new 4x4 matrix type of Float16 components.
+ */
 export function MatrixOf(
   componentType: Float16Type,
   shape: [4, 4],
 ): MatrixType<Float16Type, 4, 4>;
 
+/**
+ * Create a new matrix type from the given type and shape.
+ *
+ * @param componentType The component type.
+ * @param shape The matrix shape.
+ */
 export function MatrixOf<
   T extends MemoryType<R, V, VF> & AnyFloatingPointType,
   Cols extends 2 | 3 | 4,
@@ -149,6 +194,12 @@ export function MatrixOf(
   }
 }
 
+/**
+ * Create a new array type from the given type and length.
+ *
+ * @param type The element type.
+ * @param length The element count. Must be greater than 0.
+ */
 export function ArrayOf<
   T extends MemoryType<R, V, VF>,
   N extends number,
@@ -159,10 +210,33 @@ export function ArrayOf<
   return new ArrayTypeImpl(type, length);
 }
 
+/**
+ * Additional options for creating a struct type.
+ */
+interface StructOptions {
+  /**
+   * Whether to compile the struct type.
+   *
+   * This uses code generation to create a more efficient struct type.
+   * Debugging may be easier with this option disabled.
+   *
+   * @default false
+   */
+  compile?: boolean;
+}
+
+/**
+ * Create a new struct type from the given descriptor.
+ *
+ * @param descriptor The struct descriptor.
+ * @param [options] Additional options.
+ */
 export function StructOf<S extends NonEmpty<StructDescriptor<S>>>(
   descriptor: S,
-  { compile = false }: { compile?: boolean } = {},
+  options: StructOptions = {},
 ): StructType<S> {
+  const { compile = true } = options;
+
   const type = new StructTypeImpl(descriptor);
 
   if (compile) {
