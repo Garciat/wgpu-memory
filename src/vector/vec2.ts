@@ -1,4 +1,5 @@
 import {
+  type AnyScalarType,
   GPU_SCALAR_TYPES,
   GPU_VEC2,
   type MemoryType,
@@ -7,8 +8,6 @@ import {
   type MemoryTypeV,
   type Vector2Type,
 } from "../types.ts";
-
-import type { ScalarType } from "../scalar/mod.ts";
 
 import { assertTypeOneOf } from "../internal/assert.ts";
 import type { Tup2 } from "../internal/tuple.ts";
@@ -20,7 +19,7 @@ import { alignOfVec2, sizeOfVec2, strideOf } from "../internal/alignment.ts";
  * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
  */
 export class Vec2<
-  T extends MemoryType<R, V, VF> & ScalarType,
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,

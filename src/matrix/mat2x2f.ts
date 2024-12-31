@@ -11,12 +11,12 @@ import type {
   TupNM,
 } from "../internal/tuple.ts";
 
-import { Float32Type } from "../scalar/f32.ts";
+import { Float32TypeImpl } from "../scalar/f32.ts";
 
 import { GPU_MAT2X2, type MatrixType } from "../types.ts";
 import { matrixToCode, matrixToString } from "./common.ts";
 
-const ComponentType: Float32Type = new Float32Type();
+const ComponentType: Float32TypeImpl = new Float32TypeImpl();
 type ComponentArrayType = Float32Array;
 
 const NCol = 2 as const;

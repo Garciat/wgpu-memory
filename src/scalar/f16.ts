@@ -1,4 +1,4 @@
-import { GPU_F16, type MemoryType } from "../types.ts";
+import { type Float16Type, GPU_F16 } from "../types.ts";
 
 /**
  * The 16-bit floating-point type.
@@ -7,13 +7,12 @@ import { GPU_F16, type MemoryType } from "../types.ts";
  * @see https://github.com/tc39/proposal-float16array
  * @see https://gpuweb.github.io/gpuweb/wgsl/#floating-point-types
  */
-export class Float16Type
-  implements MemoryType<number, Float16Array, Float16Array> {
+export class Float16TypeImpl implements Float16Type {
   /**
    * @inheritdoc
    */
-  toString(): string {
-    return "f16";
+  toString(): typeof GPU_F16 {
+    return GPU_F16;
   }
 
   /**

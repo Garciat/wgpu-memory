@@ -1,16 +1,16 @@
-import { GPU_I32, type MemoryType } from "../types.ts";
+import { GPU_I32, type Int32Type } from "../types.ts";
 
 /**
  * The 32-bit signed integer type.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#integer-types
  */
-export class Int32Type implements MemoryType<number, Int32Array, Int32Array> {
+export class Int32TypeImpl implements Int32Type {
   /**
    * @inheritdoc
    */
-  toString(): string {
-    return "i32";
+  toString(): typeof GPU_I32 {
+    return GPU_I32;
   }
 
   /**

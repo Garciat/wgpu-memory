@@ -21,7 +21,7 @@ export const GPU_MAT4X4 = "mat4x4";
 export const GPU_ARRAY = "array";
 export const GPU_STRUCT = "struct";
 
-export const GPU_SCALAR_TYPES: ReadonlySet<GPUScalarType> = new Set([
+export const GPU_SCALAR_TYPES: ReadonlySet<GPUType> = new Set([
   GPU_BOOL,
   GPU_I32,
   GPU_U32,
@@ -29,34 +29,25 @@ export const GPU_SCALAR_TYPES: ReadonlySet<GPUScalarType> = new Set([
   GPU_F32,
 ]);
 
-export const GPU_FLOATING_POINT_TYPES: ReadonlySet<GPUFloatingPointType> =
-  new Set([
-    GPU_F16,
-    GPU_F32,
-  ]);
+export const GPU_FLOATING_POINT_TYPES: ReadonlySet<GPUType> = new Set([
+  GPU_F16,
+  GPU_F32,
+]);
 
-export type GPUBoolType = typeof GPU_BOOL;
-export type GPUInt32Type = typeof GPU_I32;
-export type GPUUint32Type = typeof GPU_U32;
-export type GPUFloat16Type = typeof GPU_F16;
-export type GPUFloat32Type = typeof GPU_F32;
-
-export type GPUIntegerType = GPUInt32Type | GPUUint32Type;
-export type GPUFloatingPointType = GPUFloat16Type | GPUFloat32Type;
-export type GPUScalarType = GPUBoolType | GPUIntegerType | GPUFloatingPointType;
-export type GPUVectorType = typeof GPU_VEC2 | typeof GPU_VEC3 | typeof GPU_VEC4;
-export type GPUMatrixType =
+export type GPUType =
+  | typeof GPU_BOOL
+  | typeof GPU_I32
+  | typeof GPU_U32
+  | typeof GPU_F16
+  | typeof GPU_F32
+  | typeof GPU_VEC2
+  | typeof GPU_VEC3
+  | typeof GPU_VEC4
   | typeof GPU_MAT2X2
   | typeof GPU_MAT3X3
-  | typeof GPU_MAT4X4;
-export type GPUArrayType = typeof GPU_ARRAY;
-export type GPUStructureType = typeof GPU_STRUCT;
-export type GPUType =
-  | GPUScalarType
-  | GPUVectorType
-  | GPUMatrixType
-  | GPUArrayType
-  | GPUStructureType;
+  | typeof GPU_MAT4X4
+  | typeof GPU_ARRAY
+  | typeof GPU_STRUCT;
 
 /**
  * @template R The read/write type.
@@ -148,6 +139,64 @@ export type MemoryTypeBoundedVF<T, V> = T extends
   MemoryType<infer R, V, infer VF extends V> ? VF
   : never;
 
+export interface ScalarType<T, V, VF> extends MemoryType<T, V, VF> {
+}
+
+export type AnyFloatingPointType =
+  | Float32Type
+  | Float16Type;
+
+export type AnyScalarType =
+  | BoolType
+  | Int32Type
+  | Uint32Type
+  | Float32Type
+  | Float16Type;
+
+export interface Float32Type
+  extends ScalarType<number, Float32Array, Float32Array> {
+  toString(): typeof GPU_F32;
+  readonly type: typeof GPU_F32;
+  readonly byteSize: 4;
+  readonly alignment: 4;
+  readonly arrayStride: 4;
+}
+
+export interface Float16Type
+  extends ScalarType<number, Float16Array, Float16Array> {
+  toString(): typeof GPU_F16;
+  readonly type: typeof GPU_F16;
+  readonly byteSize: 2;
+  readonly alignment: 2;
+  readonly arrayStride: 2;
+}
+
+export interface Int32Type extends ScalarType<number, Int32Array, Int32Array> {
+  toString(): typeof GPU_I32;
+  readonly type: typeof GPU_I32;
+  readonly byteSize: 4;
+  readonly alignment: 4;
+  readonly arrayStride: 4;
+}
+
+export interface Uint32Type
+  extends ScalarType<number, Uint32Array, Uint32Array> {
+  toString(): typeof GPU_U32;
+  readonly type: typeof GPU_U32;
+  readonly byteSize: 4;
+  readonly alignment: 4;
+  readonly arrayStride: 4;
+}
+
+export interface BoolType
+  extends ScalarType<boolean, Uint32Array, Uint32Array> {
+  toString(): typeof GPU_BOOL;
+  readonly type: typeof GPU_BOOL;
+  readonly byteSize: 4;
+  readonly alignment: 4;
+  readonly arrayStride: 4;
+}
+
 export interface ArrayType<
   T extends MemoryType<R, V, VF>,
   N extends number,
@@ -165,7 +214,7 @@ export interface ArrayType<
 }
 
 export interface VectorType<
-  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   N extends 2 | 3 | 4,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
@@ -190,7 +239,7 @@ export interface VectorType<
 }
 
 export interface Vector2Type<
-  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
@@ -209,7 +258,7 @@ export interface Vector2Type<
 }
 
 export interface Vector3Type<
-  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
@@ -234,7 +283,7 @@ export interface Vector3Type<
 }
 
 export interface Vector4Type<
-  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
@@ -265,7 +314,7 @@ export interface Vector4Type<
 }
 
 export interface MatrixType<
-  T extends MemoryType<R, V, VF> & { type: GPUFloatingPointType },
+  T extends MemoryType<R, V, VF> & AnyFloatingPointType,
   Cols extends 2 | 3 | 4,
   Rows extends 2 | 3 | 4,
   R = MemoryTypeR<T>,

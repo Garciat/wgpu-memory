@@ -1,16 +1,16 @@
-import { GPU_BOOL, type MemoryType } from "../types.ts";
+import { type BoolType, GPU_BOOL } from "../types.ts";
 
 /**
  * The boolean type.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#bool-type
  */
-export class BoolType implements MemoryType<boolean, Uint32Array, Uint32Array> {
+export class BoolTypeImpl implements BoolType {
   /**
    * @inheritdoc
    */
-  toString(): string {
-    return "bool";
+  toString(): typeof GPU_BOOL {
+    return GPU_BOOL;
   }
 
   /**

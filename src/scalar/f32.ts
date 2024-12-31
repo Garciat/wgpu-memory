@@ -1,17 +1,16 @@
-import { GPU_F32, type MemoryType } from "../types.ts";
+import { type Float32Type, GPU_F32 } from "../types.ts";
 
 /**
  * The 32-bit floating-point type.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#floating-point-types
  */
-export class Float32Type
-  implements MemoryType<number, Float32Array, Float32Array> {
+export class Float32TypeImpl implements Float32Type {
   /**
    * @inheritdoc
    */
-  toString(): string {
-    return "f32";
+  toString(): typeof GPU_F32 {
+    return GPU_F32;
   }
 
   /**

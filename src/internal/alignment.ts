@@ -1,11 +1,11 @@
 import {
+  type AnyFloatingPointType,
+  type AnyScalarType,
   GPU_BOOL,
   GPU_F16,
   GPU_F32,
   GPU_I32,
   GPU_U32,
-  type GPUFloatingPointType,
-  type GPUScalarType,
 } from "../types.ts";
 import { wgslRoundUp } from "./math.ts";
 
@@ -33,7 +33,7 @@ export function strideOf(
   return wgslRoundUp(alignOfElement, sizeOfElement);
 }
 
-export function alignOfVec2(componentType: GPUScalarType): number {
+export function alignOfVec2(componentType: AnyScalarType["type"]): number {
   switch (componentType) {
     case GPU_F16:
       return 4;
@@ -49,7 +49,7 @@ export function alignOfVec2(componentType: GPUScalarType): number {
   }
 }
 
-export function sizeOfVec2(componentType: GPUScalarType): number {
+export function sizeOfVec2(componentType: AnyScalarType["type"]): number {
   switch (componentType) {
     case GPU_F16:
       return 4;
@@ -65,7 +65,7 @@ export function sizeOfVec2(componentType: GPUScalarType): number {
   }
 }
 
-export function alignOfVec3(componentType: GPUScalarType): number {
+export function alignOfVec3(componentType: AnyScalarType["type"]): number {
   switch (componentType) {
     case GPU_F16:
       return 8;
@@ -81,7 +81,7 @@ export function alignOfVec3(componentType: GPUScalarType): number {
   }
 }
 
-export function sizeOfVec3(componentType: GPUScalarType): number {
+export function sizeOfVec3(componentType: AnyScalarType["type"]): number {
   switch (componentType) {
     case GPU_F16:
       return 6;
@@ -97,7 +97,7 @@ export function sizeOfVec3(componentType: GPUScalarType): number {
   }
 }
 
-export function alignOfVec4(componentType: GPUScalarType): number {
+export function alignOfVec4(componentType: AnyScalarType["type"]): number {
   switch (componentType) {
     case GPU_F16:
       return 8;
@@ -113,7 +113,7 @@ export function alignOfVec4(componentType: GPUScalarType): number {
   }
 }
 
-export function sizeOfVec4(componentType: GPUScalarType): number {
+export function sizeOfVec4(componentType: AnyScalarType["type"]): number {
   switch (componentType) {
     case GPU_F16:
       return 8;
@@ -131,7 +131,7 @@ export function sizeOfVec4(componentType: GPUScalarType): number {
 
 export function alignOfVecN(
   size: 2 | 3 | 4,
-  componentType: GPUScalarType,
+  componentType: AnyScalarType["type"],
 ): number {
   switch (size) {
     case 2:
@@ -147,7 +147,7 @@ export function alignOfVecN(
 
 export function sizeOfVecN(
   size: 2 | 3 | 4,
-  componentType: GPUScalarType,
+  componentType: AnyScalarType["type"],
 ): number {
   switch (size) {
     case 2:
@@ -164,7 +164,7 @@ export function sizeOfVecN(
 export function alignOfMatCxR(
   _ncols: 2 | 3 | 4,
   nrows: 2 | 3 | 4,
-  componentType: GPUFloatingPointType,
+  componentType: AnyFloatingPointType["type"],
 ): number {
   return alignOfVecN(nrows, componentType);
 }
@@ -172,7 +172,7 @@ export function alignOfMatCxR(
 export function sizeOfMatCxR(
   ncols: 2 | 3 | 4,
   nrows: 2 | 3 | 4,
-  componentType: GPUFloatingPointType,
+  componentType: AnyFloatingPointType["type"],
 ): number {
   return sizeOfArrayN(
     ncols,

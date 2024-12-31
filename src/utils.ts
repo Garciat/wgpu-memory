@@ -3,15 +3,15 @@ import type { NonEmpty, Positive } from "./internal/constraints.ts";
 import { ArrayTypeImpl } from "./array/array.ts";
 import { StructTypeImpl } from "./struct/struct.ts";
 import { compile as compileStruct } from "./struct/compile.ts";
-import type { Float32Type } from "./scalar/f32.ts";
-import type { Float16Type } from "./scalar/f16.ts";
-import type { FloatingPointType, ScalarType } from "./scalar/mod.ts";
+import type { Float32TypeImpl } from "./scalar/f32.ts";
+import type { Float16TypeImpl } from "./scalar/f16.ts";
 import { Vec2 } from "./vector/vec2.ts";
 import { Vec3 } from "./vector/vec3.ts";
 import { Vec4 } from "./vector/vec4.ts";
 import type {
+  AnyFloatingPointType,
+  AnyScalarType,
   ArrayType,
-  GPUFloatingPointType,
   MatrixType,
   MemoryType,
   MemoryTypeBoundedVF,
@@ -35,28 +35,28 @@ import {
 } from "./aliases.ts";
 
 export function VectorOf<
-  T extends MemoryType<R, V, VF> & ScalarType,
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 2): Vector2Type<T, R, V, VF>;
 
 export function VectorOf<
-  T extends MemoryType<R, V, VF> & ScalarType,
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 3): Vector3Type<T, R, V, VF>;
 
 export function VectorOf<
-  T extends MemoryType<R, V, VF> & ScalarType,
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 4): Vector4Type<T, R, V, VF>;
 
 export function VectorOf<
-  T extends MemoryType<R, V, VF> & ScalarType,
+  T extends MemoryType<R, V, VF> & AnyScalarType,
   N extends 2 | 3 | 4,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
@@ -64,7 +64,7 @@ export function VectorOf<
 >(componentType: T, shape: N): VectorType<T, N, R, V, VF>;
 
 export function VectorOf(
-  componentType: ScalarType,
+  componentType: AnyScalarType,
   shape: 2 | 3 | 4,
 ): VectorType<typeof componentType, typeof shape> {
   switch (shape) {
@@ -81,37 +81,37 @@ export function VectorOf(
 }
 
 export function MatrixOf(
-  componentType: Float32Type,
+  componentType: Float32TypeImpl,
   shape: [2, 2],
-): MatrixType<Float32Type, 2, 2>;
+): MatrixType<Float32TypeImpl, 2, 2>;
 
 export function MatrixOf(
-  componentType: Float32Type,
+  componentType: Float32TypeImpl,
   shape: [3, 3],
-): MatrixType<Float32Type, 3, 3>;
+): MatrixType<Float32TypeImpl, 3, 3>;
 
 export function MatrixOf(
-  componentType: Float32Type,
+  componentType: Float32TypeImpl,
   shape: [4, 4],
-): MatrixType<Float32Type, 4, 4>;
+): MatrixType<Float32TypeImpl, 4, 4>;
 
 export function MatrixOf(
-  componentType: Float16Type,
+  componentType: Float16TypeImpl,
   shape: [2, 2],
-): MatrixType<Float16Type, 2, 2>;
+): MatrixType<Float16TypeImpl, 2, 2>;
 
 export function MatrixOf(
-  componentType: Float16Type,
+  componentType: Float16TypeImpl,
   shape: [3, 3],
-): MatrixType<Float16Type, 3, 3>;
+): MatrixType<Float16TypeImpl, 3, 3>;
 
 export function MatrixOf(
-  componentType: Float16Type,
+  componentType: Float16TypeImpl,
   shape: [4, 4],
-): MatrixType<Float16Type, 4, 4>;
+): MatrixType<Float16TypeImpl, 4, 4>;
 
 export function MatrixOf<
-  T extends MemoryType<R, V, VF> & { type: GPUFloatingPointType },
+  T extends MemoryType<R, V, VF> & AnyFloatingPointType,
   Cols extends 2 | 3 | 4,
   Rows extends 2 | 3 | 4,
   R = MemoryTypeR<T>,
@@ -120,7 +120,7 @@ export function MatrixOf<
 >(componentType: T, shape: [Cols, Rows]): MatrixType<T, Cols, Rows, R, V, VF>;
 
 export function MatrixOf(
-  componentType: FloatingPointType,
+  componentType: AnyFloatingPointType,
   shape: [2, 2] | [3, 3] | [4, 4],
 ): MatrixType<typeof componentType, (typeof shape)[0], (typeof shape)[1]> {
   if (shape[0] === 2 && shape[1] === 2) {

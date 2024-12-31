@@ -1,8 +1,8 @@
-import { BoolType } from "./scalar/bool.ts";
-import { Float16Type } from "./scalar/f16.ts";
-import { Float32Type } from "./scalar/f32.ts";
-import { Uint32Type } from "./scalar/u32.ts";
-import { Int32Type } from "./scalar/i32.ts";
+import { BoolTypeImpl } from "./scalar/bool.ts";
+import { Float16TypeImpl } from "./scalar/f16.ts";
+import { Float32TypeImpl } from "./scalar/f32.ts";
+import { Uint32TypeImpl } from "./scalar/u32.ts";
+import { Int32TypeImpl } from "./scalar/i32.ts";
 
 import { Vec2 } from "./vector/vec2.ts";
 import { Vec3 } from "./vector/vec3.ts";
@@ -16,7 +16,12 @@ import { Mat4x4F as Mat4x4FImpl } from "./matrix/mat4x4f.ts";
 import { Mat4x4H as Mat4x4HImpl } from "./matrix/mat4x4h.ts";
 
 import type {
+  BoolType,
+  Float16Type,
+  Float32Type,
+  Int32Type,
   MatrixType,
+  Uint32Type,
   Vector2Type,
   Vector3Type,
   Vector4Type,
@@ -25,110 +30,110 @@ import type {
 /**
  * The boolean type.
  */
-export const Bool: BoolType = new BoolType();
+export const Bool: BoolType = new BoolTypeImpl();
 
 /**
  * The 16-bit floating point type.
  */
-export const Float16: Float16Type = new Float16Type();
+export const Float16: Float16Type = new Float16TypeImpl();
 /**
  * The 32-bit floating point type.
  */
-export const Float32: Float32Type = new Float32Type();
+export const Float32: Float32Type = new Float32TypeImpl();
 /**
  * The 32-bit unsigned integer type.
  */
-export const Uint32: Uint32Type = new Uint32Type();
+export const Uint32: Uint32Type = new Uint32TypeImpl();
 /**
  * The 32-bit signed integer type.
  */
-export const Int32: Int32Type = new Int32Type();
+export const Int32: Int32Type = new Int32TypeImpl();
 
 /**
  * A 2-dimensional vector of boolean values.
  */
-export const Vec2B: Vector2Type<BoolType> = new Vec2(Bool);
+export const Vec2B: Vector2Type<BoolTypeImpl> = new Vec2(Bool);
 /**
  * A 3-dimensional vector of boolean values.
  */
-export const Vec3B: Vector3Type<BoolType> = new Vec3(Bool);
+export const Vec3B: Vector3Type<BoolTypeImpl> = new Vec3(Bool);
 /**
  * A 4-dimensional vector of boolean values.
  */
-export const Vec4B: Vector4Type<BoolType> = new Vec4(Bool);
+export const Vec4B: Vector4Type<BoolTypeImpl> = new Vec4(Bool);
 
 /**
  * A 2-dimensional vector of 16-bit floating point values.
  */
-export const Vec2H: Vector2Type<Float16Type> = new Vec2(Float16);
+export const Vec2H: Vector2Type<Float16TypeImpl> = new Vec2(Float16);
 /**
  * A 3-dimensional vector of 16-bit floating point values.
  */
-export const Vec3H: Vector3Type<Float16Type> = new Vec3(Float16);
+export const Vec3H: Vector3Type<Float16TypeImpl> = new Vec3(Float16);
 /**
  * A 4-dimensional vector of 16-bit floating point values.
  */
-export const Vec4H: Vector4Type<Float16Type> = new Vec4(Float16);
+export const Vec4H: Vector4Type<Float16TypeImpl> = new Vec4(Float16);
 /**
  * A 2x2 matrix of 16-bit floating point values.
  */
-export const Mat2x2H: MatrixType<Float16Type, 2, 2> = new Mat2x2HImpl();
+export const Mat2x2H: MatrixType<Float16TypeImpl, 2, 2> = new Mat2x2HImpl();
 /**
  * A 3x3 matrix of 16-bit floating point values.
  */
-export const Mat3x3H: MatrixType<Float16Type, 3, 3> = new Mat3x3HImpl();
+export const Mat3x3H: MatrixType<Float16TypeImpl, 3, 3> = new Mat3x3HImpl();
 /**
  * A 4x4 matrix of 16-bit floating point values.
  */
-export const Mat4x4H: MatrixType<Float16Type, 4, 4> = new Mat4x4HImpl();
+export const Mat4x4H: MatrixType<Float16TypeImpl, 4, 4> = new Mat4x4HImpl();
 
 /**
  * A 2-dimensional vector of 32-bit floating point values.
  */
-export const Vec2F: Vector2Type<Float32Type> = new Vec2(Float32);
+export const Vec2F: Vector2Type<Float32TypeImpl> = new Vec2(Float32);
 /**
  * A 3-dimensional vector of 32-bit floating point values.
  */
-export const Vec3F: Vector3Type<Float32Type> = new Vec3(Float32);
+export const Vec3F: Vector3Type<Float32TypeImpl> = new Vec3(Float32);
 /**
  * A 4-dimensional vector of 32-bit floating point values.
  */
-export const Vec4F: Vector4Type<Float32Type> = new Vec4(Float32);
+export const Vec4F: Vector4Type<Float32TypeImpl> = new Vec4(Float32);
 /**
  * A 2x2 matrix of 32-bit floating point values.
  */
-export const Mat2x2F: MatrixType<Float32Type, 2, 2> = new Mat2x2FImpl();
+export const Mat2x2F: MatrixType<Float32TypeImpl, 2, 2> = new Mat2x2FImpl();
 /**
  * A 3x3 matrix of 32-bit floating point values.
  */
-export const Mat3x3F: MatrixType<Float32Type, 3, 3> = new Mat3x3FImpl();
+export const Mat3x3F: MatrixType<Float32TypeImpl, 3, 3> = new Mat3x3FImpl();
 /**
  * A 4x4 matrix of 32-bit floating point values.
  */
-export const Mat4x4F: MatrixType<Float32Type, 4, 4> = new Mat4x4FImpl();
+export const Mat4x4F: MatrixType<Float32TypeImpl, 4, 4> = new Mat4x4FImpl();
 
 /**
  * A 2-dimensional vector of 32-bit unsigned integer values.
  */
-export const Vec2U: Vector2Type<Uint32Type> = new Vec2(Uint32);
+export const Vec2U: Vector2Type<Uint32TypeImpl> = new Vec2(Uint32);
 /**
  * A 3-dimensional vector of 32-bit unsigned integer values.
  */
-export const Vec3U: Vector3Type<Uint32Type> = new Vec3(Uint32);
+export const Vec3U: Vector3Type<Uint32TypeImpl> = new Vec3(Uint32);
 /**
  * A 4-dimensional vector of 32-bit unsigned integer values.
  */
-export const Vec4U: Vector4Type<Uint32Type> = new Vec4(Uint32);
+export const Vec4U: Vector4Type<Uint32TypeImpl> = new Vec4(Uint32);
 
 /**
  * A 2-dimensional vector of 32-bit signed integer values.
  */
-export const Vec2I: Vector2Type<Int32Type> = new Vec2(Int32);
+export const Vec2I: Vector2Type<Int32TypeImpl> = new Vec2(Int32);
 /**
  * A 3-dimensional vector of 32-bit signed integer values.
  */
-export const Vec3I: Vector3Type<Int32Type> = new Vec3(Int32);
+export const Vec3I: Vector3Type<Int32TypeImpl> = new Vec3(Int32);
 /**
  * A 4-dimensional vector of 32-bit signed integer values.
  */
-export const Vec4I: Vector4Type<Int32Type> = new Vec4(Int32);
+export const Vec4I: Vector4Type<Int32TypeImpl> = new Vec4(Int32);
