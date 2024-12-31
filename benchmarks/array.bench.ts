@@ -2,7 +2,7 @@ import * as memory from "../src/mod.ts";
 
 const length = 20_000;
 
-const TestType = new memory.ArrayType(memory.Float32, 8);
+const TestType = memory.ArrayOf(memory.Float32, 8);
 
 Deno.bench("wgpu-memory", { group: "Array writeAt" }, (b) => {
   const buffer = memory.allocate(TestType, length);

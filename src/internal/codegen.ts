@@ -16,12 +16,15 @@ export class CodeGen {
     return Function(...argNames, `return ${expression};`)(...argValues);
   }
 
-  static statements<T>(input: Array<T>, f: (value: T) => string): string {
+  static statements<T>(
+    input: ReadonlyArray<T>,
+    f: (value: T) => string,
+  ): string {
     return input.map((item) => f(item)).join("\n");
   }
 
   static objectLiteral<T>(
-    input: Array<T>,
+    input: ReadonlyArray<T>,
     keyF: (value: T) => string,
     valueF: (value: T) => string,
   ): string {

@@ -3,7 +3,7 @@ import { assertEquals, assertThrows } from "jsr:@std/assert";
 import * as memory from "../src/mod.ts";
 
 Deno.test("Struct", () => {
-  const StructA = new memory.Struct({
+  const StructA = memory.StructOf({
     u: { index: 0, type: memory.Float32 },
     v: { index: 1, type: memory.Float32 },
     w: { index: 2, type: memory.Vec2F },
@@ -17,7 +17,7 @@ Deno.test("Struct", () => {
   assertEquals(
     StructA.toCode("memory"),
     [
-      "new memory.Struct({",
+      "memory.StructOf({",
       "  u: { index: 0, type: memory.Float32 },",
       "  v: { index: 1, type: memory.Float32 },",
       "  w: { index: 2, type: memory.Vec2F },",
@@ -126,14 +126,19 @@ Deno.test("Struct", () => {
 });
 
 Deno.test("compile", () => {
-  const StructA = new memory.Struct({
+  const StructA = memory.StructOf({
     u: { index: 0, type: memory.Float32 },
     v: { index: 1, type: memory.Float32 },
     w: { index: 2, type: memory.Vec2F },
     x: { index: 3, type: memory.Float32 },
   });
 
-  const StructB = memory.compileStruct(StructA);
+  const StructB = memory.StructOf({
+    u: { index: 0, type: memory.Float32 },
+    v: { index: 1, type: memory.Float32 },
+    w: { index: 2, type: memory.Vec2F },
+    x: { index: 3, type: memory.Float32 },
+  }, { compile: true });
 
   const source = (StructB as unknown as { __source: string }).__source;
   assertEquals(source, CompiledStructSource1);

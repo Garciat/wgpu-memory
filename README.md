@@ -47,18 +47,18 @@ import * as memory from "jsr:@garciat/wgpu-memory";
 Defining types:
 
 ```typescript
-const Vertex = new memory.Struct({
+const Vertex = memory.StructOf({
   position: { index: 0, type: memory.Vec4F },
   color: { index: 1, type: memory.Vec4F },
   normal: { index: 2, type: memory.Vec3F },
   uv: { index: 3, type: memory.Vec2F },
 });
 
-const VertexQuad = new memory.ArrayType(Vertex, 6);
+const VertexQuad = memory.ArrayOf(Vertex, 6);
 
-const CubeMesh = new memory.ArrayType(VertexQuad, 6);
+const CubeMesh = memory.ArrayOf(VertexQuad, 6);
 
-const Instance = new memory.Struct({
+const Instance = memory.StructOf({
   tint: { index: 0, type: memory.Vec4F },
   model: { index: 1, type: memory.Mat4x4F },
   mvMatrix: { index: 2, type: memory.Mat4x4F },

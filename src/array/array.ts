@@ -19,7 +19,7 @@ import {
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#array-types
  */
-export class ArrayType<
+export class ArrayTypeImpl<
   T extends MemoryType<R, V, VF>,
   N extends number,
   R = MemoryTypeR<T>,
@@ -66,7 +66,7 @@ export class ArrayType<
    * @inheritdoc
    */
   toCode(namespace: string, indentation?: number): string {
-    return `new ${namespace}.ArrayType(${
+    return `${namespace}.ArrayOf(${
       this.#type.toCode(namespace, indentation)
     }, ${this.#length})`;
   }

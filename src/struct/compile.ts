@@ -5,22 +5,24 @@ import type {
   MemoryTypeR,
   MemoryTypeV,
   MemoryTypeVF,
+  StructDescriptor,
+  StructField,
+  StructType,
 } from "../types.ts";
-import { toCodeImpl } from "./string.ts";
-import type { Struct } from "./struct.ts";
-import type { IStruct, IStructField, StructDescriptor } from "./types.ts";
+import { structToCode } from "./string.ts";
+import type { StructTypeImpl } from "./struct.ts";
 
 /**
  * Uses code generation to create a specialized structure class.
  */
 export function compile<S extends NonEmpty<StructDescriptor<S>>>(
-  struct: Struct<S>,
-): IStruct<S> {
+  struct: StructTypeImpl<S>,
+): StructType<S> {
   const inputs = {
     utils: {
       toCodeImpl: {
         name: "param_toCodeImpl",
-        value: toCodeImpl,
+        value: structToCode,
       },
     },
     fieldTypes: struct.fieldList.map((field) => ({
@@ -49,7 +51,7 @@ export function compile<S extends NonEmpty<StructDescriptor<S>>>(
     configurable: false,
   });
 
-  return classObject as IStruct<S>;
+  return classObject as StructType<S>;
 }
 
 type StructCodeGenParams = {
@@ -60,7 +62,7 @@ type StructCodeGenParams = {
 };
 
 function generateStructClass<S extends NonEmpty<StructDescriptor<S>>>(
-  struct: Struct<S>,
+  struct: StructTypeImpl<S>,
   params: StructCodeGenParams,
 ): string {
   const nameOf = <K>(field: { name: K }) => String(field.name);
@@ -161,8 +163,8 @@ function generateFieldAccessorClass<
   V = MemoryTypeV<T>,
   VF = MemoryTypeVF<T>,
 >(
-  struct: Struct<S>,
-  field: IStructField<S, Key, T, R, V, VF>,
+  struct: StructTypeImpl<S>,
+  field: StructField<S, Key, T, R, V, VF>,
   fieldTypeParam: string,
 ): string {
   return `

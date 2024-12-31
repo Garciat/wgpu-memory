@@ -243,16 +243,17 @@ Deno.test("Vec4", () => {
     new Float32Array([10, 20, 30, 40, 5, 6, 7, 8]),
   );
 });
+
 Deno.test("incompatible composite types", () => {
-  assertThrows(() => new memory.Vec2(asAny(memory.Vec2F)), TypeError);
-  assertThrows(() => new memory.Vec2(asAny(memory.Mat2x2F)), TypeError);
-  assertThrows(() => new memory.Vec2(asAny(TestStruct)), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(memory.Vec2F), 2), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(memory.Mat2x2F), 2), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(TestStruct), 2), TypeError);
 
-  assertThrows(() => new memory.Vec3(asAny(memory.Vec2F)), TypeError);
-  assertThrows(() => new memory.Vec3(asAny(memory.Mat2x2F)), TypeError);
-  assertThrows(() => new memory.Vec3(asAny(TestStruct)), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(memory.Vec2F), 3), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(memory.Mat2x2F), 3), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(TestStruct), 3), TypeError);
 
-  assertThrows(() => new memory.Vec4(asAny(memory.Vec2F)), TypeError);
-  assertThrows(() => new memory.Vec4(asAny(memory.Mat2x2F)), TypeError);
-  assertThrows(() => new memory.Vec4(asAny(TestStruct)), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(memory.Vec2F), 4), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(memory.Mat2x2F), 4), TypeError);
+  assertThrows(() => memory.VectorOf(asAny(TestStruct), 4), TypeError);
 });

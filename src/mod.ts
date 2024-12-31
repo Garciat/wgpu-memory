@@ -1,21 +1,16 @@
-export type { MatrixType, MemoryType, VectorType } from "./types.ts";
-
-export { ArrayType } from "./array/array.ts";
-
 export type {
-  IStruct,
-  IStructField,
-  IStructFieldsOf,
+  ArrayType,
+  MatrixType,
+  MemoryType,
   StructDescriptor,
-  StructR,
-  StructV,
-} from "./struct/types.ts";
-export { Struct } from "./struct/struct.ts";
-export { compile as compileStruct } from "./struct/compile.ts";
-
-export { Vec2 } from "./vector/vec2.ts";
-export { Vec3 } from "./vector/vec3.ts";
-export { Vec4 } from "./vector/vec4.ts";
+  StructField,
+  StructFieldsOf,
+  StructType,
+  Vector2Type,
+  Vector3Type,
+  Vector4Type,
+  VectorType,
+} from "./types.ts";
 
 export {
   Bool,
@@ -46,4 +41,4 @@ export {
   Vec4U,
 } from "./aliases.ts";
 
-export { allocate, count } from "./utils.ts";
+export { allocate, ArrayOf, count, StructOf, VectorOf } from "./utils.ts";

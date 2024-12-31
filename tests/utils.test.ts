@@ -1,9 +1,14 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals, assertThrows } from "jsr:@std/assert";
 
 import * as memory from "../src/mod.ts";
+import { asAny } from "./common.ts";
+
+Deno.test("VectorOf", () => {
+  assertThrows(() => memory.VectorOf(memory.Int32, asAny(5)));
+});
 
 Deno.test("allocate", () => {
-  const StructA = new memory.Struct({
+  const StructA = memory.StructOf({
     u: { index: 0, type: memory.Float32 },
     v: { index: 1, type: memory.Float32 },
     w: { index: 2, type: memory.Vec2F },

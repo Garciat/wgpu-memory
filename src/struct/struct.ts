@@ -10,24 +10,24 @@ import { wgslRoundUp } from "../internal/math.ts";
 import { typedObjectKeys } from "../internal/utils.ts";
 import { strideOf } from "../internal/alignment.ts";
 import type {
-  IStruct,
-  IStructField,
-  IStructFieldsOf,
   StructDescriptor,
+  StructField,
+  StructFieldsOf,
   StructR,
+  StructType,
   StructV,
-} from "./types.ts";
-import { toCodeImpl, toWgslImpl } from "./string.ts";
+} from "../types.ts";
+import { structToCode, structToString } from "./string.ts";
 
 /**
  * A constructor for structure types.
  *
  * @see https://gpuweb.github.io/gpuweb/wgsl/#struct-types
  */
-export class Struct<S extends NonEmpty<StructDescriptor<S>>>
-  implements IStruct<S> {
-  #fields: Array<StructField<S, keyof S>>;
-  #fieldsByName: IStructFieldsOf<S>;
+export class StructTypeImpl<S extends NonEmpty<StructDescriptor<S>>>
+  implements StructType<S> {
+  #fields: Array<StructFieldImpl<S, keyof S>>;
+  #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
   #byteSize: number;
   #arrayStride: number;
@@ -40,7 +40,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
     let alignment = 0;
 
     this.#fields = Array(Object.keys(descriptor).length);
-    this.#fieldsByName = {} as IStructFieldsOf<S>;
+    this.#fieldsByName = {} as StructFieldsOf<S>;
 
     for (const name of typedObjectKeys(descriptor)) {
       const fieldDescriptor = descriptor[name];
@@ -55,7 +55,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
         offset = wgslRoundUp(fieldType.alignment, offset);
       }
 
-      const field = new StructField(this, fieldDescriptor, name, offset);
+      const field = new StructFieldImpl(this, fieldDescriptor, name, offset);
       this.#fields[fieldDescriptor.index] = field;
       this.#fieldsByName[name] = field;
 
@@ -71,14 +71,14 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
   /**
    * @returns Field accessors for the structure.
    */
-  get fields(): IStructFieldsOf<S> {
+  get fields(): StructFieldsOf<S> {
     return this.#fieldsByName;
   }
 
   /**
    * @private
    */
-  get fieldList(): Array<StructField<S, keyof S>> {
+  get fieldList(): ReadonlyArray<StructFieldImpl<S, keyof S>> {
     return this.#fields;
   }
 
@@ -86,14 +86,14 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
    * @inheritdoc
    */
   toString(): string {
-    return toWgslImpl(this);
+    return structToString(this);
   }
 
   /**
    * @inheritdoc
    */
   toCode(namespace: string, indentation: number = 0): string {
-    return toCodeImpl(this, namespace, indentation);
+    return structToCode(this, namespace, indentation);
   }
 
   /**
@@ -194,7 +194,7 @@ export class Struct<S extends NonEmpty<StructDescriptor<S>>>
 /**
  * A given structure's field accessor.
  */
-export class StructField<
+export class StructFieldImpl<
   S extends NonEmpty<StructDescriptor<S>>,
   Key extends keyof S,
   F extends { index: number; type: T } = S[Key],
@@ -202,15 +202,15 @@ export class StructField<
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF = MemoryTypeVF<T>,
-> implements IStructField<S, Key, T, R, V, VF> {
-  #parent: Struct<S>;
+> implements StructField<S, Key, T, R, V, VF> {
+  #parent: StructTypeImpl<S>;
   #index: number;
   #name: Key;
   #type: T;
   #offset: number;
 
   constructor(
-    parent: Struct<S>,
+    parent: StructTypeImpl<S>,
     fieldDescriptor: F,
     name: Key,
     offset: number,

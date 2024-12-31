@@ -5,11 +5,11 @@ import * as memory from "../src/mod.ts";
 import { asAny } from "./common.ts";
 
 Deno.test("ArrayType", () => {
-  const A = new memory.ArrayType(memory.Int32, 4);
+  const A = memory.ArrayOf(memory.Int32, 4);
   assertEquals(A.elementCount, 4);
   assertEquals(A.elementType, memory.Int32);
   assertEquals(String(A), "array<i32, 4>");
-  assertEquals(A.toCode("memory"), "new memory.ArrayType(memory.Int32, 4)");
+  assertEquals(A.toCode("memory"), "memory.ArrayOf(memory.Int32, 4)");
   assertEquals(A.type, "array");
   assertEquals(A.byteSize, 16);
   assertEquals(A.alignment, 4);
@@ -76,6 +76,12 @@ Deno.test("ArrayType", () => {
 });
 
 Deno.test("ArrayType non-positive length", () => {
-  assertThrows(() => new memory.ArrayType(memory.Int32, asAny(0)), RangeError);
-  assertThrows(() => new memory.ArrayType(memory.Int32, asAny(-1)), RangeError);
+  assertThrows(
+    () => memory.ArrayOf(memory.Int32, asAny(0)),
+    RangeError,
+  );
+  assertThrows(
+    () => memory.ArrayOf(memory.Int32, asAny(-1)),
+    RangeError,
+  );
 });

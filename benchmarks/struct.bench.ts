@@ -2,14 +2,19 @@ import * as memory from "../src/mod.ts";
 
 const length = 10_000;
 
-const TestStruct = new memory.Struct({
+const TestStruct = memory.StructOf({
   u: { index: 0, type: memory.Float32 },
   v: { index: 1, type: memory.Float32 },
   w: { index: 2, type: memory.Vec2I },
   x: { index: 3, type: memory.Float32 },
 });
 
-const TextStructCompiled = memory.compileStruct(TestStruct);
+const TextStructCompiled = memory.StructOf({
+  u: { index: 0, type: memory.Float32 },
+  v: { index: 1, type: memory.Float32 },
+  w: { index: 2, type: memory.Vec2I },
+  x: { index: 3, type: memory.Float32 },
+}, { compile: true });
 
 Deno.bench("wgpu-memory", { group: "Struct writeAt" }, (b) => {
   const buffer = memory.allocate(TestStruct, length);

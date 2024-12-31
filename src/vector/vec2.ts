@@ -5,7 +5,7 @@ import {
   type MemoryTypeBoundedVF,
   type MemoryTypeR,
   type MemoryTypeV,
-  type VectorType,
+  type Vector2Type,
 } from "../types.ts";
 
 import type { ScalarType } from "../scalar/mod.ts";
@@ -24,7 +24,7 @@ export class Vec2<
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
-> implements VectorType<T, 2, R, V, VF> {
+> implements Vector2Type<T, R, V, VF> {
   #type: T;
   #byteSize: number;
   #alignment: number;

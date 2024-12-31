@@ -78,7 +78,7 @@ struct A {                                     //             align(8)  size(24)
     // -- implicit struct size padding --      // offset(20)            size(4)
 }
   */
-  const StructA = new memory.Struct({
+  const StructA = memory.StructOf({
     u: { index: 0, type: memory.Float32 },
     v: { index: 1, type: memory.Float32 },
     w: { index: 2, type: memory.Vec2F },
@@ -115,14 +115,14 @@ struct B {                                     //             align(16) size(160
     // -- implicit struct size padding --      // offset(156)           size(4)
 }
   */
-  const StructB = new memory.Struct({
+  const StructB = memory.StructOf({
     a: { index: 0, type: memory.Vec2F },
     b: { index: 1, type: memory.Vec3F },
     c: { index: 2, type: memory.Float32 },
     d: { index: 3, type: memory.Float32 },
     e: { index: 4, type: StructA },
     f: { index: 5, type: memory.Vec3F },
-    g: { index: 6, type: new memory.ArrayType(StructA, 3) },
+    g: { index: 6, type: memory.ArrayOf(StructA, 3) },
     h: { index: 7, type: memory.Int32 },
   });
   assertEquals(StructB.fields.a.offset, 0);
@@ -159,7 +159,7 @@ struct B {                                     //             align(16) size(160
 //   - size is 32 = stride * number_of_elements = 4 * 8
 var small_stride: array<f32, 8>;
   */
-  const SmallStride = new memory.ArrayType(memory.Float32, 8);
+  const SmallStride = memory.ArrayOf(memory.Float32, 8);
   assertEquals(SmallStride.alignment, 4);
   assertEquals(SmallStride.byteSize, 32);
 
@@ -171,13 +171,13 @@ var small_stride: array<f32, 8>;
 //   - size is 128 = stride * number_of_elements = 16 * 8
 var bigger_stride: array<vec3<f32>, 8>;
   */
-  const BiggerStride = new memory.ArrayType(memory.Vec3F, 8);
+  const BiggerStride = memory.ArrayOf(memory.Vec3F, 8);
   assertEquals(BiggerStride.alignment, 16);
   assertEquals(BiggerStride.byteSize, 128);
 });
 
 Deno.test("array stride", () => {
-  const Vec3Fx2 = new memory.ArrayType(memory.Vec3F, 2);
+  const Vec3Fx2 = memory.ArrayOf(memory.Vec3F, 2);
   assertEquals(Vec3Fx2.alignment, 16);
   assertEquals(Vec3Fx2.byteSize, 32);
 

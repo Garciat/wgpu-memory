@@ -1,3 +1,4 @@
+import type { NonEmpty } from "./internal/constraints.ts";
 import type {
   TupCxR,
   TupIndexN,
@@ -147,6 +148,22 @@ export type MemoryTypeBoundedVF<T, V> = T extends
   MemoryType<infer R, V, infer VF extends V> ? VF
   : never;
 
+export interface ArrayType<
+  T extends MemoryType<R, V, VF>,
+  N extends number,
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF = MemoryTypeVF<T>,
+> extends MemoryType<TupN<R, N>, TupN<V, N>, VF> {
+  readonly type: typeof GPU_ARRAY;
+  readonly elementType: T;
+  readonly elementCount: N;
+
+  get(view: DataView, index: number, offset?: number): R;
+
+  set(view: DataView, index: number, value: R, offset?: number): void;
+}
+
 export interface VectorType<
   T extends MemoryType<R, V, VF> & { type: GPUScalarType },
   N extends 2 | 3 | 4,
@@ -170,6 +187,81 @@ export interface VectorType<
    * @returns The offset of the given indices from the start of the vector.
    */
   offset(indices: [TupIndexN<N>]): number;
+}
+
+export interface Vector2Type<
+  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> extends VectorType<T, 2, R, V, VF> {
+  get offsetX(): number;
+
+  get offsetY(): number;
+
+  getX(view: DataView, offset?: number): R;
+
+  getY(view: DataView, offset?: number): R;
+
+  setX(view: DataView, value: R, offset?: number): void;
+
+  setY(view: DataView, value: R, offset?: number): void;
+}
+
+export interface Vector3Type<
+  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> extends VectorType<T, 3, R, V, VF> {
+  get offsetX(): number;
+
+  get offsetY(): number;
+
+  get offsetZ(): number;
+
+  getX(view: DataView, offset?: number): R;
+
+  getY(view: DataView, offset?: number): R;
+
+  getZ(view: DataView, offset?: number): R;
+
+  setX(view: DataView, value: R, offset?: number): void;
+
+  setY(view: DataView, value: R, offset?: number): void;
+
+  setZ(view: DataView, value: R, offset?: number): void;
+}
+
+export interface Vector4Type<
+  T extends MemoryType<R, V, VF> & { type: GPUScalarType },
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF extends V = MemoryTypeBoundedVF<T, V>,
+> extends VectorType<T, 4, R, V, VF> {
+  get offsetX(): number;
+
+  get offsetY(): number;
+
+  get offsetZ(): number;
+
+  get offsetW(): number;
+
+  getX(view: DataView, offset?: number): R;
+
+  getY(view: DataView, offset?: number): R;
+
+  getZ(view: DataView, offset?: number): R;
+
+  getW(view: DataView, offset?: number): R;
+
+  setX(view: DataView, value: R, offset?: number): void;
+
+  setY(view: DataView, value: R, offset?: number): void;
+
+  setZ(view: DataView, value: R, offset?: number): void;
+
+  setW(view: DataView, value: R, offset?: number): void;
 }
 
 export interface MatrixType<
@@ -246,3 +338,63 @@ export interface MatrixType<
    */
   offset(indices: TupIndexNM<Cols, Rows>): number;
 }
+
+/**
+ * A user-defined object that describes the fields of a structure.
+ *
+ * @example
+ * { field1: { index: 0, type: Int32 }, field2: { index: 1, type: Vec2F } }
+ */
+export type StructDescriptor<S> = {
+  [K in keyof S]: S[K] extends { type: infer T } ? {
+      index: number;
+      type: T extends MemoryType<infer R, infer V, infer VF> ? T : never;
+    }
+    : never;
+};
+
+export interface StructType<S extends NonEmpty<StructDescriptor<S>>>
+  extends MemoryType<StructR<S>, StructV<S>, never> {
+  readonly type: typeof GPU_STRUCT;
+  readonly fields: StructFieldsOf<S>;
+}
+
+export type StructFieldsOf<S extends NonEmpty<StructDescriptor<S>>> = {
+  [K in keyof S]: StructField<S, K>;
+};
+
+export interface StructField<
+  S extends NonEmpty<StructDescriptor<S>>,
+  Key extends keyof S,
+  T extends MemoryType<R, V, VF> = S[Key]["type"],
+  R = MemoryTypeR<T>,
+  V = MemoryTypeV<T>,
+  VF = MemoryTypeVF<T>,
+> {
+  readonly index: number;
+  readonly name: Key;
+  readonly type: T;
+  readonly byteSize: number;
+  readonly alignment: number;
+  readonly offset: number;
+
+  read(view: DataView, offset?: number): R;
+  write(view: DataView, value: R, offset?: number): void;
+  readAt(view: DataView, index: number, offset?: number): R;
+  writeAt(view: DataView, index: number, value: R, offset?: number): void;
+  viewAt(buffer: ArrayBuffer, index: number, offset?: number): V;
+}
+
+/**
+ * A structure's object representation.
+ */
+export type StructR<S extends StructDescriptor<S>> = {
+  [K in keyof S]: MemoryTypeR<S[K]["type"]>;
+};
+
+/**
+ * A structure's view representation.
+ */
+export type StructV<S extends StructDescriptor<S>> = {
+  [K in keyof S]: MemoryTypeV<S[K]["type"]>;
+};
