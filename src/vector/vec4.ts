@@ -12,12 +12,8 @@ import {
 import { assertTypeOneOf } from "../internal/assert.ts";
 import type { Tup4 } from "../internal/tuple.ts";
 import { alignOfVec4, sizeOfVec4, strideOf } from "../internal/alignment.ts";
+import { vectorToCode, vectorToString } from "./common.ts";
 
-/**
- * A constructor for 4D vector types.
- *
- * @see https://gpuweb.github.io/gpuweb/wgsl/#vector-types
- */
 export class Vec4<
   T extends MemoryType<R, V, VF> & AnyScalarType,
   R = MemoryTypeR<T>,
@@ -37,75 +33,38 @@ export class Vec4<
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
-  /**
-   * The shape of the vector.
-   */
   get shape(): [4] {
     return [4];
   }
 
-  /**
-   * The component type of the vector.
-   */
   get componentType(): T {
     return this.#type;
   }
 
-  /**
-   * @inheritdoc
-   */
   toString(): string {
-    return `vec4<${String(this.#type)}>`;
-  }
-  /**
-   * @inheritdoc
-   */
-  toCode(namespace: string): string {
-    switch (this.#type.type) {
-      case "f32":
-        return `${namespace}.Vec4F`;
-      case "f16":
-        return `${namespace}.Vec4H`;
-      case "i32":
-        return `${namespace}.Vec4I`;
-      case "u32":
-        return `${namespace}.Vec4U`;
-      case "bool":
-        return `${namespace}.Vec4B`;
-    }
+    return vectorToString(this);
   }
 
-  /**
-   * @inheritdoc
-   */
+  toCode(namespace: string): string {
+    return vectorToCode(this, namespace);
+  }
+
   get type(): typeof GPU_VEC4 {
     return GPU_VEC4;
   }
 
-  /**
-   * @inheritdoc
-   */
   get byteSize(): number {
     return this.#byteSize;
   }
 
-  /**
-   * @inheritdoc
-   */
   get alignment(): number {
     return this.#alignment;
   }
 
-  /**
-   * @inheritdoc
-   */
   get arrayStride(): number {
     return this.#arrayStride;
   }
 
-  /**
-   * @inheritdoc
-   */
   read(view: DataView, offset: number = 0): Tup4<R> {
     return [
       this.getX(view, offset),
@@ -115,9 +74,6 @@ export class Vec4<
     ];
   }
 
-  /**
-   * @inheritdoc
-   */
   write(view: DataView, value: Tup4<R>, offset: number = 0) {
     this.setX(view, value[0], offset);
     this.setY(view, value[1], offset);
@@ -125,23 +81,14 @@ export class Vec4<
     this.setW(view, value[3], offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   readAt(view: DataView, index: number, offset: number = 0): Tup4<R> {
     return this.read(view, index * this.arrayStride + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   writeAt(view: DataView, index: number, value: Tup4<R>, offset: number = 0) {
     this.write(view, value, index * this.arrayStride + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
     return this.#type.view(
       buffer,
@@ -150,9 +97,6 @@ export class Vec4<
     );
   }
 
-  /**
-   * @inheritdoc
-   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): V {
     return this.#type.view(buffer, index * this.arrayStride + offset, 4);
   }

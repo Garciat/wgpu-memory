@@ -14,11 +14,6 @@ import {
   strideOf,
 } from "../internal/alignment.ts";
 
-/**
- * A constructor for fixed-size array types.
- *
- * @see https://gpuweb.github.io/gpuweb/wgsl/#array-types
- */
 export class ArrayTypeImpl<
   T extends MemoryType<R, V, VF>,
   N extends number,
@@ -41,67 +36,40 @@ export class ArrayTypeImpl<
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);
   }
 
-  /**
-   * The element count of the array.
-   */
   get elementCount(): N {
     return this.#length;
   }
 
-  /**
-   * The element type of the array.
-   */
   get elementType(): T {
     return this.#type;
   }
 
-  /**
-   * @inheritdoc
-   */
   toString(): string {
     return `array<${String(this.#type)}, ${this.#length}>`;
   }
 
-  /**
-   * @inheritdoc
-   */
   toCode(namespace: string, indentation?: number): string {
     return `${namespace}.ArrayOf(${
       this.#type.toCode(namespace, indentation)
     }, ${this.#length})`;
   }
 
-  /**
-   * @inheritdoc
-   */
   get type(): typeof GPU_ARRAY {
     return GPU_ARRAY;
   }
 
-  /**
-   * @inheritdoc
-   */
   get byteSize(): number {
     return this.#byteSize;
   }
 
-  /**
-   * @inheritdoc
-   */
   get alignment(): number {
     return this.#alignment;
   }
 
-  /**
-   * @inheritdoc
-   */
   get arrayStride(): number {
     return this.#arrayStride;
   }
 
-  /**
-   * @inheritdoc
-   */
   read(view: DataView, offset: number = 0): TupN<R, N> {
     const values = makeEmptyTupN<R, N>(this.#length);
 
@@ -112,25 +80,16 @@ export class ArrayTypeImpl<
     return values;
   }
 
-  /**
-   * @inheritdoc
-   */
   write(view: DataView, values: TupN<R, N>, offset: number = 0) {
     for (let i = 0; i < this.#length; i++) {
       this.set(view, i, values[i], offset);
     }
   }
 
-  /**
-   * @inheritdoc
-   */
   readAt(view: DataView, index: number, offset: number = 0): TupN<R, N> {
     return this.read(view, index * this.arrayStride + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   writeAt(
     view: DataView,
     index: number,
@@ -140,16 +99,10 @@ export class ArrayTypeImpl<
     this.write(view, value, index * this.arrayStride + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   view(buffer: ArrayBuffer, offset: number = 0, length: number = 1): VF {
     return this.#type.view(buffer, offset, length * this.#length);
   }
 
-  /**
-   * @inheritdoc
-   */
   viewAt(buffer: ArrayBuffer, index: number, offset: number = 0): TupN<V, N> {
     const views = makeEmptyTupN<V, N>(this.#length);
 

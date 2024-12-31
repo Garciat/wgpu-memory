@@ -26,7 +26,7 @@ import { structToCode, structToString } from "./string.ts";
  */
 export class StructTypeImpl<S extends NonEmpty<StructDescriptor<S>>>
   implements StructType<S> {
-  #fields: Array<StructFieldImpl<S, keyof S>>;
+  #fields: ReadonlyArray<StructFieldImpl<S, keyof S>>;
   #fieldsByName: StructFieldsOf<S>;
   #alignment: number;
   #byteSize: number;
@@ -39,8 +39,10 @@ export class StructTypeImpl<S extends NonEmpty<StructDescriptor<S>>>
     let offset = 0;
     let alignment = 0;
 
-    this.#fields = Array(Object.keys(descriptor).length);
-    this.#fieldsByName = {} as StructFieldsOf<S>;
+    const fields = Array(Object.keys(descriptor).length);
+    const fieldsByName = {} as {
+      [K in keyof S]: StructField<S, K>;
+    };
 
     for (const name of typedObjectKeys(descriptor)) {
       const fieldDescriptor = descriptor[name];
@@ -56,13 +58,16 @@ export class StructTypeImpl<S extends NonEmpty<StructDescriptor<S>>>
       }
 
       const field = new StructFieldImpl(this, fieldDescriptor, name, offset);
-      this.#fields[fieldDescriptor.index] = field;
-      this.#fieldsByName[name] = field;
+
+      fields[fieldDescriptor.index] = field;
+      fieldsByName[name] = field;
 
       offset += fieldType.byteSize;
       alignment = Math.max(alignment, fieldType.alignment);
     }
 
+    this.#fields = Object.freeze(fields);
+    this.#fieldsByName = Object.freeze(fieldsByName);
     this.#alignment = alignment;
     this.#byteSize = wgslRoundUp(alignment, offset);
     this.#arrayStride = strideOf(this.#alignment, this.#byteSize);

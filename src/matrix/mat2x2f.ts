@@ -36,72 +36,40 @@ const Step0 = ArrayStride;
 const Step1 = Alignment;
 const Step2 = ComponentSize;
 
-/**
- * A 3x3 matrix of Float32. The components are stored in column-major order per WGSL.
- *
- * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
- */
 export class Mat2x2F
   implements MatrixType<Float32Type, typeof NCol, typeof NRow> {
-  /**
-   * The shape of the matrix.
-   */
   get shape(): [typeof NCol, typeof NRow] {
     return [NCol, NRow];
   }
 
-  /**
-   * The component type of the matrix.
-   */
   get componentType(): Float32Type {
     return ComponentType;
   }
 
-  /**
-   * @inheritdoc
-   */
   toString(): string {
     return matrixToString(this);
   }
 
-  /**
-   * @inheritdoc
-   */
   toCode(namespace: string): string {
     return matrixToCode(this, namespace);
   }
 
-  /**
-   * @inheritdoc
-   */
   get type(): typeof GPU_MAT2X2 {
     return GPU_MAT2X2;
   }
 
-  /**
-   * @inheritdoc
-   */
   get byteSize(): number {
     return ByteSize;
   }
 
-  /**
-   * @inheritdoc
-   */
   get alignment(): number {
     return Alignment;
   }
 
-  /**
-   * @inheritdoc
-   */
   get arrayStride(): number {
     return ArrayStride;
   }
 
-  /**
-   * @inheritdoc
-   */
   read(
     view: DataView,
     offset: number = 0,
@@ -118,9 +86,6 @@ export class Mat2x2F
     ];
   }
 
-  /**
-   * @inheritdoc
-   */
   write(
     view: DataView,
     value: TupNM<number, typeof NCol, typeof NRow>,
@@ -137,9 +102,6 @@ export class Mat2x2F
     }
   }
 
-  /**
-   * @inheritdoc
-   */
   readAt(
     view: DataView,
     index: number,
@@ -148,9 +110,6 @@ export class Mat2x2F
     return this.read(view, index * Step0 + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   writeAt(
     view: DataView,
     index: number,
@@ -171,9 +130,6 @@ export class Mat2x2F
     }
   }
 
-  /**
-   * @inheritdoc
-   */
   readAtFlat(
     view: DataView,
     index: number,
@@ -187,9 +143,6 @@ export class Mat2x2F
     ];
   }
 
-  /**
-   * @inheritdoc
-   */
   writeAtFlat(
     view: DataView,
     index: number,
@@ -210,9 +163,6 @@ export class Mat2x2F
     }
   }
 
-  /**
-   * @inheritdoc
-   */
   view(
     buffer: ArrayBuffer,
     offset: number = 0,
@@ -225,9 +175,6 @@ export class Mat2x2F
     );
   }
 
-  /**
-   * @inheritdoc
-   */
   viewAt(
     buffer: ArrayBuffer,
     index: number,
@@ -240,9 +187,6 @@ export class Mat2x2F
     );
   }
 
-  /**
-   * @inheritdoc
-   */
   get(
     view: DataView,
     indices: TupIndexNM<typeof NCol, typeof NRow>,
@@ -251,9 +195,6 @@ export class Mat2x2F
     return this.getAt(view, indices[0], indices[1], offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   set(
     view: DataView,
     indices: TupIndexNM<typeof NCol, typeof NRow>,
@@ -263,16 +204,10 @@ export class Mat2x2F
     this.setAt(view, indices[0], indices[1], value, offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   offset(indices: TupIndexNM<typeof NCol, typeof NRow>): number {
     return indices[0] * Step1 + indices[1] * Step2;
   }
 
-  /**
-   * @inheritdoc
-   */
   getAt(
     view: DataView,
     column: TupIndexN<typeof NCol>,
@@ -282,9 +217,6 @@ export class Mat2x2F
     return ComponentType.read(view, column * Step1 + row * Step2 + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   setAt(
     view: DataView,
     column: TupIndexN<typeof NCol>,
@@ -295,9 +227,6 @@ export class Mat2x2F
     ComponentType.write(view, value, column * Step1 + row * Step2 + offset);
   }
 
-  /**
-   * @inheritdoc
-   */
   getAtIndexed(
     view: DataView,
     index: number,
@@ -314,9 +243,6 @@ export class Mat2x2F
     );
   }
 
-  /**
-   * @inheritdoc
-   */
   setAtIndexed(
     view: DataView,
     index: number,
