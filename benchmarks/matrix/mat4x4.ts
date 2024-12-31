@@ -1,4 +1,5 @@
 import {
+  type AnyFloatingPointType,
   GPU_FLOATING_POINT_TYPES,
   GPU_MAT4X4,
   type MatrixType,
@@ -7,8 +8,6 @@ import {
   type MemoryTypeR,
   type MemoryTypeV,
 } from "../../src/types.ts";
-
-import type { FloatingPointType } from "../../src/scalar/mod.ts";
 
 import { assertTypeOneOf } from "../../src/internal/assert.ts";
 
@@ -33,7 +32,7 @@ const NRow: 4 = 4 as const;
  * @see https://gpuweb.github.io/gpuweb/wgsl/#matrix-types
  */
 export class Mat4x4<
-  T extends MemoryType<R, V, VF> & FloatingPointType,
+  T extends MemoryType<R, V, VF> & AnyFloatingPointType,
   R = MemoryTypeR<T>,
   V = MemoryTypeV<T>,
   VF extends V = MemoryTypeBoundedVF<T, V>,
