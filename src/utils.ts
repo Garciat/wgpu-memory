@@ -3,12 +3,15 @@ import type { NonEmpty, Positive } from "./internal/constraints.ts";
 import { ArrayTypeImpl } from "./array/array.ts";
 import { StructTypeImpl } from "./struct/struct.ts";
 import { compile as compileStruct } from "./struct/compile.ts";
-import type { ScalarType } from "./scalar/mod.ts";
+import type { Float32Type } from "./scalar/f32.ts";
+import type { Float16Type } from "./scalar/f16.ts";
+import type { FloatingPointType, ScalarType } from "./scalar/mod.ts";
 import { Vec2 } from "./vector/vec2.ts";
 import { Vec3 } from "./vector/vec3.ts";
 import { Vec4 } from "./vector/vec4.ts";
 import type {
   ArrayType,
+  MatrixType,
   MemoryType,
   MemoryTypeBoundedVF,
   MemoryTypeR,
@@ -21,6 +24,14 @@ import type {
   Vector4Type,
   VectorType,
 } from "./types.ts";
+import {
+  Mat2x2F,
+  Mat2x2H,
+  Mat3x3F,
+  Mat3x3H,
+  Mat4x4F,
+  Mat4x4H,
+} from "./aliases.ts";
 
 export function VectorOf<
   T extends MemoryType<R, V, VF> & ScalarType,
@@ -43,27 +54,80 @@ export function VectorOf<
   VF extends V = MemoryTypeBoundedVF<T, V>,
 >(componentType: T, shape: 4): Vector4Type<T, R, V, VF>;
 
-/**
- * @todo find a way to make this work without type casts
- */
-export function VectorOf<
-  T extends MemoryType<R, V, VF> & ScalarType,
-  N extends 2 | 3 | 4,
-  R = MemoryTypeR<T>,
-  V = MemoryTypeV<T>,
-  VF extends V = MemoryTypeBoundedVF<T, V>,
->(componentType: T, shape: N): VectorType<T, N, R, V, VF> {
-  type Out = VectorType<T, N, R, V, VF>;
+export function VectorOf(
+  componentType: ScalarType,
+  shape: 2 | 3 | 4,
+): VectorType<typeof componentType, typeof shape> {
   switch (shape) {
     case 2:
-      return new Vec2<T, R, V, VF>(componentType) as unknown as Out;
+      return new Vec2(componentType);
     case 3:
-      return new Vec3<T, R, V, VF>(componentType) as unknown as Out;
+      return new Vec3(componentType);
     case 4:
-      return new Vec4<T, R, V, VF>(componentType) as unknown as Out;
+      return new Vec4(componentType);
     default:
       shape satisfies never;
       throw Error(`Vector shape not supported: ${shape}`);
+  }
+}
+
+export function MatrixOf(
+  componentType: Float32Type,
+  shape: [2, 2],
+): MatrixType<Float32Type, 2, 2>;
+
+export function MatrixOf(
+  componentType: Float32Type,
+  shape: [3, 3],
+): MatrixType<Float32Type, 3, 3>;
+
+export function MatrixOf(
+  componentType: Float32Type,
+  shape: [4, 4],
+): MatrixType<Float32Type, 4, 4>;
+
+export function MatrixOf(
+  componentType: Float16Type,
+  shape: [2, 2],
+): MatrixType<Float16Type, 2, 2>;
+
+export function MatrixOf(
+  componentType: Float16Type,
+  shape: [3, 3],
+): MatrixType<Float16Type, 3, 3>;
+
+export function MatrixOf(
+  componentType: Float16Type,
+  shape: [4, 4],
+): MatrixType<Float16Type, 4, 4>;
+
+export function MatrixOf(
+  componentType: FloatingPointType,
+  shape: [2, 2] | [3, 3] | [4, 4],
+): MatrixType<typeof componentType, (typeof shape)[0], (typeof shape)[1]> {
+  if (shape[0] === 2 && shape[1] === 2) {
+    switch (componentType.type) {
+      case "f32":
+        return Mat2x2F;
+      case "f16":
+        return Mat2x2H;
+    }
+  } else if (shape[0] === 3 && shape[1] === 3) {
+    switch (componentType.type) {
+      case "f32":
+        return Mat3x3F;
+      case "f16":
+        return Mat3x3H;
+    }
+  } else if (shape[0] === 4 && shape[1] === 4) {
+    switch (componentType.type) {
+      case "f32":
+        return Mat4x4F;
+      case "f16":
+        return Mat4x4H;
+    }
+  } else {
+    throw Error(`Matrix shape not supported: ${shape}`);
   }
 }
 

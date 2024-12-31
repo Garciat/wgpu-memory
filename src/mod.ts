@@ -41,4 +41,11 @@ export {
   Vec4U,
 } from "./aliases.ts";
 
-export { allocate, ArrayOf, count, StructOf, VectorOf } from "./utils.ts";
+export {
+  allocate,
+  ArrayOf,
+  count,
+  MatrixOf,
+  StructOf,
+  VectorOf,
+} from "./utils.ts";
