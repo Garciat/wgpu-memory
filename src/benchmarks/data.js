@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1735636025026,
+  "lastUpdate": 1735636910593,
   "repoUrl": "https://github.com/Garciat/wgpu-memory",
   "entries": {
     "wgpu-memory benchmarks": [
@@ -2358,6 +2358,210 @@ window.BENCHMARK_DATA = {
             "value": 131267,
             "unit": "ns",
             "extra": "n=2164"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "garciat@uber.com",
+            "name": "Gabriel Garcia",
+            "username": "Garciat"
+          },
+          "committer": {
+            "email": "garciat@uber.com",
+            "name": "Gabriel Garcia",
+            "username": "Garciat"
+          },
+          "distinct": true,
+          "id": "c9c270701b0f70263b40a2f0cfd4f06d8e9592c7",
+          "message": "add factory function for matrix types, too",
+          "timestamp": "2024-12-31T10:21:08+01:00",
+          "tree_id": "fba226b57b6c06bbfbb5730c24999fd297ff0611",
+          "url": "https://github.com/Garciat/wgpu-memory/commit/c9c270701b0f70263b40a2f0cfd4f06d8e9592c7"
+        },
+        "date": 1735636910170,
+        "tool": "deno",
+        "benches": [
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/array.bench.ts/Array writeAt/wgpu-memory",
+            "value": 328562,
+            "unit": "ns",
+            "extra": "n=1462"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/array.bench.ts/Array writeAt/DataView",
+            "value": 117281,
+            "unit": "ns",
+            "extra": "n=1242"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/array.bench.ts/Array writeAt/TypedArray",
+            "value": 73889,
+            "unit": "ns",
+            "extra": "n=1360"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/wgpu-memory",
+            "value": 417713,
+            "unit": "ns",
+            "extra": "n=1164"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/wgpu-memory indexed",
+            "value": 1949856,
+            "unit": "ns",
+            "extra": "n=235"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/wgpu-memory flat",
+            "value": 277963,
+            "unit": "ns",
+            "extra": "n=1718"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/wgpu-memory view",
+            "value": 230782,
+            "unit": "ns",
+            "extra": "n=2038"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/specialized wgpu-memory",
+            "value": 361231,
+            "unit": "ns",
+            "extra": "n=1336"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/specialized wgpu-memory indexed",
+            "value": 113390,
+            "unit": "ns",
+            "extra": "n=1234"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/specialized wgpu-memory flat",
+            "value": 265533,
+            "unit": "ns",
+            "extra": "n=1774"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/specialized wgpu-memory view",
+            "value": 247585,
+            "unit": "ns",
+            "extra": "n=1916"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/DataView",
+            "value": 115690,
+            "unit": "ns",
+            "extra": "n=1225"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/matrix.bench.ts/Matrix writeAt/TypedArray",
+            "value": 77122,
+            "unit": "ns",
+            "extra": "n=2306"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/scalar.bench.ts/Float32 writeAt/wgpu-memory",
+            "value": 100554,
+            "unit": "ns",
+            "extra": "n=3974"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/scalar.bench.ts/Float32 writeAt/DataView",
+            "value": 74489,
+            "unit": "ns",
+            "extra": "n=4351"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/scalar.bench.ts/Float32 writeAt/TypedArray",
+            "value": 54766,
+            "unit": "ns",
+            "extra": "n=6682"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/scalar.bench.ts/Int32 writeAt/wgpu-memory",
+            "value": 869791,
+            "unit": "ns",
+            "extra": "n=504"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/scalar.bench.ts/Int32 writeAt/DataView",
+            "value": 820790,
+            "unit": "ns",
+            "extra": "n=544"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/scalar.bench.ts/Int32 writeAt/TypedArray",
+            "value": 39755,
+            "unit": "ns",
+            "extra": "n=6276"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/wgpu-memory",
+            "value": 896500,
+            "unit": "ns",
+            "extra": "n=564"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/wgpu-memory field",
+            "value": 323822,
+            "unit": "ns",
+            "extra": "n=1522"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/wgpu-memory field views",
+            "value": 1280604,
+            "unit": "ns",
+            "extra": "n=399"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/compiled wgpu-memory",
+            "value": 25518,
+            "unit": "ns",
+            "extra": "n=4132"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/compiled wgpu-memory field",
+            "value": 27080,
+            "unit": "ns",
+            "extra": "n=4081"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/compiled wgpu-memory field views",
+            "value": 628752,
+            "unit": "ns",
+            "extra": "n=796"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/DataView",
+            "value": 26940,
+            "unit": "ns",
+            "extra": "n=4300"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/struct.bench.ts/Struct writeAt/TypedArray",
+            "value": 14337,
+            "unit": "ns",
+            "extra": "n=15792"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/vector.bench.ts/Vec4F writeAt/wgpu-memory",
+            "value": 281300,
+            "unit": "ns",
+            "extra": "n=754"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/vector.bench.ts/Vec4F writeAt/DataView",
+            "value": 256654,
+            "unit": "ns",
+            "extra": "n=628"
+          },
+          {
+            "name": "file:///home/runner/work/wgpu-memory/wgpu-memory/benchmarks/vector.bench.ts/Vec4F writeAt/TypedArray",
+            "value": 131175,
+            "unit": "ns",
+            "extra": "n=743"
           }
         ]
       }
