@@ -235,7 +235,7 @@ export function StructOf<S extends NonEmpty<StructDescriptor<S>>>(
   descriptor: S,
   options: StructOptions = {},
 ): StructType<S> {
-  const { compile = true } = options;
+  const { compile = false } = options;
 
   const type = new StructTypeImpl(descriptor);
 
