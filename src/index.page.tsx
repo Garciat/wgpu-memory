@@ -1,4 +1,4 @@
-export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
+export default ({ comp }: Lume.Data, { url }: Lume.Helpers) => {
   return (
     <html lang="en">
       <head>
@@ -24,7 +24,6 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
             <sub>
               by&nbsp;<a href="https://github.com/Garciat">@garciat</a>
             </sub>
-            <div id="ThemeToggle" />
           </h1>
           <p>
             <a href="https://github.com/Garciat/wgpu-memory">
@@ -69,6 +68,9 @@ export default ({ _search }: Lume.Data, { url }: Lume.Helpers) => {
         </header>
         <main id="PreactMain" class="container" />
         <footer class="container">
+          <p>
+            <comp.ColorScheme />
+          </p>
           <p>
             Built with <a href="https://www.typescriptlang.org/">TypeScript</a>,
             {" "}

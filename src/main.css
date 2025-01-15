@@ -1,57 +1,57 @@
 :root {
+  color-scheme: light dark;
   --width: 34.5;
+
+  --color-background: light-dark(#fff, #000);
+  --color-background-fg: light-dark(#000, #fff);
+  --color-background-fg-disabled: light-dark(#ccc, #888);
+  --color-background-alt: light-dark(#eee, #222);
+  --color-background-alt-fg-disabled: light-dark(#888, #666);
+  --color-background-contrast: light-dark(#333, #111);
+  --color-background-contrast-fg: light-dark(#fff, #fff);
+  --color-background-contrast-alt: light-dark(#666, #222);
+  --color-background-contrast-alt-fg: light-dark(#fff, #fff);
+  --color-accent: light-dark(#696, rgb(37, 82, 60));
+  --color-accent-fg: light-dark(#fff, #fff);
+  --color-accent-alt: light-dark(darkorange, rgb(198, 133, 55));
+  --color-warning-bg: light-dark(rgb(255, 237, 184), rgb(73, 58, 16));
+  --color-warning-fg: light-dark(#000, #fff);
+  --color-shadow: light-dark(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
 }
 
-[data-theme="light"] {
-  --color-background: #fff;
-  --color-background-fg: #000;
-  --color-background-fg-disabled: #ccc;
-  --color-background-alt: #eee;
-  --color-background-alt-fg-disabled: #888;
-  --color-background-contrast: #333;
-  --color-background-contrast-fg: #fff;
-  --color-background-contrast-alt: #666;
-  --color-background-contrast-alt-fg: #fff;
-  --color-accent: #696;
-  --color-accent-fg: #fff;
-  --color-accent-alt: darkorange;
-  --color-warning-bg: rgb(255, 237, 184);
-  --color-warning-fg: #000;
-  --color-shadow: rgba(0, 0, 0, 0.5);
+body.light {
+  color-scheme: light;
+}
+body.dark {
+  color-scheme: dark;
 }
 
-[data-theme="dark"] {
-  --color-background: #000;
-  --color-background-fg: #fff;
-  --color-background-fg-disabled: #888;
-  --color-background-alt: #222;
-  --color-background-alt-fg-disabled: #666;
-  --color-background-contrast: #111;
-  --color-background-contrast-fg: #fff;
-  --color-background-contrast-alt: #222;
-  --color-background-contrast-alt-fg: #fff;
-  --color-accent: rgb(37, 82, 60);
-  --color-accent-fg: #fff;
-  --color-accent-alt: rgb(198, 133, 55);
-  --color-warning-bg: rgb(73, 58, 16);
-  --color-warning-fg: #fff;
-  --color-shadow: rgba(0, 0, 0, 0);
-}
+/* TODO dedupe below somehow */
 
-[data-theme="dark"] pre.syntax-highlight {
+body.dark pre.syntax-highlight {
   border: 1px solid var(--color-background-alt);
 }
 
-[data-theme="dark"] .memory-editor-table {
+body.dark .memory-editor-table {
   border: 1px solid var(--color-background-alt);
 }
 
-[data-theme="dark"] .binary-dump-table {
+body.dark .binary-dump-table {
   border: 1px solid var(--color-background-alt);
 }
 
-#ThemeToggle {
-  float: right;
+@media (prefers-color-scheme: dark) {
+  body:not(.light) pre.syntax-highlight {
+    border: 1px solid var(--color-background-alt);
+  }
+
+  body:not(.light) .memory-editor-table {
+    border: 1px solid var(--color-background-alt);
+  }
+
+  body:not(.light) .binary-dump-table {
+    border: 1px solid var(--color-background-alt);
+  }
 }
 
 html {
