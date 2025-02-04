@@ -25,6 +25,6 @@ jobs:
           deno-version: v2.x
 
       - name: Build GitHub Pages with Lume
-        uses: Garciat/lumeland-build/gh-pages@garciat
+        uses: lumeland/build/gh-pages@main
         with:
           deno-version: v2.x
